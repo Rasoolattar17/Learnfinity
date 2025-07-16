@@ -4,6 +4,8 @@
   <img src="https://raw.githubusercontent.com/moodle/moodle/main/.github/moodlelogo.svg" alt="The Moodle Logo">
 </a></p>
 
+![CI](https://github.com/Rasoolattar17/Learnfinity/actions/workflows/learnfinity-ci.yml/badge.svg)
+
 [Moodle][1] is the World's Open Source Learning Platform, widely used around the world by countless universities, schools, companies, and all manner of organisations and individuals.
 
 Moodle is designed to allow educators, administrators and learners to create personalised learning environments with a single robust, secure and integrated system.
