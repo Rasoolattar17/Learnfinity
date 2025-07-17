@@ -1,0 +1,27 @@
+name: Moodle Plugin CI
+
+on: [push, pull_request]
+
+jobs:
+  ci:
+    uses: catalyst/catalyst-moodle-workflows/.github/workflows/ci.yml@main
+    with:
+      # Configure based on your plugin's version.php $plugin->supported
+      # This will automatically test against multiple PHP and Moodle versions
+      
+      # Optional: Disable specific checks if not needed
+      # disable_behat: true
+      # disable_grunt: true
+      # disable_phpdoc: true
+      
+      # Optional: Set maximum warnings (0 = fail on any warning)
+      codechecker_max_warnings: 0
+      
+      # Optional: Add extra plugins your plugin depends on
+      # extra_plugin_runners: 'moodle-plugin-ci add-plugin catalyst/moodle-local_aws'
+      
+      # Optional: Set minimum PHP version
+      min_php: '8.1'
+      
+      # Optional: Ignore specific paths
+      ignore_paths: 'vendor,node_modules,tests/fixtures'
