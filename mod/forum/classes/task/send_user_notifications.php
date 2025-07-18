@@ -360,7 +360,7 @@ class send_user_notifications extends \core\task\adhoc_task {
                     ],
                     'fullmessagehtml' => [
                         'footer' => \html_writer::tag('p', get_string('replytopostbyemail', 'mod_forum')),
-                    ]
+                    ],
                 ]);
         }
 

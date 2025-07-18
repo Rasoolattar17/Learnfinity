@@ -189,7 +189,7 @@ if ($download) {
 
     unset($filters['forums']);
     echo $renderer->render_filters_form($course, $cms, $pageurl, $filters);
-    $table->show_download_buttons_at(array(TABLE_P_BOTTOM));
+    $table->show_download_buttons_at([TABLE_P_BOTTOM]);
     echo $renderer->render_summary_table($table);
     echo $OUTPUT->footer();
 }

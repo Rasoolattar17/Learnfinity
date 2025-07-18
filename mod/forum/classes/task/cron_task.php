@@ -99,7 +99,7 @@ class cron_task extends \core\task\scheduled_task {
         // Delete any really old posts in the digest queue.
         $weekago = $timenow - (7 * 24 * 3600);
         $this->log_start("Removing old digest records from 7 days ago.");
-        $DB->delete_records_select('forum_queue', "timemodified < ?", array($weekago));
+        $DB->delete_records_select('forum_queue', "timemodified < ?", [$weekago]);
         $this->log_finish("Removed all old digest records.");
 
         $endtime   = $timenow - $CFG->maxeditingtime;
@@ -505,7 +505,7 @@ class cron_task extends \core\task\scheduled_task {
     protected function get_unmailed_posts($starttime, $endtime, $now = null) {
         global $CFG, $DB;
 
-        $params = array();
+        $params = [];
         $params['mailed'] = FORUM_MAILED_PENDING;
         $params['ptimestart'] = $starttime;
         $params['ptimeend'] = $endtime;

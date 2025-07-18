@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -23,9 +22,9 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$functions = array(
+$functions = [
 
-    'mod_forum_get_forums_by_courses' => array(
+    'mod_forum_get_forums_by_courses' => [
         'classname' => 'mod_forum_external',
         'methodname' => 'get_forums_by_courses',
         'classpath' => 'mod/forum/externallib.php',
@@ -34,10 +33,10 @@ $functions = array(
             returned.',
         'type' => 'read',
         'capabilities' => 'mod/forum:viewdiscussion',
-        'services' => array(MOODLE_OFFICIAL_MOBILE_SERVICE)
-    ),
+        'services' => [MOODLE_OFFICIAL_MOBILE_SERVICE],
+    ],
 
-    'mod_forum_get_discussion_posts' => array(
+    'mod_forum_get_discussion_posts' => [
         'classname' => 'mod_forum_external',
         'methodname' => 'get_discussion_posts',
         'classpath' => 'mod/forum/externallib.php',
@@ -45,40 +44,40 @@ $functions = array(
         'type' => 'read',
         'ajax' => true,
         'capabilities' => 'mod/forum:viewdiscussion, mod/forum:viewqandawithoutposting',
-        'services' => array(MOODLE_OFFICIAL_MOBILE_SERVICE)
-    ),
+        'services' => [MOODLE_OFFICIAL_MOBILE_SERVICE],
+    ],
 
-    'mod_forum_get_forum_discussions' => array(
+    'mod_forum_get_forum_discussions' => [
         'classname' => 'mod_forum_external',
         'methodname' => 'get_forum_discussions',
         'classpath' => 'mod/forum/externallib.php',
         'description' => 'Returns a list of forum discussions optionally sorted and paginated.',
         'type' => 'read',
         'capabilities' => 'mod/forum:viewdiscussion, mod/forum:viewqandawithoutposting',
-        'services' => array(MOODLE_OFFICIAL_MOBILE_SERVICE)
-    ),
+        'services' => [MOODLE_OFFICIAL_MOBILE_SERVICE],
+    ],
 
-    'mod_forum_view_forum' => array(
+    'mod_forum_view_forum' => [
         'classname' => 'mod_forum_external',
         'methodname' => 'view_forum',
         'classpath' => 'mod/forum/externallib.php',
         'description' => 'Trigger the course module viewed event and update the module completion status.',
         'type' => 'write',
         'capabilities' => 'mod/forum:viewdiscussion',
-        'services' => array(MOODLE_OFFICIAL_MOBILE_SERVICE)
-    ),
+        'services' => [MOODLE_OFFICIAL_MOBILE_SERVICE],
+    ],
 
-    'mod_forum_view_forum_discussion' => array(
+    'mod_forum_view_forum_discussion' => [
         'classname' => 'mod_forum_external',
         'methodname' => 'view_forum_discussion',
         'classpath' => 'mod/forum/externallib.php',
         'description' => 'Trigger the forum discussion viewed event.',
         'type' => 'write',
         'capabilities' => 'mod/forum:viewdiscussion',
-        'services' => array(MOODLE_OFFICIAL_MOBILE_SERVICE)
-    ),
+        'services' => [MOODLE_OFFICIAL_MOBILE_SERVICE],
+    ],
 
-    'mod_forum_add_discussion_post' => array(
+    'mod_forum_add_discussion_post' => [
         'classname' => 'mod_forum_external',
         'methodname' => 'add_discussion_post',
         'classpath' => 'mod/forum/externallib.php',
@@ -86,47 +85,47 @@ $functions = array(
         'type' => 'write',
         'ajax' => true,
         'capabilities' => 'mod/forum:replypost',
-        'services' => array(MOODLE_OFFICIAL_MOBILE_SERVICE)
-    ),
+        'services' => [MOODLE_OFFICIAL_MOBILE_SERVICE],
+    ],
 
-    'mod_forum_add_discussion' => array(
+    'mod_forum_add_discussion' => [
         'classname' => 'mod_forum_external',
         'methodname' => 'add_discussion',
         'classpath' => 'mod/forum/externallib.php',
         'description' => 'Add a new discussion into an existing forum.',
         'type' => 'write',
         'capabilities' => 'mod/forum:startdiscussion',
-        'services' => array(MOODLE_OFFICIAL_MOBILE_SERVICE)
-    ),
+        'services' => [MOODLE_OFFICIAL_MOBILE_SERVICE],
+    ],
 
-    'mod_forum_can_add_discussion' => array(
+    'mod_forum_can_add_discussion' => [
         'classname' => 'mod_forum_external',
         'methodname' => 'can_add_discussion',
         'classpath' => 'mod/forum/externallib.php',
         'description' => 'Check if the current user can add discussions in the given forum (and optionally for the given group).',
         'type' => 'read',
-        'services' => array(MOODLE_OFFICIAL_MOBILE_SERVICE)
-    ),
+        'services' => [MOODLE_OFFICIAL_MOBILE_SERVICE],
+    ],
 
-    'mod_forum_get_forum_access_information' => array(
+    'mod_forum_get_forum_access_information' => [
         'classname'     => 'mod_forum_external',
         'methodname'    => 'get_forum_access_information',
         'description'   => 'Return capabilities information for a given forum.',
         'type'          => 'read',
-        'services'      => array(MOODLE_OFFICIAL_MOBILE_SERVICE),
-    ),
+        'services'      => [MOODLE_OFFICIAL_MOBILE_SERVICE],
+    ],
 
-    'mod_forum_set_subscription_state' => array(
+    'mod_forum_set_subscription_state' => [
         'classname' => 'mod_forum_external',
         'methodname' => 'set_subscription_state',
         'classpath' => 'mod/forum/externallib.php',
         'description' => 'Set the subscription state',
         'type' => 'write',
         'ajax' => true,
-        'services' => array(MOODLE_OFFICIAL_MOBILE_SERVICE),
-    ),
+        'services' => [MOODLE_OFFICIAL_MOBILE_SERVICE],
+    ],
 
-    'mod_forum_set_lock_state' => array(
+    'mod_forum_set_lock_state' => [
         'classname' => 'mod_forum_external',
         'methodname' => 'set_lock_state',
         'classpath' => 'mod/forum/externallib.php',
@@ -134,38 +133,38 @@ $functions = array(
         'type' => 'write',
         'ajax' => true,
         'capabilities' => 'moodle/course:manageactivities',
-        'services' => array(MOODLE_OFFICIAL_MOBILE_SERVICE),
-    ),
+        'services' => [MOODLE_OFFICIAL_MOBILE_SERVICE],
+    ],
 
-    'mod_forum_toggle_favourite_state' => array(
+    'mod_forum_toggle_favourite_state' => [
         'classname' => 'mod_forum_external',
         'methodname' => 'toggle_favourite_state',
         'classpath' => 'mod/forum/externallib.php',
         'description' => 'Toggle the favourite state',
         'type' => 'write',
         'ajax' => true,
-        'services' => array(MOODLE_OFFICIAL_MOBILE_SERVICE),
-    ),
-    'mod_forum_set_pin_state' => array(
+        'services' => [MOODLE_OFFICIAL_MOBILE_SERVICE],
+    ],
+    'mod_forum_set_pin_state' => [
         'classname' => 'mod_forum_external',
         'methodname' => 'set_pin_state',
         'classpath' => 'mod/forum/externallib.php',
         'description' => 'Set the pin state',
         'type' => 'write',
         'ajax' => true,
-        'services' => array(MOODLE_OFFICIAL_MOBILE_SERVICE),
-    ),
+        'services' => [MOODLE_OFFICIAL_MOBILE_SERVICE],
+    ],
 
-    'mod_forum_delete_post' => array(
+    'mod_forum_delete_post' => [
         'classname' => 'mod_forum_external',
         'methodname' => 'delete_post',
         'classpath' => 'mod/forum/externallib.php',
         'description' => 'Deletes a post or a discussion completely when the post is the discussion topic.',
         'type' => 'write',
-        'services' => array(MOODLE_OFFICIAL_MOBILE_SERVICE),
-    ),
+        'services' => [MOODLE_OFFICIAL_MOBILE_SERVICE],
+    ],
 
-    'mod_forum_get_discussion_posts_by_userid' => array(
+    'mod_forum_get_discussion_posts_by_userid' => [
         'classname' => 'mod_forum_external',
         'methodname' => 'get_discussion_posts_by_userid',
         'classpath' => 'mod/forum/externallib.php',
@@ -173,29 +172,29 @@ $functions = array(
         'type' => 'read',
         'ajax' => true,
         'capabilities' => 'mod/forum:viewdiscussion, mod/forum:viewqandawithoutposting',
-    ),
-    'mod_forum_get_discussion_post' => array(
+    ],
+    'mod_forum_get_discussion_post' => [
         'classname' => 'mod_forum_external',
         'methodname' => 'get_discussion_post',
         'classpath' => 'mod/forum/externallib.php',
         'description' => 'Get a particular discussion post.',
         'type' => 'read',
-        'services' => array(MOODLE_OFFICIAL_MOBILE_SERVICE)
-    ),
-    'mod_forum_prepare_draft_area_for_post' => array(
+        'services' => [MOODLE_OFFICIAL_MOBILE_SERVICE],
+    ],
+    'mod_forum_prepare_draft_area_for_post' => [
         'classname' => 'mod_forum_external',
         'methodname' => 'prepare_draft_area_for_post',
         'classpath' => 'mod/forum/externallib.php',
         'description' => 'Prepares a draft area for editing a post.',
         'type' => 'write',
-        'services' => array(MOODLE_OFFICIAL_MOBILE_SERVICE)
-    ),
-    'mod_forum_update_discussion_post' => array(
+        'services' => [MOODLE_OFFICIAL_MOBILE_SERVICE],
+    ],
+    'mod_forum_update_discussion_post' => [
         'classname' => 'mod_forum_external',
         'methodname' => 'update_discussion_post',
         'classpath' => 'mod/forum/externallib.php',
         'description' => 'Updates a post or a discussion topic post.',
         'type' => 'write',
-        'services' => array(MOODLE_OFFICIAL_MOBILE_SERVICE)
-    ),
-);
+        'services' => [MOODLE_OFFICIAL_MOBILE_SERVICE],
+    ],
+];

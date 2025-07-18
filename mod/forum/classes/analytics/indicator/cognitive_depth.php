@@ -69,7 +69,7 @@ class cognitive_depth extends activity_base {
      * @return string[]
      */
     protected function feedback_replied_events() {
-        return array('\mod_forum\event\assessable_uploaded');
+        return ['\mod_forum\event\assessable_uploaded'];
     }
 
 }

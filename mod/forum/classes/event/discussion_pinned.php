@@ -13,6 +13,7 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 /**
  * The mod_forum discussion pinned event.
  *
@@ -67,7 +68,7 @@ class discussion_pinned extends \core\event\base {
      * @return \moodle_url
      */
     public function get_url() {
-        return new \moodle_url('/mod/forum/discuss.php', array('d' => $this->objectid));
+        return new \moodle_url('/mod/forum/discuss.php', ['d' => $this->objectid]);
     }
 
     /**
@@ -95,7 +96,7 @@ class discussion_pinned extends \core\event\base {
      * @return array
      */
     public static function get_objectid_mapping() {
-        return array('db' => 'forum_discussions', 'restore' => 'forum_discussion');
+        return ['db' => 'forum_discussions', 'restore' => 'forum_discussion'];
     }
 
     /**
@@ -104,8 +105,8 @@ class discussion_pinned extends \core\event\base {
      * @return array
      */
     public static function get_other_mapping() {
-        $othermapped = array();
-        $othermapped['forumid'] = array('db' => 'forum', 'restore' => 'forum');
+        $othermapped = [];
+        $othermapped['forumid'] = ['db' => 'forum', 'restore' => 'forum'];
 
         return $othermapped;
     }

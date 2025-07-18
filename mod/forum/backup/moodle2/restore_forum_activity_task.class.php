@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -52,10 +51,10 @@ class restore_forum_activity_task extends restore_activity_task {
      * processed by the link decoder
      */
     public static function define_decode_contents() {
-        $contents = array();
+        $contents = [];
 
-        $contents[] = new restore_decode_content('forum', array('intro'), 'forum');
-        $contents[] = new restore_decode_content('forum_posts', array('message'), 'forum_post');
+        $contents[] = new restore_decode_content('forum', ['intro'], 'forum');
+        $contents[] = new restore_decode_content('forum_posts', ['message'], 'forum_post');
 
         return $contents;
     }
@@ -65,7 +64,7 @@ class restore_forum_activity_task extends restore_activity_task {
      * to the activity to be executed by the link decoder
      */
     public static function define_decode_rules() {
-        $rules = array();
+        $rules = [];
 
         // List of forums in course
         $rules[] = new restore_decode_rule('FORUMINDEX', '/mod/forum/index.php?id=$1', 'course');
@@ -76,9 +75,9 @@ class restore_forum_activity_task extends restore_activity_task {
         $rules[] = new restore_decode_rule('FORUMDISCUSSIONVIEW', '/mod/forum/discuss.php?d=$1', 'forum_discussion');
         // Link to discussion with parent and with anchor posts
         $rules[] = new restore_decode_rule('FORUMDISCUSSIONVIEWPARENT', '/mod/forum/discuss.php?d=$1&parent=$2',
-                                           array('forum_discussion', 'forum_post'));
+                                           ['forum_discussion', 'forum_post']);
         $rules[] = new restore_decode_rule('FORUMDISCUSSIONVIEWINSIDE', '/mod/forum/discuss.php?d=$1#$2',
-                                           array('forum_discussion', 'forum_post'));
+                                           ['forum_discussion', 'forum_post']);
 
         return $rules;
     }
@@ -90,7 +89,7 @@ class restore_forum_activity_task extends restore_activity_task {
      * of {@link restore_log_rule} objects
      */
     public static function define_restore_log_rules() {
-        $rules = array();
+        $rules = [];
 
         $rules[] = new restore_log_rule('forum', 'add', 'view.php?id={course_module}', '{forum}');
         $rules[] = new restore_log_rule('forum', 'update', 'view.php?id={course_module}', '{forum}');
@@ -130,7 +129,7 @@ class restore_forum_activity_task extends restore_activity_task {
      * activity level. All them are rules not linked to any module instance (cmid = 0)
      */
     public static function define_restore_log_rules_for_course() {
-        $rules = array();
+        $rules = [];
 
         $rules[] = new restore_log_rule('forum', 'view forums', 'index.php?id={course}', null);
         $rules[] = new restore_log_rule('forum', 'subscribeall', 'index.php?id={course}', '{course}');

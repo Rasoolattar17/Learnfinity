@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -33,7 +32,7 @@ class restore_forum_activity_structure_step extends restore_activity_structure_s
 
     protected function define_structure() {
 
-        $paths = array();
+        $paths = [];
         $userinfo = $this->get_setting_value('userinfo');
 
         $paths[] = new restore_path_element('forum', '/activity/forum');
@@ -123,7 +122,7 @@ class restore_forum_activity_structure_step extends restore_activity_structure_s
 
         // If !post->parent, it's the 1st post. Set it in discussion
         if (empty($data->parent)) {
-            $DB->set_field('forum_discussions', 'firstpost', $newitemid, array('id' => $data->discussion));
+            $DB->set_field('forum_discussions', 'firstpost', $newitemid, ['id' => $data->discussion]);
         }
     }
 
@@ -180,7 +179,7 @@ class restore_forum_activity_structure_step extends restore_activity_structure_s
 
         // Create only a new subscription if it does not already exist (see MDL-59854).
         if ($subscription = $DB->get_record('forum_subscriptions',
-                array('forum' => $data->forum, 'userid' => $data->userid))) {
+                ['forum' => $data->forum, 'userid' => $data->userid])) {
             $this->set_mapping('forum_subscription', $oldid, $subscription->id, true);
         } else {
             $newitemid = $DB->insert_record('forum_subscriptions', $data);
@@ -278,8 +277,8 @@ class restore_forum_activity_structure_step extends restore_activity_structure_s
         // (non-userinfo backup/restore) create the discussion here, using forum
         // information as base for the initial post.
         $forumid = $this->task->get_activityid();
-        $forumrec = $DB->get_record('forum', array('id' => $forumid));
-        if ($forumrec->type == 'single' && !$DB->record_exists('forum_discussions', array('forum' => $forumid))) {
+        $forumrec = $DB->get_record('forum', ['id' => $forumid]);
+        if ($forumrec->type == 'single' && !$DB->record_exists('forum_discussions', ['forum' => $forumid])) {
             // Create single discussion/lead post from forum data
             $sd = new stdClass();
             $sd->course   = $forumrec->course;
@@ -292,14 +291,14 @@ class restore_forum_activity_structure_step extends restore_activity_structure_s
             $sd->mailnow  = false;
             $sdid = forum_add_discussion($sd, null, null, $this->task->get_userid());
             // Mark the post as mailed
-            $DB->set_field ('forum_posts','mailed', '1', array('discussion' => $sdid));
+            $DB->set_field ('forum_posts', 'mailed', '1', ['discussion' => $sdid]);
             // Copy all the files from mod_foum/intro to mod_forum/post
             $fs = get_file_storage();
             $files = $fs->get_area_files($this->task->get_contextid(), 'mod_forum', 'intro');
             foreach ($files as $file) {
                 $newfilerecord = new stdClass();
                 $newfilerecord->filearea = 'post';
-                $newfilerecord->itemid   = $DB->get_field('forum_discussions', 'firstpost', array('id' => $sdid));
+                $newfilerecord->itemid   = $DB->get_field('forum_discussions', 'firstpost', ['id' => $sdid]);
                 $fs->create_file_from_storedfile($newfilerecord, $file);
             }
         }

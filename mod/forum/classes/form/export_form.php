@@ -66,7 +66,7 @@ class export_form extends \moodleform {
                         'fullname' => fullname($user),
                     ];
                     return $OUTPUT->render_from_template('mod_forum/form-user-selector-suggestion', $useroptiondata);
-                }
+                },
         ];
         $mform->addElement('autocomplete', 'useridsselected', get_string('users'), [], $options);
 

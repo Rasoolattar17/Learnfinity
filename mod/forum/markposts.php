@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -26,12 +25,12 @@
 require_once("../../config.php");
 require_once("lib.php");
 
-$f          = required_param('f',PARAM_INT); // The forum to mark
-$mark       = required_param('mark',PARAM_ALPHA); // Read or unread?
-$d          = optional_param('d',0,PARAM_INT); // Discussion to mark.
+$f          = required_param('f', PARAM_INT); // The forum to mark
+$mark       = required_param('mark', PARAM_ALPHA); // Read or unread?
+$d          = optional_param('d', 0, PARAM_INT); // Discussion to mark.
 $return     = optional_param('return', null, PARAM_LOCALURL);    // Page to return to.
 
-$url = new moodle_url('/mod/forum/markposts.php', array('f'=>$f, 'mark'=>$mark));
+$url = new moodle_url('/mod/forum/markposts.php', ['f' => $f, 'mark' => $mark]);
 if ($d !== 0) {
     $url->param('d', $d);
 }
@@ -40,11 +39,11 @@ if (null !== $return) {
 }
 $PAGE->set_url($url);
 
-if (! $forum = $DB->get_record("forum", array("id" => $f))) {
+if (! $forum = $DB->get_record("forum", ["id" => $f])) {
     throw new \moodle_exception('invalidforumid', 'forum');
 }
 
-if (! $course = $DB->get_record("course", array("id" => $forum->course))) {
+if (! $course = $DB->get_record("course", ["id" => $forum->course])) {
     throw new \moodle_exception('invalidcourseid');
 }
 
@@ -78,7 +77,7 @@ $info->forum = format_string($forum->name);
 
 if ($mark == 'read') {
     if (!empty($d)) {
-        if (! $discussion = $DB->get_record('forum_discussions', array('id'=> $d, 'forum'=> $forum->id))) {
+        if (! $discussion = $DB->get_record('forum_discussions', ['id' => $d, 'forum' => $forum->id])) {
             throw new \moodle_exception('invaliddiscussionid', 'forum');
         }
 
@@ -89,7 +88,7 @@ if ($mark == 'read') {
         if(!$currentgroup) {
             // mark_forum_read requires ===false, while get_activity_group
             // may return 0
-            $currentgroup=false;
+            $currentgroup = false;
         }
         forum_tp_mark_forum_read($user, $forum->id, $currentgroup);
     }

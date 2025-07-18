@@ -29,7 +29,7 @@ require_once(__DIR__ . '/generator_trait.php');
  * @copyright  2019 Ryan Wyllie <ryan@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class builders_exported_posts_test extends \advanced_testcase {
+final class builders_exported_posts_test extends \advanced_testcase {
     // Make use of the test generator trait.
     use mod_forum_tests_generator_trait;
 
@@ -86,7 +86,7 @@ class builders_exported_posts_test extends \advanced_testcase {
             // Posts.
             array_map(function($post) use ($entityfactory) {
                 return $entityfactory->get_post_from_stdClass($post);
-            }, $posts)
+            }, $posts),
         ];
     }
 
@@ -357,7 +357,7 @@ class builders_exported_posts_test extends \advanced_testcase {
         $expected = [
             $user1->id => [$group1->id, $group2->id],
             $user2->id => [$group1->id],
-            $user3->id => []
+            $user3->id => [],
         ];
         $actual = array_reduce($exportedposts, function($carry, $exportedpost) {
             $author = $exportedpost->author;
@@ -421,7 +421,7 @@ class builders_exported_posts_test extends \advanced_testcase {
         $expected = [
             $post1->id => ['foo', 'bar'],
             $post4->id => ['foo', 'baz'],
-            $post7->id => ['bip']
+            $post7->id => ['bip'],
         ];
         $actual = array_reduce($exportedposts, function($carry, $exportedpost) {
             if (!empty($exportedpost->tags)) {
@@ -490,7 +490,7 @@ class builders_exported_posts_test extends \advanced_testcase {
             $post5->id => null,
             $post6->id => null,
             $post7->id => null,
-            $post8->id => null
+            $post8->id => null,
         ];
         $actual = array_reduce($exportedposts, function($carry, $exportedpost) {
             $carry[$exportedpost->id] = $exportedpost->unread;
@@ -511,7 +511,7 @@ class builders_exported_posts_test extends \advanced_testcase {
             $post5->id => null,
             $post6->id => null,
             $post7->id => null,
-            $post8->id => null
+            $post8->id => null,
         ];
         $actual = array_reduce($exportedposts, function($carry, $exportedpost) {
             $carry[$exportedpost->id] = $exportedpost->unread;

@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -60,7 +59,7 @@ if ($ADMIN->fulltree) {
         get_string('configsubscriptiontype', 'forum'), FORUM_CHOOSESUBSCRIBE, $options));
 
     // Default Read Tracking setting.
-    $options = array();
+    $options = [];
     $options[FORUM_TRACKING_OPTIONAL] = get_string('trackingoptional', 'forum');
     $options[FORUM_TRACKING_OFF] = get_string('trackingoff', 'forum');
     $options[FORUM_TRACKING_FORCED] = get_string('trackingon', 'forum');
@@ -83,9 +82,9 @@ if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_configcheckbox('forum_usermarksread', get_string('usermarksread', 'forum'),
                        get_string('configusermarksread', 'forum'), 0));
 
-    $options = array();
+    $options = [];
     for ($i = 0; $i < 24; $i++) {
-        $options[$i] = sprintf("%02d",$i);
+        $options[$i] = sprintf("%02d", $i);
     }
     // Default time (hour) to execute 'clean_read_records' cron
     $settings->add(new admin_setting_configselect('forum_cleanreadtime', get_string('cleanreadtime', 'forum'),
@@ -96,27 +95,27 @@ if ($ADMIN->fulltree) {
                        get_string('configdigestmailtime', 'forum'), 17, $options));
 
     if (empty($CFG->enablerssfeeds)) {
-        $options = array(0 => get_string('rssglobaldisabled', 'admin'));
+        $options = [0 => get_string('rssglobaldisabled', 'admin')];
         $str = get_string('configenablerssfeeds', 'forum').'<br />'.get_string('configenablerssfeedsdisabled2', 'admin');
 
     } else {
-        $options = array(0=>get_string('no'), 1=>get_string('yes'));
+        $options = [0 => get_string('no'), 1 => get_string('yes')];
         $str = get_string('configenablerssfeeds', 'forum');
     }
     $settings->add(new admin_setting_configselect('forum_enablerssfeeds', get_string('enablerssfeeds', 'admin'),
                        $str, 0, $options));
 
     if (!empty($CFG->enablerssfeeds)) {
-        $options = array(
+        $options = [
             0 => get_string('none'),
             1 => get_string('discussions', 'forum'),
-            2 => get_string('posts', 'forum')
-        );
+            2 => get_string('posts', 'forum'),
+        ];
         $settings->add(new admin_setting_configselect('forum_rsstype', get_string('rsstypedefault', 'forum'),
                 get_string('configrsstypedefault', 'forum'), 0, $options));
         $settings->hide_if('forum_rsstype', 'forum_enablerssfeeds', 'neq', '1');
 
-        $options = array(
+        $options = [
             0  => '0',
             1  => '1',
             2  => '2',
@@ -129,8 +128,8 @@ if ($ADMIN->fulltree) {
             25 => '25',
             30 => '30',
             40 => '40',
-            50 => '50'
-        );
+            50 => '50',
+        ];
         $settings->add(new admin_setting_configselect('forum_rssarticles', get_string('rssarticles', 'forum'),
                 get_string('configrssarticlesdefault', 'forum'), 0, $options));
         $settings->hide_if('forum_rssarticles', 'forum_enablerssfeeds', 'neq', '1');

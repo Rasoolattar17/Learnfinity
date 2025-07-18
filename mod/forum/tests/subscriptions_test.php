@@ -31,7 +31,7 @@ require_once("{$CFG->dirroot}/mod/forum/lib.php");
  * @copyright  2013 Frédéric Massart
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class subscriptions_test extends \advanced_testcase {
+final class subscriptions_test extends \advanced_testcase {
     // Include the mod_forum test helpers.
     // This includes functions to create forums, users, discussions, and posts.
     use mod_forum_tests_generator_trait;
@@ -73,7 +73,7 @@ class subscriptions_test extends \advanced_testcase {
         // Create a course, with a forum.
         $course = $this->getDataGenerator()->create_course();
 
-        $options = array('course' => $course->id);
+        $options = ['course' => $course->id];
         $forum = $this->getDataGenerator()->create_module('forum', $options);
         $context = \context_module::instance($forum->cmid);
 
@@ -85,7 +85,7 @@ class subscriptions_test extends \advanced_testcase {
 
         $sink = $this->redirectEvents(); // Capturing the event.
         \mod_forum\subscriptions::set_subscription_mode($forum, FORUM_FORCESUBSCRIBE);
-        $forum = $DB->get_record('forum', array('id' => $forum->id));
+        $forum = $DB->get_record('forum', ['id' => $forum->id]);
         $this->assertEquals(FORUM_FORCESUBSCRIBE, \mod_forum\subscriptions::get_subscription_mode($forum));
         $this->assertTrue(\mod_forum\subscriptions::is_forcesubscribed($forum));
         $this->assertFalse(\mod_forum\subscriptions::is_subscribable($forum));
@@ -101,7 +101,7 @@ class subscriptions_test extends \advanced_testcase {
 
         $sink = $this->redirectEvents(); // Capturing the event.
         \mod_forum\subscriptions::set_subscription_mode($forum, FORUM_DISALLOWSUBSCRIBE);
-        $forum = $DB->get_record('forum', array('id' => $forum->id));
+        $forum = $DB->get_record('forum', ['id' => $forum->id]);
         $this->assertEquals(FORUM_DISALLOWSUBSCRIBE, \mod_forum\subscriptions::get_subscription_mode($forum));
         $this->assertTrue(\mod_forum\subscriptions::subscription_disabled($forum));
         $this->assertFalse(\mod_forum\subscriptions::is_subscribable($forum));
@@ -117,7 +117,7 @@ class subscriptions_test extends \advanced_testcase {
 
         $sink = $this->redirectEvents(); // Capturing the event.
         \mod_forum\subscriptions::set_subscription_mode($forum, FORUM_INITIALSUBSCRIBE);
-        $forum = $DB->get_record('forum', array('id' => $forum->id));
+        $forum = $DB->get_record('forum', ['id' => $forum->id]);
         $this->assertEquals(FORUM_INITIALSUBSCRIBE, \mod_forum\subscriptions::get_subscription_mode($forum));
         $this->assertTrue(\mod_forum\subscriptions::is_subscribable($forum));
         $this->assertFalse(\mod_forum\subscriptions::subscription_disabled($forum));
@@ -133,7 +133,7 @@ class subscriptions_test extends \advanced_testcase {
 
         $sink = $this->redirectEvents(); // Capturing the event.
         \mod_forum\subscriptions::set_subscription_mode($forum, FORUM_CHOOSESUBSCRIBE);
-        $forum = $DB->get_record('forum', array('id' => $forum->id));
+        $forum = $DB->get_record('forum', ['id' => $forum->id]);
         $this->assertEquals(FORUM_CHOOSESUBSCRIBE, \mod_forum\subscriptions::get_subscription_mode($forum));
         $this->assertTrue(\mod_forum\subscriptions::is_subscribable($forum));
         $this->assertFalse(\mod_forum\subscriptions::subscription_disabled($forum));
@@ -170,13 +170,13 @@ class subscriptions_test extends \advanced_testcase {
         $this->assertEquals(0, count($result));
 
         // Create the forums.
-        $options = array('course' => $course->id, 'forcesubscribe' => FORUM_FORCESUBSCRIBE);
+        $options = ['course' => $course->id, 'forcesubscribe' => FORUM_FORCESUBSCRIBE];
         $forceforum = $this->getDataGenerator()->create_module('forum', $options);
-        $options = array('course' => $course->id, 'forcesubscribe' => FORUM_DISALLOWSUBSCRIBE);
+        $options = ['course' => $course->id, 'forcesubscribe' => FORUM_DISALLOWSUBSCRIBE];
         $disallowforum = $this->getDataGenerator()->create_module('forum', $options);
-        $options = array('course' => $course->id, 'forcesubscribe' => FORUM_CHOOSESUBSCRIBE);
+        $options = ['course' => $course->id, 'forcesubscribe' => FORUM_CHOOSESUBSCRIBE];
         $chooseforum = $this->getDataGenerator()->create_module('forum', $options);
-        $options = array('course' => $course->id, 'forcesubscribe' => FORUM_INITIALSUBSCRIBE);
+        $options = ['course' => $course->id, 'forcesubscribe' => FORUM_INITIALSUBSCRIBE];
         $initialforum = $this->getDataGenerator()->create_module('forum', $options);
 
         // At present the user is only subscribed to the initial forum.
@@ -220,7 +220,7 @@ class subscriptions_test extends \advanced_testcase {
         // Create a course, with a forum.
         $course = $this->getDataGenerator()->create_course();
 
-        $options = array('course' => $course->id, 'forcesubscribe' => FORUM_CHOOSESUBSCRIBE);
+        $options = ['course' => $course->id, 'forcesubscribe' => FORUM_CHOOSESUBSCRIBE];
         $forum = $this->getDataGenerator()->create_module('forum', $options);
 
         // Create a user enrolled in the course as a student.
@@ -236,165 +236,165 @@ class subscriptions_test extends \advanced_testcase {
         $this->assertFalse(\mod_forum\subscriptions::is_subscribed($author->id, $forum, $discussion->id));
 
         // Check that we have no records in either of the subscription tables.
-        $this->assertEquals(0, $DB->count_records('forum_subscriptions', array(
+        $this->assertEquals(0, $DB->count_records('forum_subscriptions', [
             'userid'        => $author->id,
             'forum'         => $forum->id,
-        )));
-        $this->assertEquals(0, $DB->count_records('forum_discussion_subs', array(
+        ]));
+        $this->assertEquals(0, $DB->count_records('forum_discussion_subs', [
             'userid'        => $author->id,
             'discussion'    => $discussion->id,
-        )));
+        ]));
 
         // Subscribing to the forum should create a record in the subscriptions table, but not the forum discussion
         // subscriptions table.
         \mod_forum\subscriptions::subscribe_user($author->id, $forum);
-        $this->assertEquals(1, $DB->count_records('forum_subscriptions', array(
+        $this->assertEquals(1, $DB->count_records('forum_subscriptions', [
             'userid'        => $author->id,
             'forum'         => $forum->id,
-        )));
-        $this->assertEquals(0, $DB->count_records('forum_discussion_subs', array(
+        ]));
+        $this->assertEquals(0, $DB->count_records('forum_discussion_subs', [
             'userid'        => $author->id,
             'discussion'    => $discussion->id,
-        )));
+        ]));
 
         // Unsubscribing should remove the record from the forum subscriptions table, and not modify the forum
         // discussion subscriptions table.
         \mod_forum\subscriptions::unsubscribe_user($author->id, $forum);
-        $this->assertEquals(0, $DB->count_records('forum_subscriptions', array(
+        $this->assertEquals(0, $DB->count_records('forum_subscriptions', [
             'userid'        => $author->id,
             'forum'         => $forum->id,
-        )));
-        $this->assertEquals(0, $DB->count_records('forum_discussion_subs', array(
+        ]));
+        $this->assertEquals(0, $DB->count_records('forum_discussion_subs', [
             'userid'        => $author->id,
             'discussion'    => $discussion->id,
-        )));
+        ]));
 
         // Enroling the user in the discussion should add one record to the forum discussion table without modifying the
         // form subscriptions.
         \mod_forum\subscriptions::subscribe_user_to_discussion($author->id, $discussion);
-        $this->assertEquals(0, $DB->count_records('forum_subscriptions', array(
+        $this->assertEquals(0, $DB->count_records('forum_subscriptions', [
             'userid'        => $author->id,
             'forum'         => $forum->id,
-        )));
-        $this->assertEquals(1, $DB->count_records('forum_discussion_subs', array(
+        ]));
+        $this->assertEquals(1, $DB->count_records('forum_discussion_subs', [
             'userid'        => $author->id,
             'discussion'    => $discussion->id,
-        )));
+        ]));
 
         // Unsubscribing should remove the record from the forum subscriptions table, and not modify the forum
         // discussion subscriptions table.
         \mod_forum\subscriptions::unsubscribe_user_from_discussion($author->id, $discussion);
-        $this->assertEquals(0, $DB->count_records('forum_subscriptions', array(
+        $this->assertEquals(0, $DB->count_records('forum_subscriptions', [
             'userid'        => $author->id,
             'forum'         => $forum->id,
-        )));
-        $this->assertEquals(0, $DB->count_records('forum_discussion_subs', array(
+        ]));
+        $this->assertEquals(0, $DB->count_records('forum_discussion_subs', [
             'userid'        => $author->id,
             'discussion'    => $discussion->id,
-        )));
+        ]));
 
         // Re-subscribe to the discussion so that we can check the effect of forum-level subscriptions.
         \mod_forum\subscriptions::subscribe_user_to_discussion($author->id, $discussion);
-        $this->assertEquals(0, $DB->count_records('forum_subscriptions', array(
+        $this->assertEquals(0, $DB->count_records('forum_subscriptions', [
             'userid'        => $author->id,
             'forum'         => $forum->id,
-        )));
-        $this->assertEquals(1, $DB->count_records('forum_discussion_subs', array(
+        ]));
+        $this->assertEquals(1, $DB->count_records('forum_discussion_subs', [
             'userid'        => $author->id,
             'discussion'    => $discussion->id,
-        )));
+        ]));
 
         // Subscribing to the forum should have no effect on the forum discussion subscriptions table if the user did
         // not request the change themself.
         \mod_forum\subscriptions::subscribe_user($author->id, $forum);
-        $this->assertEquals(1, $DB->count_records('forum_subscriptions', array(
+        $this->assertEquals(1, $DB->count_records('forum_subscriptions', [
             'userid'        => $author->id,
             'forum'         => $forum->id,
-        )));
-        $this->assertEquals(1, $DB->count_records('forum_discussion_subs', array(
+        ]));
+        $this->assertEquals(1, $DB->count_records('forum_discussion_subs', [
             'userid'        => $author->id,
             'discussion'    => $discussion->id,
-        )));
+        ]));
 
         // Unsubscribing from the forum should have no effect on the forum discussion subscriptions table if the user
         // did not request the change themself.
         \mod_forum\subscriptions::unsubscribe_user($author->id, $forum);
-        $this->assertEquals(0, $DB->count_records('forum_subscriptions', array(
+        $this->assertEquals(0, $DB->count_records('forum_subscriptions', [
             'userid'        => $author->id,
             'forum'         => $forum->id,
-        )));
-        $this->assertEquals(1, $DB->count_records('forum_discussion_subs', array(
+        ]));
+        $this->assertEquals(1, $DB->count_records('forum_discussion_subs', [
             'userid'        => $author->id,
             'discussion'    => $discussion->id,
-        )));
+        ]));
 
         // Subscribing to the forum should remove the per-discussion subscription preference if the user requested the
         // change themself.
         \mod_forum\subscriptions::subscribe_user($author->id, $forum, null, true);
-        $this->assertEquals(1, $DB->count_records('forum_subscriptions', array(
+        $this->assertEquals(1, $DB->count_records('forum_subscriptions', [
             'userid'        => $author->id,
             'forum'         => $forum->id,
-        )));
-        $this->assertEquals(0, $DB->count_records('forum_discussion_subs', array(
+        ]));
+        $this->assertEquals(0, $DB->count_records('forum_discussion_subs', [
             'userid'        => $author->id,
             'discussion'    => $discussion->id,
-        )));
+        ]));
 
         // Now unsubscribe from the current discussion whilst being subscribed to the forum as a whole.
         \mod_forum\subscriptions::unsubscribe_user_from_discussion($author->id, $discussion);
-        $this->assertEquals(1, $DB->count_records('forum_subscriptions', array(
+        $this->assertEquals(1, $DB->count_records('forum_subscriptions', [
             'userid'        => $author->id,
             'forum'         => $forum->id,
-        )));
-        $this->assertEquals(1, $DB->count_records('forum_discussion_subs', array(
+        ]));
+        $this->assertEquals(1, $DB->count_records('forum_discussion_subs', [
             'userid'        => $author->id,
             'discussion'    => $discussion->id,
-        )));
+        ]));
 
         // Unsubscribing from the forum should remove the per-discussion subscription preference if the user requested the
         // change themself.
         \mod_forum\subscriptions::unsubscribe_user($author->id, $forum, null, true);
-        $this->assertEquals(0, $DB->count_records('forum_subscriptions', array(
+        $this->assertEquals(0, $DB->count_records('forum_subscriptions', [
             'userid'        => $author->id,
             'forum'         => $forum->id,
-        )));
-        $this->assertEquals(0, $DB->count_records('forum_discussion_subs', array(
+        ]));
+        $this->assertEquals(0, $DB->count_records('forum_discussion_subs', [
             'userid'        => $author->id,
             'discussion'    => $discussion->id,
-        )));
+        ]));
 
         // Subscribe to the discussion.
         \mod_forum\subscriptions::subscribe_user_to_discussion($author->id, $discussion);
-        $this->assertEquals(0, $DB->count_records('forum_subscriptions', array(
+        $this->assertEquals(0, $DB->count_records('forum_subscriptions', [
             'userid'        => $author->id,
             'forum'         => $forum->id,
-        )));
-        $this->assertEquals(1, $DB->count_records('forum_discussion_subs', array(
+        ]));
+        $this->assertEquals(1, $DB->count_records('forum_discussion_subs', [
             'userid'        => $author->id,
             'discussion'    => $discussion->id,
-        )));
+        ]));
 
         // Subscribe to the forum without removing the discussion preferences.
         \mod_forum\subscriptions::subscribe_user($author->id, $forum);
-        $this->assertEquals(1, $DB->count_records('forum_subscriptions', array(
+        $this->assertEquals(1, $DB->count_records('forum_subscriptions', [
             'userid'        => $author->id,
             'forum'         => $forum->id,
-        )));
-        $this->assertEquals(1, $DB->count_records('forum_discussion_subs', array(
+        ]));
+        $this->assertEquals(1, $DB->count_records('forum_discussion_subs', [
             'userid'        => $author->id,
             'discussion'    => $discussion->id,
-        )));
+        ]));
 
         // Unsubscribing from the discussion should result in a change.
         \mod_forum\subscriptions::unsubscribe_user_from_discussion($author->id, $discussion);
-        $this->assertEquals(1, $DB->count_records('forum_subscriptions', array(
+        $this->assertEquals(1, $DB->count_records('forum_subscriptions', [
             'userid'        => $author->id,
             'forum'         => $forum->id,
-        )));
-        $this->assertEquals(1, $DB->count_records('forum_discussion_subs', array(
+        ]));
+        $this->assertEquals(1, $DB->count_records('forum_discussion_subs', [
             'userid'        => $author->id,
             'discussion'    => $discussion->id,
-        )));
+        ]));
 
     }
 
@@ -407,7 +407,7 @@ class subscriptions_test extends \advanced_testcase {
         // Create a course, with a forum.
         $course = $this->getDataGenerator()->create_course();
 
-        $options = array('course' => $course->id, 'forcesubscribe' => FORUM_CHOOSESUBSCRIBE);
+        $options = ['course' => $course->id, 'forcesubscribe' => FORUM_CHOOSESUBSCRIBE];
         $forum = $this->getDataGenerator()->create_module('forum', $options);
 
         // Create users enrolled in the course as students.
@@ -432,7 +432,7 @@ class subscriptions_test extends \advanced_testcase {
         // Create a course, with a forum.
         $course = $this->getDataGenerator()->create_course();
 
-        $options = array('course' => $course->id, 'forcesubscribe' => FORUM_CHOOSESUBSCRIBE);
+        $options = ['course' => $course->id, 'forcesubscribe' => FORUM_CHOOSESUBSCRIBE];
         $forum = $this->getDataGenerator()->create_module('forum', $options);
 
         // Create users enrolled in the course as students.
@@ -464,7 +464,7 @@ class subscriptions_test extends \advanced_testcase {
         // Create a course, with a forum.
         $course = $this->getDataGenerator()->create_course();
 
-        $options = array('course' => $course->id, 'forcesubscribe' => FORUM_CHOOSESUBSCRIBE);
+        $options = ['course' => $course->id, 'forcesubscribe' => FORUM_CHOOSESUBSCRIBE];
         $forum = $this->getDataGenerator()->create_module('forum', $options);
 
         // Create a user enrolled in the course as a student.
@@ -498,7 +498,7 @@ class subscriptions_test extends \advanced_testcase {
         // Create a course, with a forum.
         $course = $this->getDataGenerator()->create_course();
 
-        $options = array('course' => $course->id, 'forcesubscribe' => FORUM_CHOOSESUBSCRIBE);
+        $options = ['course' => $course->id, 'forcesubscribe' => FORUM_CHOOSESUBSCRIBE];
         $forum = $this->getDataGenerator()->create_module('forum', $options);
 
         // Create two users enrolled in the course as students.
@@ -534,7 +534,7 @@ class subscriptions_test extends \advanced_testcase {
         // Create a course, with a forum.
         $course = $this->getDataGenerator()->create_course();
 
-        $options = array('course' => $course->id, 'forcesubscribe' => FORUM_CHOOSESUBSCRIBE);
+        $options = ['course' => $course->id, 'forcesubscribe' => FORUM_CHOOSESUBSCRIBE];
         $forum = $this->getDataGenerator()->create_module('forum', $options);
 
         // Create two users enrolled in the course as students.
@@ -556,14 +556,14 @@ class subscriptions_test extends \advanced_testcase {
         $this->assertFalse(\mod_forum\subscriptions::subscribe_user_to_discussion($author->id, $discussion));
 
         // And there should be no discussion subscriptions (and one forum subscription).
-        $this->assertEquals(0, $DB->count_records('forum_discussion_subs', array(
+        $this->assertEquals(0, $DB->count_records('forum_discussion_subs', [
             'userid'        => $author->id,
             'discussion'    => $discussion->id,
-        )));
-        $this->assertEquals(1, $DB->count_records('forum_subscriptions', array(
+        ]));
+        $this->assertEquals(1, $DB->count_records('forum_subscriptions', [
             'userid'        => $author->id,
             'forum'         => $forum->id,
-        )));
+        ]));
 
         // Then unsubscribe them from the discussion.
         \mod_forum\subscriptions::unsubscribe_user_from_discussion($author->id, $discussion);
@@ -575,29 +575,29 @@ class subscriptions_test extends \advanced_testcase {
         $this->assertFalse(\mod_forum\subscriptions::unsubscribe_user_from_discussion($author->id, $discussion));
 
         // And there should be a discussion subscriptions (and one forum subscription).
-        $this->assertEquals(1, $DB->count_records('forum_discussion_subs', array(
+        $this->assertEquals(1, $DB->count_records('forum_discussion_subs', [
             'userid'        => $author->id,
             'discussion'    => $discussion->id,
-        )));
-        $this->assertEquals(1, $DB->count_records('forum_subscriptions', array(
+        ]));
+        $this->assertEquals(1, $DB->count_records('forum_subscriptions', [
             'userid'        => $author->id,
             'forum'         => $forum->id,
-        )));
+        ]));
 
         // But unsubscribed from the discussion.
         $this->assertFalse(\mod_forum\subscriptions::is_subscribed($author->id, $forum, $discussion->id));
 
         // There should be a record in the discussion subscription tracking table.
-        $this->assertEquals(1, $DB->count_records('forum_discussion_subs', array(
+        $this->assertEquals(1, $DB->count_records('forum_discussion_subs', [
             'userid'        => $author->id,
             'discussion'    => $discussion->id,
-        )));
+        ]));
 
         // And one in the forum subscription tracking table.
-        $this->assertEquals(1, $DB->count_records('forum_subscriptions', array(
+        $this->assertEquals(1, $DB->count_records('forum_subscriptions', [
             'userid'        => $author->id,
             'forum'         => $forum->id,
-        )));
+        ]));
 
         // Now subscribe the user again to the discussion.
         \mod_forum\subscriptions::subscribe_user_to_discussion($author->id, $discussion);
@@ -609,16 +609,16 @@ class subscriptions_test extends \advanced_testcase {
         $this->assertTrue(\mod_forum\subscriptions::is_subscribed($author->id, $forum, $discussion->id));
 
         // There should be no record in the discussion subscription tracking table.
-        $this->assertEquals(0, $DB->count_records('forum_discussion_subs', array(
+        $this->assertEquals(0, $DB->count_records('forum_discussion_subs', [
             'userid'        => $author->id,
             'discussion'    => $discussion->id,
-        )));
+        ]));
 
         // And one in the forum subscription tracking table.
-        $this->assertEquals(1, $DB->count_records('forum_subscriptions', array(
+        $this->assertEquals(1, $DB->count_records('forum_subscriptions', [
             'userid'        => $author->id,
             'forum'         => $forum->id,
-        )));
+        ]));
 
         // And unsubscribe again.
         \mod_forum\subscriptions::unsubscribe_user_from_discussion($author->id, $discussion);
@@ -630,16 +630,16 @@ class subscriptions_test extends \advanced_testcase {
         $this->assertFalse(\mod_forum\subscriptions::is_subscribed($author->id, $forum, $discussion->id));
 
         // There should be a record in the discussion subscription tracking table.
-        $this->assertEquals(1, $DB->count_records('forum_discussion_subs', array(
+        $this->assertEquals(1, $DB->count_records('forum_discussion_subs', [
             'userid'        => $author->id,
             'discussion'    => $discussion->id,
-        )));
+        ]));
 
         // And one in the forum subscription tracking table.
-        $this->assertEquals(1, $DB->count_records('forum_subscriptions', array(
+        $this->assertEquals(1, $DB->count_records('forum_subscriptions', [
             'userid'        => $author->id,
             'forum'         => $forum->id,
-        )));
+        ]));
 
         // And subscribe the user again to the discussion.
         \mod_forum\subscriptions::subscribe_user_to_discussion($author->id, $discussion);
@@ -652,16 +652,16 @@ class subscriptions_test extends \advanced_testcase {
         $this->assertTrue(\mod_forum\subscriptions::is_subscribed($author->id, $forum, $discussion->id));
 
         // There should be no record in the discussion subscription tracking table.
-        $this->assertEquals(0, $DB->count_records('forum_discussion_subs', array(
+        $this->assertEquals(0, $DB->count_records('forum_discussion_subs', [
             'userid'        => $author->id,
             'discussion'    => $discussion->id,
-        )));
+        ]));
 
         // And one in the forum subscription tracking table.
-        $this->assertEquals(1, $DB->count_records('forum_subscriptions', array(
+        $this->assertEquals(1, $DB->count_records('forum_subscriptions', [
             'userid'        => $author->id,
             'forum'         => $forum->id,
-        )));
+        ]));
 
         // And unsubscribe again.
         \mod_forum\subscriptions::unsubscribe_user_from_discussion($author->id, $discussion);
@@ -673,29 +673,29 @@ class subscriptions_test extends \advanced_testcase {
         $this->assertFalse(\mod_forum\subscriptions::is_subscribed($author->id, $forum, $discussion->id));
 
         // There should be a record in the discussion subscription tracking table.
-        $this->assertEquals(1, $DB->count_records('forum_discussion_subs', array(
+        $this->assertEquals(1, $DB->count_records('forum_discussion_subs', [
             'userid'        => $author->id,
             'discussion'    => $discussion->id,
-        )));
+        ]));
 
         // And one in the forum subscription tracking table.
-        $this->assertEquals(1, $DB->count_records('forum_subscriptions', array(
+        $this->assertEquals(1, $DB->count_records('forum_subscriptions', [
             'userid'        => $author->id,
             'forum'         => $forum->id,
-        )));
+        ]));
 
         // Now unsubscribe the user from the forum.
         $this->assertTrue(\mod_forum\subscriptions::unsubscribe_user($author->id, $forum, null, true));
 
         // This removes both the forum_subscriptions, and the forum_discussion_subs records.
-        $this->assertEquals(0, $DB->count_records('forum_discussion_subs', array(
+        $this->assertEquals(0, $DB->count_records('forum_discussion_subs', [
             'userid'        => $author->id,
             'discussion'    => $discussion->id,
-        )));
-        $this->assertEquals(0, $DB->count_records('forum_subscriptions', array(
+        ]));
+        $this->assertEquals(0, $DB->count_records('forum_subscriptions', [
             'userid'        => $author->id,
             'forum'         => $forum->id,
-        )));
+        ]));
 
         // And should have reset the discussion cache value.
         $result = \mod_forum\subscriptions::fetch_discussion_subscription($forum->id, $author->id);
@@ -714,7 +714,7 @@ class subscriptions_test extends \advanced_testcase {
         // Create a course, with a forum.
         $course = $this->getDataGenerator()->create_course();
 
-        $options = array('course' => $course->id, 'forcesubscribe' => FORUM_CHOOSESUBSCRIBE);
+        $options = ['course' => $course->id, 'forcesubscribe' => FORUM_CHOOSESUBSCRIBE];
         $forum = $this->getDataGenerator()->create_module('forum', $options);
 
         // Create two users enrolled in the course as students.
@@ -742,10 +742,10 @@ class subscriptions_test extends \advanced_testcase {
         $this->assertTrue(\mod_forum\subscriptions::is_subscribed($author->id, $forum, $discussion->id));
 
         // There should be a record in the discussion subscription tracking table.
-        $this->assertEquals(1, $DB->count_records('forum_discussion_subs', array(
+        $this->assertEquals(1, $DB->count_records('forum_discussion_subs', [
             'userid'        => $author->id,
             'discussion'    => $discussion->id,
-        )));
+        ]));
 
         // Now unsubscribe the user again from the discussion.
         \mod_forum\subscriptions::unsubscribe_user_from_discussion($author->id, $discussion);
@@ -757,10 +757,10 @@ class subscriptions_test extends \advanced_testcase {
         $this->assertFalse(\mod_forum\subscriptions::is_subscribed($author->id, $forum, $discussion->id));
 
         // There should be no record in the discussion subscription tracking table.
-        $this->assertEquals(0, $DB->count_records('forum_discussion_subs', array(
+        $this->assertEquals(0, $DB->count_records('forum_discussion_subs', [
             'userid'        => $author->id,
             'discussion'    => $discussion->id,
-        )));
+        ]));
 
         // And subscribe the user again to the discussion.
         \mod_forum\subscriptions::subscribe_user_to_discussion($author->id, $discussion);
@@ -772,10 +772,10 @@ class subscriptions_test extends \advanced_testcase {
         $this->assertTrue(\mod_forum\subscriptions::is_subscribed($author->id, $forum, $discussion->id));
 
         // There should be a record in the discussion subscription tracking table.
-        $this->assertEquals(1, $DB->count_records('forum_discussion_subs', array(
+        $this->assertEquals(1, $DB->count_records('forum_discussion_subs', [
             'userid'        => $author->id,
             'discussion'    => $discussion->id,
-        )));
+        ]));
 
         // And unsubscribe again.
         \mod_forum\subscriptions::unsubscribe_user_from_discussion($author->id, $discussion);
@@ -787,10 +787,10 @@ class subscriptions_test extends \advanced_testcase {
         $this->assertFalse(\mod_forum\subscriptions::is_subscribed($author->id, $forum, $discussion->id));
 
         // There should be no record in the discussion subscription tracking table.
-        $this->assertEquals(0, $DB->count_records('forum_discussion_subs', array(
+        $this->assertEquals(0, $DB->count_records('forum_discussion_subs', [
             'userid'        => $author->id,
             'discussion'    => $discussion->id,
-        )));
+        ]));
     }
 
     /**
@@ -804,7 +804,7 @@ class subscriptions_test extends \advanced_testcase {
 
         // Create a course, with a forum. where users are initially subscribed.
         $course = $this->getDataGenerator()->create_course();
-        $options = array('course' => $course->id, 'forcesubscribe' => FORUM_INITIALSUBSCRIBE);
+        $options = ['course' => $course->id, 'forcesubscribe' => FORUM_INITIALSUBSCRIBE];
         $forum = $this->getDataGenerator()->create_module('forum', $options);
 
         // Create some user enrolled in the course as a student.
@@ -842,7 +842,7 @@ class subscriptions_test extends \advanced_testcase {
 
         // Create a course, with a forum. where users are initially subscribed.
         $course = $this->getDataGenerator()->create_course();
-        $options = array('course' => $course->id, 'forcesubscribe' => FORUM_FORCESUBSCRIBE);
+        $options = ['course' => $course->id, 'forcesubscribe' => FORUM_FORCESUBSCRIBE];
         $forum = $this->getDataGenerator()->create_module('forum', $options);
 
         // Create some user enrolled in the course as a student.
@@ -864,7 +864,7 @@ class subscriptions_test extends \advanced_testcase {
 
         // Create a course, with a forum. where users are initially subscribed.
         $course = $this->getDataGenerator()->create_course();
-        $options = array('course' => $course->id, 'forcesubscribe' => FORUM_INITIALSUBSCRIBE);
+        $options = ['course' => $course->id, 'forcesubscribe' => FORUM_INITIALSUBSCRIBE];
         $forum = $this->getDataGenerator()->create_module('forum', $options);
 
         // Create some user enrolled in the course as a student.
@@ -937,7 +937,7 @@ class subscriptions_test extends \advanced_testcase {
         // Create a course, with a forum.
         $course = $this->getDataGenerator()->create_course();
 
-        $options = array('course' => $course->id, 'forcesubscribe' => FORUM_FORCESUBSCRIBE);
+        $options = ['course' => $course->id, 'forcesubscribe' => FORUM_FORCESUBSCRIBE];
         $forum = $this->getDataGenerator()->create_module('forum', $options);
 
         // Create a user enrolled in the course as a student.
@@ -969,7 +969,7 @@ class subscriptions_test extends \advanced_testcase {
         // Create a course, with a forum.
         $course = $this->getDataGenerator()->create_course();
 
-        $options = array('course' => $course->id, 'forcesubscribe' => FORUM_INITIALSUBSCRIBE);
+        $options = ['course' => $course->id, 'forcesubscribe' => FORUM_INITIALSUBSCRIBE];
         $forum = $this->getDataGenerator()->create_module('forum', $options);
 
         // Create some users.
@@ -1004,7 +1004,7 @@ class subscriptions_test extends \advanced_testcase {
         // Create a course, with a forum.
         $course = $this->getDataGenerator()->create_course();
 
-        $options = array('course' => $course->id, 'forcesubscribe' => FORUM_INITIALSUBSCRIBE);
+        $options = ['course' => $course->id, 'forcesubscribe' => FORUM_INITIALSUBSCRIBE];
         $forum = $this->getDataGenerator()->create_module('forum', $options);
 
         // Create some users.
@@ -1036,11 +1036,11 @@ class subscriptions_test extends \advanced_testcase {
         $course = $this->getDataGenerator()->create_course();
 
         // Create the forums.
-        $options = array('course' => $course->id, 'forcesubscribe' => FORUM_DISALLOWSUBSCRIBE);
+        $options = ['course' => $course->id, 'forcesubscribe' => FORUM_DISALLOWSUBSCRIBE];
         $disallowforum = $this->getDataGenerator()->create_module('forum', $options);
-        $options = array('course' => $course->id, 'forcesubscribe' => FORUM_CHOOSESUBSCRIBE);
+        $options = ['course' => $course->id, 'forcesubscribe' => FORUM_CHOOSESUBSCRIBE];
         $chooseforum = $this->getDataGenerator()->create_module('forum', $options);
-        $options = array('course' => $course->id, 'forcesubscribe' => FORUM_INITIALSUBSCRIBE);
+        $options = ['course' => $course->id, 'forcesubscribe' => FORUM_INITIALSUBSCRIBE];
         $initialforum = $this->getDataGenerator()->create_module('forum', $options);
 
         // Create some users and keep a reference to the first user.
@@ -1083,14 +1083,14 @@ class subscriptions_test extends \advanced_testcase {
         // Create a course, with a forum.
         $course = $this->getDataGenerator()->create_course();
 
-        $options = array('course' => $course->id, 'forcesubscribe' => FORUM_FORCESUBSCRIBE);
+        $options = ['course' => $course->id, 'forcesubscribe' => FORUM_FORCESUBSCRIBE];
         $forum = $this->getDataGenerator()->create_module('forum', $options);
 
         // Create some users.
         $users = $this->helper_create_users($course, 20);
 
         // Post some discussions to the forum.
-        $discussions = array();
+        $discussions = [];
         $author = $users[0];
         $userwithnosubs = $users[1];
 
@@ -1171,14 +1171,14 @@ class subscriptions_test extends \advanced_testcase {
         // Create a course, with a forum.
         $course = $this->getDataGenerator()->create_course();
 
-        $options = array('course' => $course->id, 'forcesubscribe' => FORUM_INITIALSUBSCRIBE);
+        $options = ['course' => $course->id, 'forcesubscribe' => FORUM_INITIALSUBSCRIBE];
         $forum = $this->getDataGenerator()->create_module('forum', $options);
 
         // Create some users.
         $users = $this->helper_create_users($course, 20);
 
         // Post some discussions to the forum.
-        $discussions = array();
+        $discussions = [];
         $author = $users[0];
         for ($i = 0; $i < 20; $i++) {
             list($discussion, $post) = $this->helper_post_to_forum($forum, $author);
@@ -1230,7 +1230,7 @@ class subscriptions_test extends \advanced_testcase {
         // Create a course, with a forum.
         $course = $this->getDataGenerator()->create_course();
 
-        $options = array('course' => $course->id, 'forcesubscribe' => FORUM_CHOOSESUBSCRIBE);
+        $options = ['course' => $course->id, 'forcesubscribe' => FORUM_CHOOSESUBSCRIBE];
         $forum = $this->getDataGenerator()->create_module('forum', $options);
 
         // Create a user enrolled in the course as a student.
@@ -1246,26 +1246,26 @@ class subscriptions_test extends \advanced_testcase {
         $this->assertFalse(\mod_forum\subscriptions::is_subscribed($user->id, $forum, $discussion->id));
 
         // Confirm that we have no records in either of the subscription tables.
-        $this->assertEquals(0, $DB->count_records('forum_subscriptions', array(
+        $this->assertEquals(0, $DB->count_records('forum_subscriptions', [
             'userid'        => $user->id,
             'forum'         => $forum->id,
-        )));
-        $this->assertEquals(0, $DB->count_records('forum_discussion_subs', array(
+        ]));
+        $this->assertEquals(0, $DB->count_records('forum_discussion_subs', [
             'userid'        => $user->id,
             'discussion'    => $discussion->id,
-        )));
+        ]));
 
         // Subscribing to the forum should create a record in the subscriptions table, but not the forum discussion
         // subscriptions table.
         \mod_forum\subscriptions::subscribe_user($user->id, $forum);
-        $this->assertEquals(1, $DB->count_records('forum_subscriptions', array(
+        $this->assertEquals(1, $DB->count_records('forum_subscriptions', [
             'userid'        => $user->id,
             'forum'         => $forum->id,
-        )));
-        $this->assertEquals(0, $DB->count_records('forum_discussion_subs', array(
+        ]));
+        $this->assertEquals(0, $DB->count_records('forum_discussion_subs', [
             'userid'        => $user->id,
             'discussion'    => $discussion->id,
-        )));
+        ]));
 
         // Now unsubscribe from the discussion. This should return true.
         $this->assertTrue(\mod_forum\subscriptions::unsubscribe_user_from_discussion($user->id, $discussion));
@@ -1285,25 +1285,25 @@ class subscriptions_test extends \advanced_testcase {
         // And unsubscribing from the forum but not as a request from the user should maintain their preference.
         \mod_forum\subscriptions::unsubscribe_user($user->id, $forum);
 
-        $this->assertEquals(0, $DB->count_records('forum_subscriptions', array(
+        $this->assertEquals(0, $DB->count_records('forum_subscriptions', [
             'userid'        => $user->id,
             'forum'         => $forum->id,
-        )));
-        $this->assertEquals(1, $DB->count_records('forum_discussion_subs', array(
+        ]));
+        $this->assertEquals(1, $DB->count_records('forum_discussion_subs', [
             'userid'        => $user->id,
             'discussion'    => $discussion->id,
-        )));
+        ]));
 
         // Subscribing to the discussion should return truthfully because a change was made.
         $this->assertTrue(\mod_forum\subscriptions::subscribe_user_to_discussion($user->id, $discussion));
-        $this->assertEquals(0, $DB->count_records('forum_subscriptions', array(
+        $this->assertEquals(0, $DB->count_records('forum_subscriptions', [
             'userid'        => $user->id,
             'forum'         => $forum->id,
-        )));
-        $this->assertEquals(1, $DB->count_records('forum_discussion_subs', array(
+        ]));
+        $this->assertEquals(1, $DB->count_records('forum_discussion_subs', [
             'userid'        => $user->id,
             'discussion'    => $discussion->id,
-        )));
+        ]));
     }
 
     /**
@@ -1318,7 +1318,7 @@ class subscriptions_test extends \advanced_testcase {
         // Create a course, with a forum.
         $course = $this->getDataGenerator()->create_course();
 
-        $options = array('course' => $course->id, 'forcesubscribe' => FORUM_FORCESUBSCRIBE);
+        $options = ['course' => $course->id, 'forcesubscribe' => FORUM_FORCESUBSCRIBE];
         $forum = $this->getDataGenerator()->create_module('forum', $options);
 
         // Create a user enrolled in the course as a student.
@@ -1402,7 +1402,7 @@ class subscriptions_test extends \advanced_testcase {
         global $DB;
         $this->resetAfterTest(true);
 
-        $guest = $DB->get_record('user', array('username'=>'guest'));
+        $guest = $DB->get_record('user', ['username' => 'guest']);
         $this->setUser($guest);
 
         // Create a course, with a forum.
@@ -1481,12 +1481,12 @@ class subscriptions_test extends \advanced_testcase {
         // Subscribption disabled.
         $this->setUser($student->id);
         \mod_forum\subscriptions::set_subscription_mode($forum, FORUM_DISALLOWSUBSCRIBE);
-        $forum = $DB->get_record('forum', array('id' => $forum->id));
+        $forum = $DB->get_record('forum', ['id' => $forum->id]);
         $this->assertFalse((boolean)\mod_forum\subscriptions::get_user_default_subscription($forum, $context, $cm, $discussion->id));
         $this->assertFalse((boolean)\mod_forum\subscriptions::get_user_default_subscription($forum, $context, $cm, null));
 
         \mod_forum\subscriptions::set_subscription_mode($forum, FORUM_FORCESUBSCRIBE);
-        $forum = $DB->get_record('forum', array('id' => $forum->id));
+        $forum = $DB->get_record('forum', ['id' => $forum->id]);
         $this->assertTrue((boolean)\mod_forum\subscriptions::get_user_default_subscription($forum, $context, $cm, $discussion->id));
         $this->assertTrue((boolean)\mod_forum\subscriptions::get_user_default_subscription($forum, $context, $cm, null));
 

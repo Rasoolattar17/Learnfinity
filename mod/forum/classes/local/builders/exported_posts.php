@@ -245,7 +245,7 @@ class exported_posts {
                 $carry[$discussionid] = [
                     'forum' => $forums[$forumid],
                     'discussion' => $discussions[$discussionid],
-                    'posts' => [$post]
+                    'posts' => [$post],
                 ];
             }
 
@@ -294,7 +294,7 @@ class exported_posts {
             if (!isset($carry[$forumid])) {
                 $carry[$forumid] = [
                     'forum' => $forum,
-                    'posts' => []
+                    'posts' => [],
                 ];
             }
 
@@ -332,7 +332,7 @@ class exported_posts {
             if (!isset($carry[$forumid])) {
                 $carry[$forumid] = [
                     'forum' => $forum,
-                    'posts' => []
+                    'posts' => [],
                 ];
             }
 
@@ -378,7 +378,7 @@ class exported_posts {
                 $coursemodule = $forum->get_course_module_record();
                 $authoridsbycourseid[$courseid] = [
                     'groupingid' => $coursemodule->groupingid,
-                    'authorids' => []
+                    'authorids' => [],
                 ];
             }
 
@@ -457,7 +457,7 @@ class exported_posts {
             if (!isset($carry[$forumid])) {
                 $carry[$forumid] = [
                     'forum' => $forum,
-                    'posts' => []
+                    'posts' => [],
                 ];
             }
 
@@ -482,7 +482,7 @@ class exported_posts {
                 'scaleid' => $forum->get_scale(),
                 'userid' => $user->id,
                 'assesstimestart' => $forum->get_assess_time_start(),
-                'assesstimefinish' => $forum->get_assess_time_finish()
+                'assesstimefinish' => $forum->get_assess_time_finish(),
             ];
 
             $rm = $this->ratingmanager;

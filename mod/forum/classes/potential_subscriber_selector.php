@@ -42,7 +42,7 @@ class mod_forum_potential_subscriber_selector extends mod_forum_subscriber_selec
      * Can be used to store existing subscribers so that they can be removed from
      * the potential subscribers list
      */
-    protected $existingsubscribers = array();
+    protected $existingsubscribers = [];
 
     /**
      * Constructor method
@@ -52,7 +52,7 @@ class mod_forum_potential_subscriber_selector extends mod_forum_subscriber_selec
     public function __construct($name, $options) {
         parent::__construct($name, $options);
         if (isset($options['forcesubscribed'])) {
-            $this->forcesubscribed=true;
+            $this->forcesubscribed = true;
         }
     }
 
@@ -62,8 +62,8 @@ class mod_forum_potential_subscriber_selector extends mod_forum_subscriber_selec
      */
     protected function get_options() {
         $options = parent::get_options();
-        if ($this->forcesubscribed===true) {
-            $options['forcesubscribed']=1;
+        if ($this->forcesubscribed === true) {
+            $options['forcesubscribed'] = 1;
         }
         return $options;
     }
@@ -79,14 +79,14 @@ class mod_forum_potential_subscriber_selector extends mod_forum_subscriber_selec
     public function find_users($search) {
         global $DB;
 
-        $whereconditions = array();
+        $whereconditions = [];
         list($wherecondition, $params) = $this->search_sql($search, 'u');
         if ($wherecondition) {
             $whereconditions[] = $wherecondition;
         }
 
         if (!$this->forcesubscribed) {
-            $existingids = array();
+            $existingids = [];
             foreach ($this->existingsubscribers as $group) {
                 foreach ($group as $user) {
                     $existingids[$user->id] = 1;
@@ -124,7 +124,7 @@ class mod_forum_potential_subscriber_selector extends mod_forum_subscriber_selec
         $availableusers = $info->filter_user_list($availableusers);
 
         if (empty($availableusers)) {
-            return array();
+            return [];
         }
 
         // Check to see if there are too many to show sensibly.
@@ -136,9 +136,9 @@ class mod_forum_potential_subscriber_selector extends mod_forum_subscriber_selec
         }
 
         if ($this->forcesubscribed) {
-            return array(get_string("existingsubscribers", 'forum') => $availableusers);
+            return [get_string("existingsubscribers", 'forum') => $availableusers];
         } else {
-            return array(get_string("potentialsubscribers", 'forum') => $availableusers);
+            return [get_string("potentialsubscribers", 'forum') => $availableusers];
         }
     }
 

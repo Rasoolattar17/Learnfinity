@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -34,7 +33,7 @@ $mark   = optional_param('mark', '', PARAM_ALPHA);       // Used for tracking re
 $postid = optional_param('postid', 0, PARAM_INT);        // Used for tracking read posts if user initiated.
 $pin    = optional_param('pin', -1, PARAM_INT);          // If set, pin or unpin this discussion.
 
-$url = new moodle_url('/mod/forum/discuss.php', array('d'=>$d));
+$url = new moodle_url('/mod/forum/discuss.php', ['d' => $d]);
 if ($parent !== 0) {
     $url->param('parent', $parent);
 }
@@ -198,7 +197,7 @@ if ($move > 0 && confirm_sesskey()) {
         'other' => [
             'fromforumid' => $forumid,
             'toforumid' => $forumto->id,
-        ]
+        ],
     ];
     $event = \mod_forum\event\discussion_moved::create($params);
     $event->add_record_snapshot('forum_discussions', $discussionrecord);

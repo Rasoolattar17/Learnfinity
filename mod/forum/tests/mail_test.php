@@ -35,7 +35,7 @@ require_once(__DIR__ . '/generator_trait.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *
  */
-class mail_test extends \advanced_testcase {
+final class mail_test extends \advanced_testcase {
     // Make use of the cron tester trait.
     use mod_forum_tests_cron_trait;
 
@@ -103,7 +103,7 @@ class mail_test extends \advanced_testcase {
         // Must be no longer than 15 characters.
         $CFG->messageinbound_mailbox = 'moodlemoodle123';
 
-        $record = $DB->get_record('messageinbound_handlers', array('classname' => '\mod_forum\message\inbound\reply_handler'));
+        $record = $DB->get_record('messageinbound_handlers', ['classname' => '\mod_forum\message\inbound\reply_handler']);
         $record->enabled = true;
         $record->id = $DB->update_record('messageinbound_handlers', $record);
     }
@@ -114,7 +114,7 @@ class mail_test extends \advanced_testcase {
         // Create a course, with a forum.
         $course = $this->getDataGenerator()->create_course();
 
-        $options = array('course' => $course->id, 'forcesubscribe' => FORUM_FORCESUBSCRIBE);
+        $options = ['course' => $course->id, 'forcesubscribe' => FORUM_FORCESUBSCRIBE];
         $forum = $this->getDataGenerator()->create_module('forum', $options);
 
         // Create two users enrolled in the course as students.
@@ -153,7 +153,7 @@ class mail_test extends \advanced_testcase {
         // Create a course, with a forum.
         $course = $this->getDataGenerator()->create_course();
 
-        $options = array('course' => $course->id, 'forcesubscribe' => FORUM_FORCESUBSCRIBE);
+        $options = ['course' => $course->id, 'forcesubscribe' => FORUM_FORCESUBSCRIBE];
         $forum = $this->getDataGenerator()->create_module('forum', $options);
 
         // Create users enrolled in the course as students.
@@ -205,7 +205,7 @@ class mail_test extends \advanced_testcase {
         // Create a course, with a forum.
         $course = $this->getDataGenerator()->create_course();
 
-        $options = array('course' => $course->id, 'forcesubscribe' => FORUM_DISALLOWSUBSCRIBE);
+        $options = ['course' => $course->id, 'forcesubscribe' => FORUM_DISALLOWSUBSCRIBE];
         $forum = $this->getDataGenerator()->create_module('forum', $options);
 
         // Create two users enrolled in the course as students.
@@ -242,7 +242,7 @@ class mail_test extends \advanced_testcase {
         // Create a course, with a forum.
         $course = $this->getDataGenerator()->create_course();
 
-        $options = array('course' => $course->id, 'forcesubscribe' => FORUM_DISALLOWSUBSCRIBE);
+        $options = ['course' => $course->id, 'forcesubscribe' => FORUM_DISALLOWSUBSCRIBE];
         $forum = $this->getDataGenerator()->create_module('forum', $options);
 
         // Create two users enrolled in the course as students.
@@ -255,10 +255,10 @@ class mail_test extends \advanced_testcase {
         // Suscribe the recipient only.
         \mod_forum\subscriptions::subscribe_user($recipient->id, $forum);
 
-        $this->assertEquals(1, $DB->count_records('forum_subscriptions', array(
+        $this->assertEquals(1, $DB->count_records('forum_subscriptions', [
             'userid'        => $recipient->id,
             'forum'         => $forum->id,
-        )));
+        ]));
 
         // Post a discussion to the forum.
         list($discussion, $post) = $this->helper_post_to_forum($forum, $author);
@@ -291,7 +291,7 @@ class mail_test extends \advanced_testcase {
         // Create a course, with a forum.
         $course = $this->getDataGenerator()->create_course();
 
-        $options = array('course' => $course->id, 'forcesubscribe' => FORUM_DISALLOWSUBSCRIBE);
+        $options = ['course' => $course->id, 'forcesubscribe' => FORUM_DISALLOWSUBSCRIBE];
         $forum = $this->getDataGenerator()->create_module('forum', $options);
 
         // Create two users enrolled in the course as students.
@@ -333,7 +333,7 @@ class mail_test extends \advanced_testcase {
         // Create a course, with a forum.
         $course = $this->getDataGenerator()->create_course();
 
-        $options = array('course' => $course->id, 'forcesubscribe' => FORUM_INITIALSUBSCRIBE);
+        $options = ['course' => $course->id, 'forcesubscribe' => FORUM_INITIALSUBSCRIBE];
         $forum = $this->getDataGenerator()->create_module('forum', $options);
 
         // Create two users enrolled in the course as students.
@@ -414,7 +414,7 @@ class mail_test extends \advanced_testcase {
         // Create a course, with a forum.
         $course = $this->getDataGenerator()->create_course();
 
-        $options = array('course' => $course->id, 'forcesubscribe' => FORUM_CHOOSESUBSCRIBE);
+        $options = ['course' => $course->id, 'forcesubscribe' => FORUM_CHOOSESUBSCRIBE];
         $forum = $this->getDataGenerator()->create_module('forum', $options);
 
         // Create two users enrolled in the course as students.
@@ -445,7 +445,7 @@ class mail_test extends \advanced_testcase {
         // Create a course, with a forum.
         $course = $this->getDataGenerator()->create_course();
 
-        $options = array('course' => $course->id, 'forcesubscribe' => FORUM_INITIALSUBSCRIBE);
+        $options = ['course' => $course->id, 'forcesubscribe' => FORUM_INITIALSUBSCRIBE];
         $forum = $this->getDataGenerator()->create_module('forum', $options);
 
         // Create two users enrolled in the course as students.
@@ -479,7 +479,7 @@ class mail_test extends \advanced_testcase {
         // Create a course, with a forum.
         $course = $this->getDataGenerator()->create_course();
 
-        $options = array('course' => $course->id, 'forcesubscribe' => FORUM_CHOOSESUBSCRIBE);
+        $options = ['course' => $course->id, 'forcesubscribe' => FORUM_CHOOSESUBSCRIBE];
         $forum = $this->getDataGenerator()->create_module('forum', $options);
 
         // Create two users enrolled in the course as students.
@@ -513,7 +513,7 @@ class mail_test extends \advanced_testcase {
         // Create a course, with a forum.
         $course = $this->getDataGenerator()->create_course();
 
-        $options = array('course' => $course->id, 'forcesubscribe' => FORUM_INITIALSUBSCRIBE);
+        $options = ['course' => $course->id, 'forcesubscribe' => FORUM_INITIALSUBSCRIBE];
         $forum = $this->getDataGenerator()->create_module('forum', $options);
 
         // Create two users enrolled in the course as students.
@@ -550,7 +550,7 @@ class mail_test extends \advanced_testcase {
         // Create a course, with a forum.
         $course = $this->getDataGenerator()->create_course();
 
-        $options = array('course' => $course->id, 'forcesubscribe' => FORUM_CHOOSESUBSCRIBE);
+        $options = ['course' => $course->id, 'forcesubscribe' => FORUM_CHOOSESUBSCRIBE];
         $forum = $this->getDataGenerator()->create_module('forum', $options);
 
         // Create two users enrolled in the course as students.
@@ -608,7 +608,7 @@ class mail_test extends \advanced_testcase {
         // Create a course, with a forum.
         $course = $this->getDataGenerator()->create_course();
 
-        $options = array('course' => $course->id, 'forcesubscribe' => FORUM_CHOOSESUBSCRIBE);
+        $options = ['course' => $course->id, 'forcesubscribe' => FORUM_CHOOSESUBSCRIBE];
         $forum = $this->getDataGenerator()->create_module('forum', $options);
 
         // Create two users enrolled in the course as students.
@@ -654,7 +654,7 @@ class mail_test extends \advanced_testcase {
         // Create a course, with a forum.
         $course = $this->getDataGenerator()->create_course();
 
-        $options = array('course' => $course->id, 'forcesubscribe' => FORUM_INITIALSUBSCRIBE);
+        $options = ['course' => $course->id, 'forcesubscribe' => FORUM_INITIALSUBSCRIBE];
         $forum = $this->getDataGenerator()->create_module('forum', $options);
 
         // Create two users enrolled in the course as students.
@@ -712,7 +712,7 @@ class mail_test extends \advanced_testcase {
         // Create a course, with a forum.
         $course = $this->getDataGenerator()->create_course();
 
-        $options = array('course' => $course->id, 'forcesubscribe' => FORUM_CHOOSESUBSCRIBE);
+        $options = ['course' => $course->id, 'forcesubscribe' => FORUM_CHOOSESUBSCRIBE];
         $forum = $this->getDataGenerator()->create_module('forum', $options);
 
         // Create two users enrolled in the course as students.
@@ -754,10 +754,10 @@ class mail_test extends \advanced_testcase {
         // Create a course, with a forum.
         $course = $this->getDataGenerator()->create_course();
 
-        $options = array('course' => $course->id, 'forcesubscribe' => FORUM_CHOOSESUBSCRIBE);
+        $options = ['course' => $course->id, 'forcesubscribe' => FORUM_CHOOSESUBSCRIBE];
         $forum = $this->getDataGenerator()->create_module('forum', $options);
 
-        $expectedmessages = array();
+        $expectedmessages = [];
 
         // Create a user enrolled in the course as a student.
         list($author) = $this->helper_create_users($course, 1);
@@ -766,11 +766,11 @@ class mail_test extends \advanced_testcase {
         list($discussion, $post) = $this->helper_post_to_forum($forum, $author);
         $this->helper_update_post_time($post, -90);
 
-        $expectedmessages[] = array(
+        $expectedmessages[] = [
             'id' => $post->id,
             'subject' => $post->subject,
             'count' => 0,
-        );
+        ];
 
         // Then subscribe the user to the discussion.
         $this->assertTrue(\mod_forum\subscriptions::subscribe_user_to_discussion($author->id, $discussion));
@@ -797,7 +797,7 @@ class mail_test extends \advanced_testcase {
 
         $course = $this->getDataGenerator()->create_course();
 
-        $options = array('course' => $course->id, 'forcesubscribe' => FORUM_CHOOSESUBSCRIBE);
+        $options = ['course' => $course->id, 'forcesubscribe' => FORUM_CHOOSESUBSCRIBE];
         $forum = $this->getDataGenerator()->create_module('forum', $options);
 
         // Create two users enrolled in the course as students.
@@ -843,13 +843,13 @@ class mail_test extends \advanced_testcase {
 
         // Create a course, with a forum.
         $course = $this->getDataGenerator()->create_course();
-        $options = array('course' => $course->id, 'forcesubscribe' => FORUM_FORCESUBSCRIBE);
+        $options = ['course' => $course->id, 'forcesubscribe' => FORUM_FORCESUBSCRIBE];
         $forum = $this->getDataGenerator()->create_module('forum', $options);
 
         // Create a user enrolled in the course as a student.
         list($author) = $this->helper_create_users($course, 1);
 
-        $expectedmessages = array();
+        $expectedmessages = [];
 
         // Post a discussion to the forum.
         list($discussion, $post) = $this->helper_post_to_forum($forum, $author);
@@ -907,7 +907,7 @@ class mail_test extends \advanced_testcase {
         // Create a course, with a forum.
         $course = $this->getDataGenerator()->create_course();
 
-        $options = array('course' => $course->id, 'forcesubscribe' => FORUM_FORCESUBSCRIBE);
+        $options = ['course' => $course->id, 'forcesubscribe' => FORUM_FORCESUBSCRIBE];
         $forum = $this->getDataGenerator()->create_module('forum', $options);
 
         // Create a user enrolled in the course as student.
@@ -915,9 +915,9 @@ class mail_test extends \advanced_testcase {
 
         // Post a discussion to the forum.
         $subject = 'This is the very long forum post subject that somebody was very kind of leaving, it is intended to check if long subject comes in mail correctly. Thank you.';
-        $a = (object)array('courseshortname' => $course->shortname, 'forumname' => $forum->name, 'subject' => $subject);
+        $a = (object)['courseshortname' => $course->shortname, 'forumname' => $forum->name, 'subject' => $subject];
         $expectedsubject = get_string('postmailsubject', 'forum', $a);
-        list($discussion, $post) = $this->helper_post_to_forum($forum, $author, array('name' => $subject));
+        list($discussion, $post) = $this->helper_post_to_forum($forum, $author, ['name' => $subject]);
 
         // Run cron and check that the expected number of users received the notification.
         $expect = [
@@ -943,7 +943,7 @@ class mail_test extends \advanced_testcase {
 
         $course = $this->getDataGenerator()->create_course();
 
-        $options = array('course' => $course->id, 'forcesubscribe' => FORUM_FORCESUBSCRIBE);
+        $options = ['course' => $course->id, 'forcesubscribe' => FORUM_FORCESUBSCRIBE];
         $forum = $this->getDataGenerator()->create_module('forum', $options);
 
         list($author) = $this->helper_create_users($course, 1);
@@ -998,43 +998,43 @@ class mail_test extends \advanced_testcase {
      */
     public function forum_post_email_templates_provider() {
         // Base information, we'll build variations based on it.
-        $base = array(
-            'user' => array('firstname' => 'Love', 'lastname' => 'Moodle', 'mailformat' => 0, 'maildigest' => 0),
-            'course' => array('shortname' => '101', 'fullname' => 'Moodle 101'),
-            'forums' => array(
-                array(
+        $base = [
+            'user' => ['firstname' => 'Love', 'lastname' => 'Moodle', 'mailformat' => 0, 'maildigest' => 0],
+            'course' => ['shortname' => '101', 'fullname' => 'Moodle 101'],
+            'forums' => [
+                [
                     'name' => 'Moodle Forum',
-                    'forumposts' => array(
-                        array(
+                    'forumposts' => [
+                        [
                             'name' => 'Hello Moodle',
                             'message' => 'Welcome to Moodle',
                             'messageformat' => FORMAT_MOODLE,
-                            'attachments' => array(
-                                array(
+                            'attachments' => [
+                                [
                                     'filename' => 'example.txt',
-                                    'filecontents' => 'Basic information about the course'
-                                ),
-                            ),
-                        ),
-                    ),
-                ),
-            ),
-            'expectations' => array(
-                array(
+                                    'filecontents' => 'Basic information about the course',
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+            'expectations' => [
+                [
                     'subject' => '.*101.*Hello',
-                    'contents' => array(
+                    'contents' => [
                         '~{$a',
                         '~&(amp|lt|gt|quot|\#039);(?!course)',
                         'Attachment example.txt:' . '\r*\n' .
                             'https://www.example.com/moodle/pluginfile.php/\d*/mod_forum/attachment/\d*/example.txt' . '\r*\n',
-                        'Hello Moodle', 'Moodle Forum', 'Welcome.*Moodle', 'Love Moodle', '1\d1'
-                    ),
-                ),
-            ),
-        );
+                        'Hello Moodle', 'Moodle Forum', 'Welcome.*Moodle', 'Love Moodle', '1\d1',
+                    ],
+                ],
+            ],
+        ];
 
         // Build the text cases.
-        $textcases = array('Text mail without ampersands, quotes or lt/gt' => array('data' => $base));
+        $textcases = ['Text mail without ampersands, quotes or lt/gt' => ['data' => $base]];
 
         // Single and double quotes everywhere.
         $newcase = $base;
@@ -1043,10 +1043,10 @@ class mail_test extends \advanced_testcase {
         $newcase['forums'][0]['name'] = 'Moodle Forum\'"';
         $newcase['forums'][0]['forumposts'][0]['name'] = 'Hello Moodle\'"';
         $newcase['forums'][0]['forumposts'][0]['message'] = 'Welcome to Moodle\'"';
-        $newcase['expectations'][0]['contents'] = array(
+        $newcase['expectations'][0]['contents'] = [
             'Attachment example.txt:', '~{\$a', '~&amp;(quot|\#039);', 'Love Moodle\'', '101\'', 'Moodle Forum\'"',
-            'Hello Moodle\'"', 'Welcome to Moodle\'"');
-        $textcases['Text mail with quotes everywhere'] = array('data' => $newcase);
+            'Hello Moodle\'"', 'Welcome to Moodle\'"'];
+        $textcases['Text mail with quotes everywhere'] = ['data' => $newcase];
 
         // Lt and gt everywhere. This case is completely borked because format_string()
         // strips tags with $CFG->formatstringstriptags and also escapes < and > (correct
@@ -1057,10 +1057,10 @@ class mail_test extends \advanced_testcase {
         $newcase['forums'][0]['name'] = 'Moodle Forum>';
         $newcase['forums'][0]['forumposts'][0]['name'] = 'Hello Moodle>';
         $newcase['forums'][0]['forumposts'][0]['message'] = 'Welcome to Moodle>';
-        $newcase['expectations'][0]['contents'] = array(
+        $newcase['expectations'][0]['contents'] = [
             'Attachment example.txt:', '~{\$a', '~&amp;gt;', 'Love Moodle>', '101>', 'Moodle Forum>',
-            'Hello Moodle>', 'Welcome to Moodle>');
-        $textcases['Text mail with gt and lt everywhere'] = array('data' => $newcase);
+            'Hello Moodle>', 'Welcome to Moodle>'];
+        $textcases['Text mail with gt and lt everywhere'] = ['data' => $newcase];
 
         // Ampersands everywhere. This case is completely borked because format_string()
         // escapes ampersands (correct for web presentation but not for text email). See MDL-19829.
@@ -1070,10 +1070,10 @@ class mail_test extends \advanced_testcase {
         $newcase['forums'][0]['name'] = 'Moodle Forum&';
         $newcase['forums'][0]['forumposts'][0]['name'] = 'Hello Moodle&';
         $newcase['forums'][0]['forumposts'][0]['message'] = 'Welcome to Moodle&';
-        $newcase['expectations'][0]['contents'] = array(
+        $newcase['expectations'][0]['contents'] = [
             'Attachment example.txt:', '~{\$a', '~&amp;amp;', 'Love Moodle&', '101&', 'Moodle Forum&',
-            'Hello Moodle&', 'Welcome to Moodle&');
-        $textcases['Text mail with ampersands everywhere'] = array('data' => $newcase);
+            'Hello Moodle&', 'Welcome to Moodle&'];
+        $textcases['Text mail with ampersands everywhere'] = ['data' => $newcase];
 
         // Text+image message i.e. @@PLUGINFILE@@ token handling.
         $newcase = $base;
@@ -1081,7 +1081,7 @@ class mail_test extends \advanced_testcase {
         $newcase['forums'][0]['forumposts'][0]['message'] = 'Welcome to Moodle, '
             .'@@PLUGINFILE@@/Screen%20Shot%202016-03-22%20at%205.54.36%20AM%20%281%29.png !';
         $newcase['expectations'][0]['subject'] = '.*101.*Text and image';
-        $newcase['expectations'][0]['contents'] = array(
+        $newcase['expectations'][0]['contents'] = [
             '~{$a',
             '~&(amp|lt|gt|quot|\#039);(?!course)',
             'Attachment example.txt:' . '\r*\n' .
@@ -1090,21 +1090,21 @@ class mail_test extends \advanced_testcase {
             'Welcome to Moodle, *' . '\r*\n' . '.*'
                 .'https://www.example.com/moodle/pluginfile.php/\d+/mod_forum/post/\d+/'
                 .'Screen%20Shot%202016-03-22%20at%205\.54\.36%20AM%20%281%29\.png *' . '\r*\n' . '.*!',
-            'Love Moodle', '1\d1');
-        $textcases['Text mail with text+image message i.e. @@PLUGINFILE@@ token handling'] = array('data' => $newcase);
+            'Love Moodle', '1\d1'];
+        $textcases['Text mail with text+image message i.e. @@PLUGINFILE@@ token handling'] = ['data' => $newcase];
 
         // Now the html cases.
-        $htmlcases = array();
+        $htmlcases = [];
 
         // New base for html cases, no quotes, lts, gts or ampersands.
         $htmlbase = $base;
         $htmlbase['user']['mailformat'] = 1;
-        $htmlbase['expectations'][0]['contents'] = array(
+        $htmlbase['expectations'][0]['contents'] = [
             '~{\$a',
             '~&(amp|lt|gt|quot|\#039);(?!course|lang|version|iosappid|androidappid)',
             '<div class="attachments">( *\n *)?<a href',
-            '<div class="subject">\n.*Hello Moodle', '>Moodle Forum', '>Welcome.*Moodle', '>Love Moodle', '>1\d1');
-        $htmlcases['HTML mail without ampersands, quotes or lt/gt'] = array('data' => $htmlbase);
+            '<div class="subject">\n.*Hello Moodle', '>Moodle Forum', '>Welcome.*Moodle', '>Love Moodle', '>1\d1'];
+        $htmlcases['HTML mail without ampersands, quotes or lt/gt'] = ['data' => $htmlbase];
 
         // Single and double quotes, lt and gt, ampersands everywhere.
         $newcase = $htmlbase;
@@ -1113,13 +1113,13 @@ class mail_test extends \advanced_testcase {
         $newcase['forums'][0]['name'] = 'Moodle Forum\'">&';
         $newcase['forums'][0]['forumposts'][0]['name'] = 'Hello Moodle\'">&';
         $newcase['forums'][0]['forumposts'][0]['message'] = 'Welcome to Moodle\'">&';
-        $newcase['expectations'][0]['contents'] = array(
+        $newcase['expectations'][0]['contents'] = [
             '~{\$a',
             '~&amp;(amp|lt|gt|quot|\#039);',
             '<div class="attachments">( *\n *)?<a href',
             '<div class="subject">\n.*Hello Moodle\'"&gt;&amp;', '>Moodle Forum\'"&gt;&amp;',
-            '>Welcome.*Moodle\'"&gt;&amp;', '>Love Moodle&\#039;&quot;&gt;&amp;', '>101\'"&gt;&amp');
-        $htmlcases['HTML mail with quotes, gt, lt and ampersand  everywhere'] = array('data' => $newcase);
+            '>Welcome.*Moodle\'"&gt;&amp;', '>Love Moodle&\#039;&quot;&gt;&amp;', '>101\'"&gt;&amp'];
+        $htmlcases['HTML mail with quotes, gt, lt and ampersand  everywhere'] = ['data' => $newcase];
 
         // Text+image message i.e. @@PLUGINFILE@@ token handling.
         $newcase = $htmlbase;
@@ -1128,7 +1128,7 @@ class mail_test extends \advanced_testcase {
             .'<img src="@@PLUGINFILE@@/Screen%20Shot%202016-03-22%20at%205.54.36%20AM%20%281%29.png"'
             .' alt="" width="200" height="393" class="img-fluid" />!</p>';
         $newcase['expectations'][0]['subject'] = '.*101.*HTML text and image';
-        $newcase['expectations'][0]['contents'] = array(
+        $newcase['expectations'][0]['contents'] = [
             '~{\$a',
             '~&(amp|lt|gt|quot|\#039);(?!course|lang|version|iosappid|androidappid)',
             '<div class="attachments">( *\n *)?<a href',
@@ -1137,8 +1137,8 @@ class mail_test extends \advanced_testcase {
             .'<img src="https://www.example.com/moodle/tokenpluginfile.php/[^/]*/\d+/mod_forum/post/\d+/'
                 .'Screen%20Shot%202016-03-22%20at%205\.54\.36%20AM%20%281%29\.png"'
                 .' alt="" width="200" height="393" class="img-fluid" />!</p>',
-            '>Love Moodle', '>1\d1');
-        $htmlcases['HTML mail with text+image message i.e. @@PLUGINFILE@@ token handling'] = array('data' => $newcase);
+            '>Love Moodle', '>1\d1'];
+        $htmlcases['HTML mail with text+image message i.e. @@PLUGINFILE@@ token handling'] = ['data' => $newcase];
 
         return $textcases + $htmlcases;
     }
@@ -1155,14 +1155,14 @@ class mail_test extends \advanced_testcase {
         $this->resetAfterTest();
 
         // Create the course, with the specified options.
-        $options = array();
+        $options = [];
         foreach ($data['course'] as $option => $value) {
             $options[$option] = $value;
         }
         $course = $this->getDataGenerator()->create_course($options);
 
         // Create the user, with the specified options and enrol in the course.
-        $options = array();
+        $options = [];
         foreach ($data['user'] as $option => $value) {
             $options[$option] = $value;
         }
@@ -1170,11 +1170,11 @@ class mail_test extends \advanced_testcase {
         $this->getDataGenerator()->enrol_user($user->id, $course->id);
 
         // Create forums, always force susbscribed (for easy), with the specified options.
-        $posts = array();
+        $posts = [];
         foreach ($data['forums'] as $dataforum) {
-            $forumposts = isset($dataforum['forumposts']) ? $dataforum['forumposts'] : array();
+            $forumposts = isset($dataforum['forumposts']) ? $dataforum['forumposts'] : [];
             unset($dataforum['forumposts']);
-            $options = array('course' => $course->id, 'forcesubscribe' => FORUM_FORCESUBSCRIBE);
+            $options = ['course' => $course->id, 'forcesubscribe' => FORUM_FORCESUBSCRIBE];
             foreach ($dataforum as $option => $value) {
                 $options[$option] = $value;
             }
@@ -1182,10 +1182,10 @@ class mail_test extends \advanced_testcase {
 
             // Create posts, always for immediate delivery (for easy), with the specified options.
             foreach ($forumposts as $forumpost) {
-                $attachments = isset($forumpost['attachments']) ? $forumpost['attachments'] : array();
+                $attachments = isset($forumpost['attachments']) ? $forumpost['attachments'] : [];
                 unset($forumpost['attachments']);
-                $postoptions = array('course' => $course->id, 'forum' => $forum->id, 'userid' => $user->id,
-                    'mailnow' => 1, 'attachment' => !empty($attachments));
+                $postoptions = ['course' => $course->id, 'forum' => $forum->id, 'userid' => $user->id,
+                    'mailnow' => 1, 'attachment' => !empty($attachments)];
                 foreach ($forumpost as $option => $value) {
                     $postoptions[$option] = $value;
                 }
@@ -1196,17 +1196,17 @@ class mail_test extends \advanced_testcase {
                 if ($attachments) {
                     $fs = get_file_storage();
                     foreach ($attachments as $attachment) {
-                        $filerecord = array(
+                        $filerecord = [
                             'contextid' => \context_module::instance($forum->cmid)->id,
                             'component' => 'mod_forum',
                             'filearea'  => 'attachment',
                             'itemid'    => $post->id,
                             'filepath'  => '/',
-                            'filename'  => $attachment['filename']
-                        );
+                            'filename'  => $attachment['filename'],
+                        ];
                         $fs->create_file_from_string($filerecord, $attachment['filecontents']);
                     }
-                    $DB->set_field('forum_posts', 'attachment', '1', array('id' => $post->id));
+                    $DB->set_field('forum_posts', 'attachment', '1', ['id' => $post->id]);
                 }
             }
         }
@@ -1260,7 +1260,7 @@ class mail_test extends \advanced_testcase {
             if (isset($foundexpectation) and isset($foundexpectation['contents'])) {
                 $mail->body = quoted_printable_decode($mail->body);
                 if (!is_array($foundexpectation['contents'])) { // Accept both string and array.
-                    $foundexpectation['contents'] = array($foundexpectation['contents']);
+                    $foundexpectation['contents'] = [$foundexpectation['contents']];
                 }
                 foreach ($foundexpectation['contents'] as $content) {
                     if (strpos($content, '~') !== 0) {
@@ -1288,7 +1288,7 @@ class mail_test extends \advanced_testcase {
         // Create a course, with a forum.
         $course = $this->getDataGenerator()->create_course();
 
-        $options = array('course' => $course->id, 'forcesubscribe' => FORUM_INITIALSUBSCRIBE);
+        $options = ['course' => $course->id, 'forcesubscribe' => FORUM_INITIALSUBSCRIBE];
         $forum = $this->getDataGenerator()->create_module('forum', $options);
 
         // Create two users enrolled in the course as students.
@@ -1320,7 +1320,7 @@ class mail_test extends \advanced_testcase {
         // Create a course, with a forum.
         $course = $this->getDataGenerator()->create_course();
 
-        $options = array('course' => $course->id, 'forcesubscribe' => FORUM_INITIALSUBSCRIBE);
+        $options = ['course' => $course->id, 'forcesubscribe' => FORUM_INITIALSUBSCRIBE];
         $forum = $this->getDataGenerator()->create_module('forum', $options);
 
         // Create two users enrolled in the course as students.
@@ -1361,7 +1361,7 @@ class mail_test extends \advanced_testcase {
         // Create a course, with a forum.
         $course = $this->getDataGenerator()->create_course();
 
-        $options = array('course' => $course->id, 'forcesubscribe' => FORUM_INITIALSUBSCRIBE);
+        $options = ['course' => $course->id, 'forcesubscribe' => FORUM_INITIALSUBSCRIBE];
         $forum = $this->getDataGenerator()->create_module('forum', $options);
 
         // Create two users enrolled in the course as students.
@@ -1410,7 +1410,7 @@ class mail_test extends \advanced_testcase {
         // Create a course, with a forum.
         $course = $this->getDataGenerator()->create_course();
 
-        $options = array('course' => $course->id, 'forcesubscribe' => FORUM_INITIALSUBSCRIBE);
+        $options = ['course' => $course->id, 'forcesubscribe' => FORUM_INITIALSUBSCRIBE];
         $forum = $this->getDataGenerator()->create_module('forum', $options);
 
         // Create two users enrolled in the course as students.
@@ -1461,7 +1461,7 @@ class mail_test extends \advanced_testcase {
         // Create a course, with a forum.
         $course = $this->getDataGenerator()->create_course();
 
-        $options = array('course' => $course->id, 'forcesubscribe' => FORUM_INITIALSUBSCRIBE);
+        $options = ['course' => $course->id, 'forcesubscribe' => FORUM_INITIALSUBSCRIBE];
         $forum = $this->getDataGenerator()->create_module('forum', $options);
 
         // Create two users enrolled in the course as students.
@@ -1521,7 +1521,7 @@ class mail_test extends \advanced_testcase {
         // Create a course, with a forum.
         $course = $this->getDataGenerator()->create_course();
 
-        $options = array('course' => $course->id, 'forcesubscribe' => FORUM_INITIALSUBSCRIBE);
+        $options = ['course' => $course->id, 'forcesubscribe' => FORUM_INITIALSUBSCRIBE];
         $forum = $this->getDataGenerator()->create_module('forum', $options);
 
         // Create two users enrolled in the course as students.
@@ -1578,7 +1578,7 @@ class mail_test extends \advanced_testcase {
 
         $course = $this->getDataGenerator()->create_course();
 
-        $options = array('course' => $course->id, 'forcesubscribe' => FORUM_FORCESUBSCRIBE);
+        $options = ['course' => $course->id, 'forcesubscribe' => FORUM_FORCESUBSCRIBE];
         $forum = $this->getDataGenerator()->create_module('forum', $options);
 
         list($author) = $this->helper_create_users($course, 1);

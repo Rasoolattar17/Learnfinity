@@ -77,7 +77,7 @@ class subscribers_viewed extends \core\event\base {
      * @return \moodle_url
      */
     public function get_url() {
-        return new \moodle_url('/mod/forum/subscribers.php', array('id' => $this->other['forumid']));
+        return new \moodle_url('/mod/forum/subscribers.php', ['id' => $this->other['forumid']]);
     }
 
     /**
@@ -99,8 +99,8 @@ class subscribers_viewed extends \core\event\base {
     }
 
     public static function get_other_mapping() {
-        $othermapped = array();
-        $othermapped['forumid'] = array('db' => 'forum', 'restore' => 'forum');
+        $othermapped = [];
+        $othermapped['forumid'] = ['db' => 'forum', 'restore' => 'forum'];
 
         return $othermapped;
     }

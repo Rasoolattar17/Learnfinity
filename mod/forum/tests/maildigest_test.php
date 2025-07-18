@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -33,7 +32,7 @@ require_once(__DIR__ . '/generator_trait.php');
  * @copyright  2013 Andrew Nicols
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class maildigest_test extends \advanced_testcase {
+final class maildigest_test extends \advanced_testcase {
 
     // Make use of the cron tester trait.
     use mod_forum_tests_cron_trait;
@@ -110,7 +109,7 @@ class maildigest_test extends \advanced_testcase {
         $return = new \stdClass();
         $return->courses = new \stdClass();
         $return->forums = new \stdClass();
-        $return->forumids = array();
+        $return->forumids = [];
 
         // Create a user.
         $user = $this->getDataGenerator()->create_user();
@@ -154,41 +153,41 @@ class maildigest_test extends \advanced_testcase {
         self::setUser($helper->user);
 
         // Confirm that there is no current value.
-        $currentsetting = $DB->get_record('forum_digests', array(
+        $currentsetting = $DB->get_record('forum_digests', [
             'forum' => $forum1->id,
             'userid' => $user->id,
-        ));
+        ]);
         $this->assertFalse($currentsetting);
 
         // Test with each of the valid values:
         // 0, 1, and 2 are valid values.
         forum_set_user_maildigest($forum1, 0, $user);
-        $currentsetting = $DB->get_record('forum_digests', array(
+        $currentsetting = $DB->get_record('forum_digests', [
             'forum' => $forum1->id,
             'userid' => $user->id,
-        ));
+        ]);
         $this->assertEquals($currentsetting->maildigest, 0);
 
         forum_set_user_maildigest($forum1, 1, $user);
-        $currentsetting = $DB->get_record('forum_digests', array(
+        $currentsetting = $DB->get_record('forum_digests', [
             'forum' => $forum1->id,
             'userid' => $user->id,
-        ));
+        ]);
         $this->assertEquals($currentsetting->maildigest, 1);
 
         forum_set_user_maildigest($forum1, 2, $user);
-        $currentsetting = $DB->get_record('forum_digests', array(
+        $currentsetting = $DB->get_record('forum_digests', [
             'forum' => $forum1->id,
             'userid' => $user->id,
-        ));
+        ]);
         $this->assertEquals($currentsetting->maildigest, 2);
 
         // And the default value - this should delete the record again
         forum_set_user_maildigest($forum1, -1, $user);
-        $currentsetting = $DB->get_record('forum_digests', array(
+        $currentsetting = $DB->get_record('forum_digests', [
             'forum' => $forum1->id,
             'userid' => $user->id,
-        ));
+        ]);
         $this->assertFalse($currentsetting);
 
         // Try with an invalid value.
@@ -211,11 +210,11 @@ class maildigest_test extends \advanced_testcase {
         self::setUser($helper->user);
 
         // We test against these options.
-        $digestoptions = array(
+        $digestoptions = [
             '0' => get_string('emaildigestoffshort', 'mod_forum'),
             '1' => get_string('emaildigestcompleteshort', 'mod_forum'),
             '2' => get_string('emaildigestsubjectsshort', 'mod_forum'),
-        );
+        ];
 
         // The default settings is 0.
         $this->assertEquals(0, $user->maildigest);
@@ -300,7 +299,7 @@ class maildigest_test extends \advanced_testcase {
         }
 
         // Set the tested user's default maildigest setting.
-        $DB->set_field('user', 'maildigest', 0, array('id' => $user->id));
+        $DB->set_field('user', 'maildigest', 0, ['id' => $user->id]);
 
         // Set the maildigest preference for forum1 to default.
         forum_set_user_maildigest($forum1, -1, $user);
@@ -351,7 +350,7 @@ class maildigest_test extends \advanced_testcase {
         }
 
         // Set the tested user's default maildigest setting.
-        $DB->set_field('user', 'maildigest', 1, array('id' => $user->id));
+        $DB->set_field('user', 'maildigest', 1, ['id' => $user->id]);
 
         // Set the maildigest preference for forum1 to default.
         forum_set_user_maildigest($forum1, -1, $user);
@@ -393,7 +392,7 @@ class maildigest_test extends \advanced_testcase {
         $posts[] = $post;
 
         // Set the tested user's default maildigest setting.
-        $DB->set_field('user', 'maildigest', 1, array('id' => $user->id));
+        $DB->set_field('user', 'maildigest', 1, ['id' => $user->id]);
 
         // No digests mails should be sent, but 1 forum mails will be sent.
         $expect = [
@@ -445,7 +444,7 @@ class maildigest_test extends \advanced_testcase {
         $posts[] = $post;
 
         // Set the tested user's default maildigest setting.
-        $DB->set_field('user', 'maildigest', 1, array('id' => $user->id));
+        $DB->set_field('user', 'maildigest', 1, ['id' => $user->id]);
 
         // No digests mails should be sent, but 1 forum mails will be sent.
         $expect = [
@@ -503,7 +502,7 @@ class maildigest_test extends \advanced_testcase {
         }
 
         // Set the tested user's default maildigest setting.
-        $DB->set_field('user', 'maildigest', 0, array('id' => $user->id));
+        $DB->set_field('user', 'maildigest', 0, ['id' => $user->id]);
 
         // Set the maildigest preference for forum1 to digest.
         forum_set_user_maildigest($forum1, 1, $user);
@@ -557,7 +556,7 @@ class maildigest_test extends \advanced_testcase {
         }
 
         // Set the tested user's default maildigest setting.
-        $DB->set_field('user', 'maildigest', 1, array('id' => $user->id));
+        $DB->set_field('user', 'maildigest', 1, ['id' => $user->id]);
 
         // Set the maildigest preference for forum1 to digest.
         forum_set_user_maildigest($forum1, -1, $user);
@@ -610,7 +609,7 @@ class maildigest_test extends \advanced_testcase {
         }
 
         // Set the tested user's default maildigest setting.
-        $DB->set_field('user', 'maildigest', 0, array('id' => $user->id));
+        $DB->set_field('user', 'maildigest', 0, ['id' => $user->id]);
 
         // Set the maildigest preference for forum1 to digest (complete).
         forum_set_user_maildigest($forum1, 1, $user);
@@ -652,7 +651,7 @@ class maildigest_test extends \advanced_testcase {
         $fulldigests[] = $post;
 
         // Set the tested user's default maildigest setting.
-        $DB->set_field('user', 'maildigest', 1, array('id' => $user->id));
+        $DB->set_field('user', 'maildigest', 1, ['id' => $user->id]);
 
         // Set the digest time to midnight.
         $CFG->digestmailtime = 0;
@@ -692,7 +691,7 @@ class maildigest_test extends \advanced_testcase {
         $fulldigests[] = $post;
 
         // Set the tested user's default maildigest setting.
-        $DB->set_field('user', 'maildigest', 1, array('id' => $user->id));
+        $DB->set_field('user', 'maildigest', 1, ['id' => $user->id]);
 
         // Set the digest time to the future (magic, shouldn't work).
         $CFG->digestmailtime = 25;

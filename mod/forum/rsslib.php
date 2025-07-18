@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -38,7 +37,7 @@ function forum_rss_get_feed($context, $args) {
 
     $status = true;
 
-    //are RSS feeds enabled?
+    // are RSS feeds enabled?
     if (empty($CFG->forum_enablerssfeeds)) {
         debugging('DISABLED (module configuration)');
         return null;
@@ -48,24 +47,24 @@ function forum_rss_get_feed($context, $args) {
     $cm = get_coursemodule_from_instance('forum', $forumid, 0, false, MUST_EXIST);
     $modcontext = context_module::instance($cm->id);
 
-    //context id from db should match the submitted one
+    // context id from db should match the submitted one
     if ($context->id != $modcontext->id || !has_capability('mod/forum:viewdiscussion', $modcontext)) {
         return null;
     }
 
-    $forum = $DB->get_record('forum', array('id' => $forumid), '*', MUST_EXIST);
+    $forum = $DB->get_record('forum', ['id' => $forumid], '*', MUST_EXIST);
     if (!rss_enabled_for_mod('forum', $forum)) {
         return null;
     }
 
-    //the sql that will retreive the data for the feed and be hashed to get the cache filename
+    // the sql that will retreive the data for the feed and be hashed to get the cache filename
     list($sql, $params) = forum_rss_get_sql($forum, $cm);
 
     // Hash the sql to get the cache file name.
     $filename = rss_get_file_name($forum, $sql, $params);
     $cachedfilepath = rss_get_file_full_name('mod_forum', $filename);
 
-    //Is the cache out of date?
+    // Is the cache out of date?
     $cachedfilelastmodified = 0;
     if (file_exists($cachedfilepath)) {
         $cachedfilelastmodified = filemtime($cachedfilepath);
@@ -82,7 +81,7 @@ function forum_rss_get_feed($context, $args) {
         $status = rss_save_file('mod_forum', $filename, $result);
     }
 
-    //return the path to the cached version
+    // return the path to the cached version
     return $cachedfilepath;
 }
 
@@ -96,7 +95,7 @@ function forum_rss_delete_file($forum) {
 }
 
 ///////////////////////////////////////////////////////
-//Utility functions
+// Utility functions
 
 /**
  * If there is new stuff in the forum since $time this returns true
@@ -147,7 +146,7 @@ function forum_rss_feed_discussions_sql($forum, $cm, $newsince=0) {
     $modcontext = null;
 
     $now = floor(time() / 60) * 60; // DB Cache Friendly.
-    $params = array();
+    $params = [];
 
     $modcontext = context_module::instance($cm->id);
 
@@ -193,7 +192,7 @@ function forum_rss_feed_discussions_sql($forum, $cm, $newsince=0) {
              WHERE d.forum = {$forum->id} AND p.parent = 0 AND p.deleted <> 1
                    $timelimit $groupselect $newsince
           ORDER BY $forumsort";
-    return array($sql, $params);
+    return [$sql, $params];
 }
 
 /**
@@ -212,7 +211,7 @@ function forum_rss_feed_posts_sql($forum, $cm, $newsince=0) {
     // Get group enforcement SQL.
     $groupmode = groups_get_activity_groupmode($cm);
     $currentgroup = groups_get_activity_group($cm);
-    $params = array();
+    $params = [];
 
     list($groupselect, $groupparams) = forum_rss_get_group_sql($cm, $groupmode, $currentgroup, $modcontext);
 
@@ -262,7 +261,7 @@ function forum_rss_feed_posts_sql($forum, $cm, $newsince=0) {
                 $groupselect
             ORDER BY p.created desc";
 
-    return array($sql, $params);
+    return [$sql, $params];
 }
 
 /**
@@ -276,7 +275,7 @@ function forum_rss_feed_posts_sql($forum, $cm, $newsince=0) {
  */
 function forum_rss_get_group_sql($cm, $groupmode, $currentgroup, $modcontext=null) {
     $groupselect = '';
-    $params = array();
+    $params = [];
 
     if ($groupmode) {
         if ($groupmode == VISIBLEGROUPS or has_capability('moodle/site:accessallgroups', $modcontext)) {
@@ -295,7 +294,7 @@ function forum_rss_get_group_sql($cm, $groupmode, $currentgroup, $modcontext=nul
         }
     }
 
-    return array($groupselect, $params);
+    return [$groupselect, $params];
 }
 
 /**
@@ -316,9 +315,9 @@ function forum_rss_feed_contents($forum, $sql, $params, $context) {
 
     $recs = $DB->get_recordset_sql($sql, $params, 0, $forum->rssarticles);
 
-    //set a flag. Are we displaying discussions or posts?
+    // set a flag. Are we displaying discussions or posts?
     $isdiscussion = true;
-    if (!empty($forum->rsstype) && $forum->rsstype!=1) {
+    if (!empty($forum->rsstype) && $forum->rsstype != 1) {
         $isdiscussion = false;
     }
 
@@ -326,7 +325,7 @@ function forum_rss_feed_contents($forum, $sql, $params, $context) {
         throw new \moodle_exception('invalidcoursemodule');
     }
 
-    $items = array();
+    $items = [];
     foreach ($recs as $rec) {
             $item = new stdClass();
 
@@ -337,57 +336,57 @@ function forum_rss_feed_contents($forum, $sql, $params, $context) {
             $discussion->timeend = $rec->timeend;
 
             $post = null;
-            if (!$isdiscussion) {
-                $post = new stdClass();
-                $post->id = $rec->postid;
-                $post->parent = $rec->postparent;
-                $post->userid = $rec->userid;
-            }
+        if (!$isdiscussion) {
+            $post = new stdClass();
+            $post->id = $rec->postid;
+            $post->parent = $rec->postparent;
+            $post->userid = $rec->userid;
+        }
 
-            if ($isdiscussion && !forum_user_can_see_discussion($forum, $discussion, $context)) {
-                // This is a discussion which the user has no permission to view
+        if ($isdiscussion && !forum_user_can_see_discussion($forum, $discussion, $context)) {
+            // This is a discussion which the user has no permission to view
+            $item->title = get_string('forumsubjecthidden', 'forum');
+            $message = get_string('forumbodyhidden', 'forum');
+            $item->author = get_string('forumauthorhidden', 'forum');
+        } else if (!$isdiscussion && !forum_user_can_see_post($forum, $discussion, $post, $USER, $cm)) {
+            if (forum_user_can_see_post($forum, $discussion, $post, $USER, $cm, false)) {
+                // This is a post which the user has no permission to view.
                 $item->title = get_string('forumsubjecthidden', 'forum');
                 $message = get_string('forumbodyhidden', 'forum');
                 $item->author = get_string('forumauthorhidden', 'forum');
-            } else if (!$isdiscussion && !forum_user_can_see_post($forum, $discussion, $post, $USER, $cm)) {
-                if (forum_user_can_see_post($forum, $discussion, $post, $USER, $cm, false)) {
-                    // This is a post which the user has no permission to view.
-                    $item->title = get_string('forumsubjecthidden', 'forum');
-                    $message = get_string('forumbodyhidden', 'forum');
-                    $item->author = get_string('forumauthorhidden', 'forum');
-                } else {
-                    // This is a post which has been deleted.
-                    $item->title = get_string('forumsubjectdeleted', 'mod_forum');
-                    $message = get_string('forumbodydeleted', 'mod_forum');
-                    $item->author = get_string('forumauthorhidden', 'forum');
-                }
             } else {
-                // The user must have permission to view
-                if ($isdiscussion && !empty($rec->discussionname)) {
-                    $item->title = format_string($rec->discussionname);
-                } else if (!empty($rec->postsubject)) {
-                    $item->title = format_string($rec->postsubject);
-                } else {
-                    //we should have an item title by now but if we dont somehow then substitute something somewhat meaningful
-                    $item->title = format_string($forum->name.' '.userdate($rec->postcreated,get_string('strftimedatetimeshort', 'langconfig')));
-                }
-                $item->author = fullname($rec);
-                $message = file_rewrite_pluginfile_urls($rec->postmessage, 'pluginfile.php', $context->id,
-                        'mod_forum', 'post', $rec->postid);
+                // This is a post which has been deleted.
+                $item->title = get_string('forumsubjectdeleted', 'mod_forum');
+                $message = get_string('forumbodydeleted', 'mod_forum');
+                $item->author = get_string('forumauthorhidden', 'forum');
             }
+        } else {
+            // The user must have permission to view
+            if ($isdiscussion && !empty($rec->discussionname)) {
+                $item->title = format_string($rec->discussionname);
+            } else if (!empty($rec->postsubject)) {
+                $item->title = format_string($rec->postsubject);
+            } else {
+                // we should have an item title by now but if we dont somehow then substitute something somewhat meaningful
+                $item->title = format_string($forum->name.' '.userdate($rec->postcreated, get_string('strftimedatetimeshort', 'langconfig')));
+            }
+            $item->author = fullname($rec);
+            $message = file_rewrite_pluginfile_urls($rec->postmessage, 'pluginfile.php', $context->id,
+                    'mod_forum', 'post', $rec->postid);
+        }
 
-            if ($isdiscussion) {
-                $item->link = $CFG->wwwroot."/mod/forum/discuss.php?d=".$rec->discussionid;
-            } else {
-                $item->link = $CFG->wwwroot."/mod/forum/discuss.php?d=".$rec->discussionid."&parent=".$rec->postid;
-            }
+        if ($isdiscussion) {
+            $item->link = $CFG->wwwroot."/mod/forum/discuss.php?d=".$rec->discussionid;
+        } else {
+            $item->link = $CFG->wwwroot."/mod/forum/discuss.php?d=".$rec->discussionid."&parent=".$rec->postid;
+        }
 
             $item->description = format_text($message, $rec->postformat, [
                 'context' => $context,
                 'trusted' => $rec->posttrust,
             ]);
 
-            //TODO: MDL-31129 implement post attachment handling
+            // TODO: MDL-31129 implement post attachment handling
             /*if (!$isdiscussion) {
                 $post_file_area_name = str_replace('//', '/', "$forum->course/$CFG->moddata/forum/$forum->id/$rec->postid");
                 $post_files = get_directory_list("$CFG->dataroot/$post_file_area_name");
@@ -399,13 +398,13 @@ function forum_rss_feed_contents($forum, $sql, $params, $context) {
             $item->pubdate = $rec->postcreated;
 
             $items[] = $item;
-        }
+    }
     $recs->close();
 
     // Create the RSS header.
-    $header = rss_standard_header(strip_tags(format_string($forum->name,true)),
+    $header = rss_standard_header(strip_tags(format_string($forum->name, true)),
                                   $CFG->wwwroot."/mod/forum/view.php?f=".$forum->id,
-                                  format_string($forum->intro,true)); // TODO: fix format
+                                  format_string($forum->intro, true)); // TODO: fix format
     // Now all the RSS items, if there are any.
     $articles = '';
     if (!empty($items)) {

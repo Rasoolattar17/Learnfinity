@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -44,10 +43,10 @@ class mod_forum_external extends external_api {
      */
     public static function get_forums_by_courses_parameters() {
         return new external_function_parameters (
-            array(
+            [
                 'courseids' => new external_multiple_structure(new external_value(PARAM_INT, 'course ID',
-                        VALUE_REQUIRED, '', NULL_NOT_ALLOWED), 'Array of Course IDs', VALUE_DEFAULT, array()),
-            )
+                        VALUE_REQUIRED, '', NULL_NOT_ALLOWED), 'Array of Course IDs', VALUE_DEFAULT, []),
+            ]
         );
     }
 
@@ -60,22 +59,22 @@ class mod_forum_external extends external_api {
      * @return array the forum details
      * @since Moodle 2.5
      */
-    public static function get_forums_by_courses($courseids = array()) {
+    public static function get_forums_by_courses($courseids = []) {
         global $CFG;
 
         require_once($CFG->dirroot . "/mod/forum/lib.php");
 
-        $params = self::validate_parameters(self::get_forums_by_courses_parameters(), array('courseids' => $courseids));
+        $params = self::validate_parameters(self::get_forums_by_courses_parameters(), ['courseids' => $courseids]);
 
-        $courses = array();
+        $courses = [];
         if (empty($params['courseids'])) {
             $courses = enrol_get_my_courses();
             $params['courseids'] = array_keys($courses);
         }
 
         // Array to store the forums to return.
-        $arrforums = array();
-        $warnings = array();
+        $arrforums = [];
+        $warnings = [];
 
         // Ensure there are courseids to loop through.
         if (!empty($params['courseids'])) {
@@ -97,7 +96,7 @@ class mod_forum_external extends external_api {
 
                 $forum->name = \core_external\util::format_string($forum->name, $context);
                 // Format the intro before being returning using the format setting.
-                $options = array('noclean' => true);
+                $options = ['noclean' => true];
                 [$forum->intro, $forum->introformat] = \core_external\util::format_text(
                     $forum->intro,
                     $forum->introformat,
@@ -139,7 +138,7 @@ class mod_forum_external extends external_api {
         // Also, the return type declaration is wrong, but I am not changing it now because I don't want ot break things.
         return new external_multiple_structure(
             new external_single_structure(
-                array(
+                [
                     'id' => new external_value(PARAM_INT, 'Forum id'),
                     'course' => new external_value(PARAM_INT, 'Course id'),
                     'type' => new external_value(PARAM_TEXT, 'The forum type'),
@@ -176,7 +175,7 @@ class mod_forum_external extends external_api {
                     'istracked' => new external_value(PARAM_BOOL, 'If the user is tracking the forum', VALUE_OPTIONAL),
                     'unreadpostscount' => new external_value(PARAM_INT, 'The number of unread posts for tracked forums',
                         VALUE_OPTIONAL),
-                ), 'forum'
+                ], 'forum'
             )
         );
     }
@@ -283,7 +282,7 @@ class mod_forum_external extends external_api {
             'forumid' => new external_value(PARAM_INT, 'The forum id'),
             'courseid' => new external_value(PARAM_INT, 'The forum course id'),
             'ratinginfo' => \core_rating\external\util::external_ratings_structure(),
-            'warnings' => new external_warnings()
+            'warnings' => new external_warnings(),
         ]);
     }
 
@@ -295,14 +294,14 @@ class mod_forum_external extends external_api {
      */
     public static function get_forum_discussions_parameters() {
         return new external_function_parameters (
-            array(
+            [
                 'forumid' => new external_value(PARAM_INT, 'forum instance id', VALUE_REQUIRED),
                 'sortorder' => new external_value(PARAM_INT,
                     'sort by this element: numreplies, , created or timemodified', VALUE_DEFAULT, -1),
                 'page' => new external_value(PARAM_INT, 'current page', VALUE_DEFAULT, -1),
                 'perpage' => new external_value(PARAM_INT, 'items per page', VALUE_DEFAULT, 0),
                 'groupid' => new external_value(PARAM_INT, 'group id', VALUE_DEFAULT, 0),
-            )
+            ]
         );
     }
 
@@ -326,17 +325,17 @@ class mod_forum_external extends external_api {
 
         require_once($CFG->dirroot . "/mod/forum/lib.php");
 
-        $warnings = array();
-        $discussions = array();
+        $warnings = [];
+        $discussions = [];
 
         $params = self::validate_parameters(self::get_forum_discussions_parameters(),
-            array(
+            [
                 'forumid' => $forumid,
                 'sortorder' => $sortorder,
                 'page' => $page,
                 'perpage' => $perpage,
-                'groupid' => $groupid
-            )
+                'groupid' => $groupid,
+            ]
         );
 
         // Compact/extract functions are not recommended.
@@ -349,14 +348,14 @@ class mod_forum_external extends external_api {
         $vaultfactory = \mod_forum\local\container::get_vault_factory();
         $discussionlistvault = $vaultfactory->get_discussions_in_forum_vault();
 
-        $sortallowedvalues = array(
+        $sortallowedvalues = [
             $discussionlistvault::SORTORDER_LASTPOST_DESC,
             $discussionlistvault::SORTORDER_LASTPOST_ASC,
             $discussionlistvault::SORTORDER_CREATED_DESC,
             $discussionlistvault::SORTORDER_CREATED_ASC,
             $discussionlistvault::SORTORDER_REPLIES_DESC,
-            $discussionlistvault::SORTORDER_REPLIES_ASC
-        );
+            $discussionlistvault::SORTORDER_REPLIES_ASC,
+        ];
 
         // If sortorder not defined set a default one.
         if ($sortorder == -1) {
@@ -382,7 +381,7 @@ class mod_forum_external extends external_api {
 
         $capabilitymanager = $managerfactory->get_capability_manager($forum);
 
-        $course = $DB->get_record('course', array('id' => $forum->get_course_id()), '*', MUST_EXIST);
+        $course = $DB->get_record('course', ['id' => $forum->get_course_id()], '*', MUST_EXIST);
         $cm = get_coursemodule_from_instance('forum', $forum->get_id(), $course->id, false, MUST_EXIST);
 
         // Validate the module context. It checks everything that affects the module visibility (including groupings, etc..).
@@ -409,7 +408,7 @@ class mod_forum_external extends external_api {
             $firstposts = $postvault->get_first_post_for_discussion_ids($discussionids);
 
             // Get the unreads array, this takes a forum id and returns data for all discussions.
-            $unreads = array();
+            $unreads = [];
             if ($cantrack = forum_tp_can_track_forums($forumrecord)) {
                 if ($forumtracked = forum_tp_is_tracked($forumrecord)) {
                     $unreads = $postvault->get_unread_count_for_discussion_ids($USER, $discussionids, $canseeanyprivatereply);
@@ -431,7 +430,7 @@ class mod_forum_external extends external_api {
                 // This function checks for qanda forums.
                 $canviewdiscussion = $capabilitymanager->can_view_discussion($USER, $discussion);
                 if (!$canviewdiscussion) {
-                    $warning = array();
+                    $warning = [];
                     // Function forum_get_discussions returns forum_posts ids not forum_discussions ones.
                     $warning['item'] = 'post';
                     $warning['itemid'] = $discussion->get_id();
@@ -469,7 +468,7 @@ class mod_forum_external extends external_api {
                 $discussionobject->name = \core_external\util::format_string($discussion->get_name(), $modcontext);
                 $discussionobject->subject = \core_external\util::format_string($discussionobject->subject, $modcontext);
                 // Rewrite embedded images URLs.
-                $options = array('trusted' => $discussionobject->messagetrust);
+                $options = ['trusted' => $discussionobject->messagetrust];
                 list($discussionobject->message, $discussionobject->messageformat) =
                     \core_external\util::format_text($discussionobject->message, $discussionobject->messageformat,
                         $modcontext, 'mod_forum', 'post', $discussionobject->id, $options);
@@ -514,7 +513,7 @@ class mod_forum_external extends external_api {
                 $discussions[] = (array) $discussionobject;
             }
         }
-        $result = array();
+        $result = [];
         $result['discussions'] = $discussions;
         $result['warnings'] = $warnings;
 
@@ -529,10 +528,10 @@ class mod_forum_external extends external_api {
      */
     public static function get_forum_discussions_returns() {
         return new external_single_structure(
-            array(
+            [
                 'discussions' => new external_multiple_structure(
                     new external_single_structure(
-                        array(
+                        [
                             'id' => new external_value(PARAM_INT, 'Post id'),
                             'name' => new external_value(PARAM_RAW, 'Discussion name'),
                             'groupid' => new external_value(PARAM_INT, 'Group id'),
@@ -567,11 +566,11 @@ class mod_forum_external extends external_api {
                             'canreply' => new external_value(PARAM_BOOL, 'Can the user reply to the discussion'),
                             'canlock' => new external_value(PARAM_BOOL, 'Can the user lock the discussion'),
                             'canfavourite' => new external_value(PARAM_BOOL, 'Can the user star the discussion'),
-                        ), 'post'
+                        ], 'post'
                     )
                 ),
-                'warnings' => new external_warnings()
-            )
+                'warnings' => new external_warnings(),
+            ]
         );
     }
 
@@ -583,9 +582,9 @@ class mod_forum_external extends external_api {
      */
     public static function view_forum_parameters() {
         return new external_function_parameters(
-            array(
-                'forumid' => new external_value(PARAM_INT, 'forum instance id')
-            )
+            [
+                'forumid' => new external_value(PARAM_INT, 'forum instance id'),
+            ]
         );
     }
 
@@ -602,13 +601,13 @@ class mod_forum_external extends external_api {
         require_once($CFG->dirroot . "/mod/forum/lib.php");
 
         $params = self::validate_parameters(self::view_forum_parameters(),
-                                            array(
-                                                'forumid' => $forumid
-                                            ));
-        $warnings = array();
+                                            [
+                                                'forumid' => $forumid,
+                                            ]);
+        $warnings = [];
 
         // Request and permission validation.
-        $forum = $DB->get_record('forum', array('id' => $params['forumid']), '*', MUST_EXIST);
+        $forum = $DB->get_record('forum', ['id' => $params['forumid']], '*', MUST_EXIST);
         list($course, $cm) = get_course_and_cm_from_instance($forum, 'forum');
 
         $context = context_module::instance($cm->id);
@@ -619,7 +618,7 @@ class mod_forum_external extends external_api {
         // Call the forum/lib API.
         forum_view($forum, $course, $cm, $context);
 
-        $result = array();
+        $result = [];
         $result['status'] = true;
         $result['warnings'] = $warnings;
         return $result;
@@ -633,10 +632,10 @@ class mod_forum_external extends external_api {
      */
     public static function view_forum_returns() {
         return new external_single_structure(
-            array(
+            [
                 'status' => new external_value(PARAM_BOOL, 'status: true if success'),
-                'warnings' => new external_warnings()
-            )
+                'warnings' => new external_warnings(),
+            ]
         );
     }
 
@@ -648,9 +647,9 @@ class mod_forum_external extends external_api {
      */
     public static function view_forum_discussion_parameters() {
         return new external_function_parameters(
-            array(
-                'discussionid' => new external_value(PARAM_INT, 'discussion id')
-            )
+            [
+                'discussionid' => new external_value(PARAM_INT, 'discussion id'),
+            ]
         );
     }
 
@@ -667,13 +666,13 @@ class mod_forum_external extends external_api {
         require_once($CFG->dirroot . "/mod/forum/lib.php");
 
         $params = self::validate_parameters(self::view_forum_discussion_parameters(),
-                                            array(
-                                                'discussionid' => $discussionid
-                                            ));
-        $warnings = array();
+                                            [
+                                                'discussionid' => $discussionid,
+                                            ]);
+        $warnings = [];
 
-        $discussion = $DB->get_record('forum_discussions', array('id' => $params['discussionid']), '*', MUST_EXIST);
-        $forum = $DB->get_record('forum', array('id' => $discussion->forum), '*', MUST_EXIST);
+        $discussion = $DB->get_record('forum_discussions', ['id' => $params['discussionid']], '*', MUST_EXIST);
+        $forum = $DB->get_record('forum', ['id' => $discussion->forum], '*', MUST_EXIST);
         list($course, $cm) = get_course_and_cm_from_instance($forum, 'forum');
 
         // Validate the module context. It checks everything that affects the module visibility (including groupings, etc..).
@@ -690,7 +689,7 @@ class mod_forum_external extends external_api {
             forum_tp_mark_discussion_read($USER, $discussion->id);
         }
 
-        $result = array();
+        $result = [];
         $result['status'] = true;
         $result['warnings'] = $warnings;
         return $result;
@@ -704,10 +703,10 @@ class mod_forum_external extends external_api {
      */
     public static function view_forum_discussion_returns() {
         return new external_single_structure(
-            array(
+            [
                 'status' => new external_value(PARAM_BOOL, 'status: true if success'),
-                'warnings' => new external_warnings()
-            )
+                'warnings' => new external_warnings(),
+            ]
         );
     }
 
@@ -719,14 +718,14 @@ class mod_forum_external extends external_api {
      */
     public static function add_discussion_post_parameters() {
         return new external_function_parameters(
-            array(
+            [
                 'postid' => new external_value(PARAM_INT, 'the post id we are going to reply to
                                                 (can be the initial discussion post'),
                 'subject' => new external_value(PARAM_TEXT, 'new post subject'),
                 'message' => new external_value(PARAM_RAW, 'new post message (html assumed if messageformat is not provided)'),
                 'options' => new external_multiple_structure (
                     new external_single_structure(
-                        array(
+                        [
                             'name' => new external_value(PARAM_ALPHANUM,
                                         'The allowed keys (value format) are:
                                         discussionsubscribe (bool); subscribe to the discussion?, default to true
@@ -737,11 +736,11 @@ class mod_forum_external extends external_api {
                             '),
                             'value' => new external_value(PARAM_RAW, 'the value of the option,
                                                             this param is validated in the external function.'
-                        )
-                    )
-                ), 'Options', VALUE_DEFAULT, array()),
-                'messageformat' => new external_format_value('message', VALUE_DEFAULT)
-            )
+                        ),
+                        ]
+                ), 'Options', VALUE_DEFAULT, []),
+                'messageformat' => new external_format_value('message', VALUE_DEFAULT),
+            ]
         );
     }
 
@@ -757,7 +756,7 @@ class mod_forum_external extends external_api {
      * @since Moodle 3.0
      * @throws moodle_exception
      */
-    public static function add_discussion_post($postid, $subject, $message, $options = array(), $messageformat = FORMAT_HTML) {
+    public static function add_discussion_post($postid, $subject, $message, $options = [], $messageformat = FORMAT_HTML) {
         global $CFG, $USER;
         require_once($CFG->dirroot . "/mod/forum/lib.php");
 
@@ -772,16 +771,16 @@ class mod_forum_external extends external_api {
         $forumdatamapper = $datamapperfactory->get_forum_data_mapper();
 
         $params = self::validate_parameters(self::add_discussion_post_parameters(),
-            array(
+            [
                 'postid' => $postid,
                 'subject' => $subject,
                 'message' => $message,
                 'options' => $options,
                 'messageformat' => $messageformat,
-            )
+            ]
         );
 
-        $warnings = array();
+        $warnings = [];
 
         if (!$parent = forum_get_post_full($params['postid'])) {
             throw new moodle_exception('invalidparentpostid', 'forum');
@@ -807,13 +806,13 @@ class mod_forum_external extends external_api {
             $cm, null);
 
         // Validate options.
-        $options = array(
+        $options = [
             'discussionsubscribe' => $discussionsubscribe,
             'private'             => false,
             'inlineattachmentsid' => 0,
             'attachmentsid' => null,
-            'topreferredformat'   => false
-        );
+            'topreferredformat'   => false,
+        ];
         foreach ($params['options'] as $option) {
             $name = trim($option['name']);
             switch ($name) {
@@ -878,15 +877,15 @@ class mod_forum_external extends external_api {
             $post->id = $postid;
 
             // Trigger events and completion.
-            $params = array(
+            $params = [
                 'context' => $context,
                 'objectid' => $post->id,
-                'other' => array(
+                'other' => [
                     'discussionid' => $discussion->get_id(),
                     'forumid' => $forum->get_id(),
                     'forumtype' => $forum->get_type(),
-                )
-            );
+                ],
+            ];
             $event = \mod_forum\event\post_created::create($params);
             $event->add_record_snapshot('forum_posts', $post);
             $event->add_record_snapshot('forum_discussions', $discussionrecord);
@@ -917,15 +916,15 @@ class mod_forum_external extends external_api {
         $message = [];
         $message[] = [
             'type' => 'success',
-            'message' => get_string("postaddedsuccess", "forum")
+            'message' => get_string("postaddedsuccess", "forum"),
         ];
 
         $message[] = [
             'type' => 'success',
-            'message' => get_string("postaddedtimeleft", "forum", format_time($CFG->maxeditingtime))
+            'message' => get_string("postaddedtimeleft", "forum", format_time($CFG->maxeditingtime)),
         ];
 
-        $result = array();
+        $result = [];
         $result['postid'] = $postid;
         $result['warnings'] = $warnings;
         $result['post'] = $exportedpost;
@@ -941,19 +940,19 @@ class mod_forum_external extends external_api {
      */
     public static function add_discussion_post_returns() {
         return new external_single_structure(
-            array(
+            [
                 'postid' => new external_value(PARAM_INT, 'new post id'),
                 'warnings' => new external_warnings(),
                 'post' => post_exporter::get_read_structure(),
                 'messages' => new external_multiple_structure(
                     new external_single_structure(
-                        array(
+                        [
                             'type' => new external_value(PARAM_TEXT, "The classification to be used in the client side", VALUE_REQUIRED),
-                            'message' => new external_value(PARAM_TEXT,'untranslated english message to explain the warning', VALUE_REQUIRED)
-                        ), 'Messages'), 'list of warnings', VALUE_OPTIONAL
+                            'message' => new external_value(PARAM_TEXT, 'untranslated english message to explain the warning', VALUE_REQUIRED),
+                        ], 'Messages'), 'list of warnings', VALUE_OPTIONAL
                 ),
-                //'alertmessage' => new external_value(PARAM_RAW, 'Success message to be displayed to the user.'),
-            )
+                // 'alertmessage' => new external_value(PARAM_RAW, 'Success message to be displayed to the user.'),
+            ]
         );
     }
 
@@ -969,7 +968,7 @@ class mod_forum_external extends external_api {
 
         $params = self::validate_parameters(self::toggle_favourite_state_parameters(), [
             'discussionid' => $discussionid,
-            'targetstate' => $targetstate
+            'targetstate' => $targetstate,
         ]);
 
         $vaultfactory = mod_forum\local\container::get_vault_factory();
@@ -1024,7 +1023,7 @@ class mod_forum_external extends external_api {
         return new external_function_parameters(
             [
                 'discussionid' => new external_value(PARAM_INT, 'The discussion to subscribe or unsubscribe'),
-                'targetstate' => new external_value(PARAM_BOOL, 'The target state')
+                'targetstate' => new external_value(PARAM_BOOL, 'The target state'),
             ]
         );
     }
@@ -1037,14 +1036,14 @@ class mod_forum_external extends external_api {
      */
     public static function add_discussion_parameters() {
         return new external_function_parameters(
-            array(
+            [
                 'forumid' => new external_value(PARAM_INT, 'Forum instance ID'),
                 'subject' => new external_value(PARAM_TEXT, 'New Discussion subject'),
                 'message' => new external_value(PARAM_RAW, 'New Discussion message (only html format allowed)'),
                 'groupid' => new external_value(PARAM_INT, 'The group, default to 0', VALUE_DEFAULT, 0),
                 'options' => new external_multiple_structure (
                     new external_single_structure(
-                        array(
+                        [
                             'name' => new external_value(PARAM_ALPHANUM,
                                         'The allowed keys (value format) are:
                                         discussionsubscribe (bool); subscribe to the discussion?, default to true
@@ -1054,10 +1053,10 @@ class mod_forum_external extends external_api {
                             '),
                             'value' => new external_value(PARAM_RAW, 'The value of the option,
                                                             This param is validated in the external function.'
-                        )
-                    )
-                ), 'Options', VALUE_DEFAULT, array())
-            )
+                        ),
+                        ]
+                ), 'Options', VALUE_DEFAULT, []),
+            ]
         );
     }
 
@@ -1073,35 +1072,35 @@ class mod_forum_external extends external_api {
      * @since Moodle 3.0
      * @throws moodle_exception
      */
-    public static function add_discussion($forumid, $subject, $message, $groupid = 0, $options = array()) {
+    public static function add_discussion($forumid, $subject, $message, $groupid = 0, $options = []) {
         global $DB, $CFG;
         require_once($CFG->dirroot . "/mod/forum/lib.php");
 
         $params = self::validate_parameters(self::add_discussion_parameters(),
-                                            array(
+                                            [
                                                 'forumid' => $forumid,
                                                 'subject' => $subject,
                                                 'message' => $message,
                                                 'groupid' => $groupid,
-                                                'options' => $options
-                                            ));
+                                                'options' => $options,
+                                            ]);
 
-        $warnings = array();
+        $warnings = [];
 
         // Request and permission validation.
-        $forum = $DB->get_record('forum', array('id' => $params['forumid']), '*', MUST_EXIST);
+        $forum = $DB->get_record('forum', ['id' => $params['forumid']], '*', MUST_EXIST);
         list($course, $cm) = get_course_and_cm_from_instance($forum, 'forum');
 
         $context = context_module::instance($cm->id);
         self::validate_context($context);
 
         // Validate options.
-        $options = array(
+        $options = [
             'discussionsubscribe' => true,
             'discussionpinned' => false,
             'inlineattachmentsid' => 0,
-            'attachmentsid' => null
-        );
+            'attachmentsid' => null,
+        ];
         foreach ($params['options'] as $option) {
             $name = trim($option['name']);
             switch ($name) {
@@ -1178,13 +1177,13 @@ class mod_forum_external extends external_api {
 
             // Trigger events and completion.
 
-            $params = array(
+            $params = [
                 'context' => $context,
                 'objectid' => $discussion->id,
-                'other' => array(
+                'other' => [
                     'forumid' => $forum->id,
-                )
-            );
+                ],
+            ];
             $event = \mod_forum\event\discussion_created::create($params);
             $event->add_record_snapshot('forum_discussions', $discussion);
             $event->trigger();
@@ -1202,7 +1201,7 @@ class mod_forum_external extends external_api {
             throw new moodle_exception('couldnotadd', 'forum');
         }
 
-        $result = array();
+        $result = [];
         $result['discussionid'] = $discussionid;
         $result['warnings'] = $warnings;
         return $result;
@@ -1216,10 +1215,10 @@ class mod_forum_external extends external_api {
      */
     public static function add_discussion_returns() {
         return new external_single_structure(
-            array(
+            [
                 'discussionid' => new external_value(PARAM_INT, 'New Discussion ID'),
-                'warnings' => new external_warnings()
-            )
+                'warnings' => new external_warnings(),
+            ]
         );
     }
 
@@ -1231,11 +1230,11 @@ class mod_forum_external extends external_api {
      */
     public static function can_add_discussion_parameters() {
         return new external_function_parameters(
-            array(
+            [
                 'forumid' => new external_value(PARAM_INT, 'Forum instance ID'),
                 'groupid' => new external_value(PARAM_INT, 'The group to check, default to active group.
-                                                Use -1 to check if the user can post in all the groups.', VALUE_DEFAULT, null)
-            )
+                                                Use -1 to check if the user can post in all the groups.', VALUE_DEFAULT, null),
+            ]
         );
     }
 
@@ -1253,14 +1252,14 @@ class mod_forum_external extends external_api {
         require_once($CFG->dirroot . "/mod/forum/lib.php");
 
         $params = self::validate_parameters(self::can_add_discussion_parameters(),
-                                            array(
+                                            [
                                                 'forumid' => $forumid,
                                                 'groupid' => $groupid,
-                                            ));
-        $warnings = array();
+                                            ]);
+        $warnings = [];
 
         // Request and permission validation.
-        $forum = $DB->get_record('forum', array('id' => $params['forumid']), '*', MUST_EXIST);
+        $forum = $DB->get_record('forum', ['id' => $params['forumid']], '*', MUST_EXIST);
         list($course, $cm) = get_course_and_cm_from_instance($forum, 'forum');
 
         $context = context_module::instance($cm->id);
@@ -1268,7 +1267,7 @@ class mod_forum_external extends external_api {
 
         $status = forum_user_can_post_discussion($forum, $params['groupid'], -1, $cm, $context);
 
-        $result = array();
+        $result = [];
         $result['status'] = $status;
         $result['canpindiscussions'] = has_capability('mod/forum:pindiscussions', $context);
         $result['cancreateattachment'] = forum_can_create_attachment($forum, $context);
@@ -1284,14 +1283,14 @@ class mod_forum_external extends external_api {
      */
     public static function can_add_discussion_returns() {
         return new external_single_structure(
-            array(
+            [
                 'status' => new external_value(PARAM_BOOL, 'True if the user can add discussions, false otherwise.'),
                 'canpindiscussions' => new external_value(PARAM_BOOL, 'True if the user can pin discussions, false otherwise.',
                     VALUE_OPTIONAL),
                 'cancreateattachment' => new external_value(PARAM_BOOL, 'True if the user can add attachments, false otherwise.',
                     VALUE_OPTIONAL),
-                'warnings' => new external_warnings()
-            )
+                'warnings' => new external_warnings(),
+            ]
         );
     }
 
@@ -1303,9 +1302,9 @@ class mod_forum_external extends external_api {
      */
     public static function get_forum_access_information_parameters() {
         return new external_function_parameters (
-            array(
-                'forumid' => new external_value(PARAM_INT, 'Forum instance id.')
-            )
+            [
+                'forumid' => new external_value(PARAM_INT, 'Forum instance id.'),
+            ]
         );
     }
 
@@ -1320,16 +1319,16 @@ class mod_forum_external extends external_api {
     public static function get_forum_access_information($forumid) {
         global $DB;
 
-        $params = self::validate_parameters(self::get_forum_access_information_parameters(), array('forumid' => $forumid));
+        $params = self::validate_parameters(self::get_forum_access_information_parameters(), ['forumid' => $forumid]);
 
         // Request and permission validation.
-        $forum = $DB->get_record('forum', array('id' => $params['forumid']), '*', MUST_EXIST);
+        $forum = $DB->get_record('forum', ['id' => $params['forumid']], '*', MUST_EXIST);
         $cm = get_coursemodule_from_instance('forum', $forum->id);
 
         $context = context_module::instance($cm->id);
         self::validate_context($context);
 
-        $result = array();
+        $result = [];
         // Return all the available capabilities.
         $capabilities = load_capability_def('mod_forum');
         foreach ($capabilities as $capname => $capdata) {
@@ -1338,7 +1337,7 @@ class mod_forum_external extends external_api {
             $result[$field] = has_capability($capname, $context);
         }
 
-        $result['warnings'] = array();
+        $result['warnings'] = [];
         return $result;
     }
 
@@ -1350,9 +1349,9 @@ class mod_forum_external extends external_api {
      */
     public static function get_forum_access_information_returns() {
 
-        $structure = array(
-            'warnings' => new external_warnings()
-        );
+        $structure = [
+            'warnings' => new external_warnings(),
+        ];
 
         $capabilities = load_capability_def('mod_forum');
         foreach ($capabilities as $capname => $capdata) {
@@ -1379,7 +1378,7 @@ class mod_forum_external extends external_api {
         $params = self::validate_parameters(self::set_subscription_state_parameters(), [
             'forumid' => $forumid,
             'discussionid' => $discussionid,
-            'targetstate' => $targetstate
+            'targetstate' => $targetstate,
         ]);
 
         $vaultfactory = mod_forum\local\container::get_vault_factory();
@@ -1434,7 +1433,7 @@ class mod_forum_external extends external_api {
             [
                 'forumid' => new external_value(PARAM_INT, 'Forum that the discussion is in'),
                 'discussionid' => new external_value(PARAM_INT, 'The discussion to subscribe or unsubscribe'),
-                'targetstate' => new external_value(PARAM_BOOL, 'The target state')
+                'targetstate' => new external_value(PARAM_BOOL, 'The target state'),
             ]
         );
     }
@@ -1462,7 +1461,7 @@ class mod_forum_external extends external_api {
         $params = self::validate_parameters(self::set_lock_state_parameters(), [
             'forumid' => $forumid,
             'discussionid' => $discussionid,
-            'targetstate' => $targetstate
+            'targetstate' => $targetstate,
         ]);
 
         $vaultfactory = mod_forum\local\container::get_vault_factory();
@@ -1514,7 +1513,7 @@ class mod_forum_external extends external_api {
             [
                 'forumid' => new external_value(PARAM_INT, 'Forum that the discussion is in'),
                 'discussionid' => new external_value(PARAM_INT, 'The discussion to lock / unlock'),
-                'targetstate' => new external_value(PARAM_INT, 'The timestamp for the lock state')
+                'targetstate' => new external_value(PARAM_INT, 'The timestamp for the lock state'),
             ]
         );
     }
@@ -1530,7 +1529,7 @@ class mod_forum_external extends external_api {
             'locked' => new external_value(PARAM_BOOL, 'The locked state of the discussion.'),
             'times' => new external_single_structure([
                 'locked' => new external_value(PARAM_INT, 'The locked time of the discussion.'),
-            ])
+            ]),
         ]);
     }
 
@@ -1604,9 +1603,9 @@ class mod_forum_external extends external_api {
      */
     public static function delete_post_parameters() {
         return new external_function_parameters(
-            array(
+            [
                 'postid' => new external_value(PARAM_INT, 'Post to be deleted. It can be a discussion topic post.'),
-            )
+            ]
         );
     }
 
@@ -1623,11 +1622,11 @@ class mod_forum_external extends external_api {
         require_once($CFG->dirroot . "/mod/forum/lib.php");
 
         $params = self::validate_parameters(self::delete_post_parameters(),
-            array(
+            [
                 'postid' => $postid,
-            )
+            ]
         );
-        $warnings = array();
+        $warnings = [];
         $vaultfactory = mod_forum\local\container::get_vault_factory();
         $forumvault = $vaultfactory->get_forum_vault();
         $discussionvault = $vaultfactory->get_discussion_vault();
@@ -1684,7 +1683,7 @@ class mod_forum_external extends external_api {
             );
         }
 
-        $result = array();
+        $result = [];
         $result['status'] = $status;
         $result['warnings'] = $warnings;
         return $result;
@@ -1698,10 +1697,10 @@ class mod_forum_external extends external_api {
      */
     public static function delete_post_returns() {
         return new external_single_structure(
-            array(
+            [
                 'status' => new external_value(PARAM_BOOL, 'True if the post/discussion was deleted, false otherwise.'),
-                'warnings' => new external_warnings()
-            )
+                'warnings' => new external_warnings(),
+            ]
         );
     }
 
@@ -1834,7 +1833,7 @@ class mod_forum_external extends external_api {
                 'sortby' => new external_value(
                         PARAM_ALPHA, 'Sort by this element: id, created or modified', VALUE_DEFAULT, 'created'),
                 'sortdirection' => new external_value(
-                        PARAM_ALPHA, 'Sort direction: ASC or DESC', VALUE_DEFAULT, 'DESC')
+                        PARAM_ALPHA, 'Sort direction: ASC or DESC', VALUE_DEFAULT, 'DESC'),
         ]);
     }
 
@@ -1868,9 +1867,9 @@ class mod_forum_external extends external_api {
      */
     public static function get_discussion_post_parameters() {
         return new external_function_parameters(
-            array(
+            [
                 'postid' => new external_value(PARAM_INT, 'Post to fetch.'),
-            )
+            ]
         );
     }
 
@@ -1886,10 +1885,10 @@ class mod_forum_external extends external_api {
         global $USER, $CFG;
 
         $params = self::validate_parameters(self::get_discussion_post_parameters(),
-                                            array(
+                                            [
                                                 'postid' => $postid,
-                                            ));
-        $warnings = array();
+                                            ]);
+        $warnings = [];
         $vaultfactory = mod_forum\local\container::get_vault_factory();
         $forumvault = $vaultfactory->get_forum_vault();
         $discussionvault = $vaultfactory->get_discussion_vault();
@@ -1919,9 +1918,9 @@ class mod_forum_external extends external_api {
         $builderfactory = mod_forum\local\container::get_builder_factory();
         $postbuilder = $builderfactory->get_exported_posts_builder();
         $posts = $postbuilder->build($USER, [$forumentity], [$discussionentity], [$postentity]);
-        $post = empty($posts) ? array() : reset($posts);
+        $post = empty($posts) ? [] : reset($posts);
 
-        $result = array();
+        $result = [];
         $result['post'] = $post;
         $result['warnings'] = $warnings;
         return $result;
@@ -1935,10 +1934,10 @@ class mod_forum_external extends external_api {
      */
     public static function get_discussion_post_returns() {
         return new external_single_structure(
-            array(
+            [
                 'post' => \mod_forum\local\exporters\post::get_read_structure(),
                 'warnings' => new external_warnings(),
-            )
+            ]
         );
     }
 
@@ -1950,20 +1949,20 @@ class mod_forum_external extends external_api {
      */
     public static function prepare_draft_area_for_post_parameters() {
         return new external_function_parameters(
-            array(
+            [
                 'postid' => new external_value(PARAM_INT, 'Post to prepare the draft area for.'),
                 'area' => new external_value(PARAM_ALPHA, 'Area to prepare: attachment or post.'),
                 'draftitemid' => new external_value(PARAM_INT, 'The draft item id to use. 0 to generate one.',
                     VALUE_DEFAULT, 0),
                 'filestokeep' => new external_multiple_structure(
                     new external_single_structure(
-                        array(
+                        [
                             'filename' => new external_value(PARAM_FILE, 'File name.'),
                             'filepath' => new external_value(PARAM_PATH, 'File path.'),
-                        )
+                        ]
                     ), 'Only keep these files in the draft file area. Empty for keeping all.', VALUE_DEFAULT, []
                 ),
-            )
+            ]
         );
     }
 
@@ -1983,12 +1982,12 @@ class mod_forum_external extends external_api {
 
         $params = self::validate_parameters(
             self::prepare_draft_area_for_post_parameters(),
-            array(
+            [
                 'postid' => $postid,
                 'area' => $area,
                 'draftitemid' => $draftitemid,
                 'filestokeep' => $filestokeep,
-            )
+            ]
         );
         $directionallowedvalues = ['ASC', 'DESC'];
 
@@ -1998,7 +1997,7 @@ class mod_forum_external extends external_api {
                 (value: ' . $params['area'] . '),' . 'allowed values are: ' . implode(', ', $allowedareas));
         }
 
-        $warnings = array();
+        $warnings = [];
         $vaultfactory = mod_forum\local\container::get_vault_factory();
         $forumvault = $vaultfactory->get_forum_vault();
         $discussionvault = $vaultfactory->get_discussion_vault();
@@ -2070,14 +2069,14 @@ class mod_forum_external extends external_api {
             }
         }
 
-        $result = array(
+        $result = [
             'draftitemid' => $draftitemid,
             'files' => external_util::get_area_files($usercontext->id, 'user', 'draft',
                 $draftitemid),
             'areaoptions' => $areaoptions,
             'messagetext' => $messagetext,
             'warnings' => $warnings,
-        );
+        ];
         return $result;
     }
 
@@ -2089,20 +2088,20 @@ class mod_forum_external extends external_api {
      */
     public static function prepare_draft_area_for_post_returns() {
         return new external_single_structure(
-            array(
+            [
                 'draftitemid' => new external_value(PARAM_INT, 'Draft item id for the file area.'),
                 'files' => new external_files('Draft area files.', VALUE_OPTIONAL),
                 'areaoptions' => new external_multiple_structure(
                     new external_single_structure(
-                        array(
+                        [
                             'name' => new external_value(PARAM_RAW, 'Name of option.'),
                             'value' => new external_value(PARAM_RAW, 'Value of option.'),
-                        )
+                        ]
                     ), 'Draft file area options.'
                 ),
                 'messagetext' => new external_value(PARAM_RAW, 'Message text with URLs rewritten.'),
                 'warnings' => new external_warnings(),
-            )
+            ]
         );
     }
 
@@ -2131,7 +2130,7 @@ class mod_forum_external extends external_api {
                                 inlineattachmentsid (int); the draft file area id for inline attachments in the text
                                 attachmentsid (int); the draft file area id for attachments'
                             ),
-                            'value' => new external_value(PARAM_RAW, 'The value of the option.')
+                            'value' => new external_value(PARAM_RAW, 'The value of the option.'),
                         ]
                     ),
                     'Configuration options for the post.',
@@ -2305,7 +2304,7 @@ class mod_forum_external extends external_api {
         return new external_single_structure(
             [
                 'status' => new external_value(PARAM_BOOL, 'True if the post/discussion was updated, false otherwise.'),
-                'warnings' => new external_warnings()
+                'warnings' => new external_warnings(),
             ]
         );
     }

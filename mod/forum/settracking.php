@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -26,16 +25,16 @@
 require_once("../../config.php");
 require_once("lib.php");
 
-$id         = required_param('id',PARAM_INT);                           // The forum to subscribe or unsubscribe to
+$id         = required_param('id', PARAM_INT);                           // The forum to subscribe or unsubscribe to
 $returnpage = optional_param('returnpage', 'index.php', PARAM_FILE);    // Page to return to.
 
 require_sesskey();
 
-if (! $forum = $DB->get_record("forum", array("id" => $id))) {
+if (! $forum = $DB->get_record("forum", ["id" => $id])) {
     throw new \moodle_exception('invalidforumid', 'forum');
 }
 
-if (! $course = $DB->get_record("course", array("id" => $forum->course))) {
+if (! $course = $DB->get_record("course", ["id" => $forum->course])) {
     throw new \moodle_exception('invalidcoursemodule');
 }
 
@@ -43,7 +42,7 @@ if (! $cm = get_coursemodule_from_instance("forum", $forum->id, $course->id)) {
     throw new \moodle_exception('invalidcoursemodule');
 }
 require_login($course, false, $cm);
-$returnpageurl = new moodle_url('/mod/forum/' . $returnpage, array('id' => $course->id, 'f' => $forum->id));
+$returnpageurl = new moodle_url('/mod/forum/' . $returnpage, ['id' => $course->id, 'f' => $forum->id]);
 $returnto = forum_go_back_to($returnpageurl);
 
 if (!forum_tp_can_track_forums($forum)) {
@@ -54,11 +53,11 @@ $info = new stdClass();
 $info->name  = fullname($USER);
 $info->forum = format_string($forum->name);
 
-$eventparams = array(
+$eventparams = [
     'context' => context_module::instance($cm->id),
     'relateduserid' => $USER->id,
-    'other' => array('forumid' => $forum->id),
-);
+    'other' => ['forumid' => $forum->id],
+];
 
 if (forum_tp_is_tracked($forum) ) {
     if (forum_tp_stop_tracking($forum->id)) {

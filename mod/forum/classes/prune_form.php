@@ -44,7 +44,7 @@ class mod_forum_prune_form extends moodleform {
     public function definition() {
         $mform = $this->_form;
 
-        $mform->addElement('text', 'name', get_string('discussionname', 'forum'), array('size' => '60', 'maxlength' => '255'));
+        $mform->addElement('text', 'name', get_string('discussionname', 'forum'), ['size' => '60', 'maxlength' => '255']);
         $mform->setType('name', PARAM_TEXT);
         $mform->addRule('name', null, 'required', null, 'client');
         $mform->addRule('name', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');

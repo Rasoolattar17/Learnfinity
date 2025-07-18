@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -29,7 +28,7 @@ require_once($CFG->libdir . '/rsslib.php');
 $id = optional_param('id', 0, PARAM_INT);                   // Course id
 $subscribe = optional_param('subscribe', null, PARAM_INT);  // Subscribe/Unsubscribe all forums
 
-$url = new moodle_url('/mod/forum/index.php', array('id' => $id));
+$url = new moodle_url('/mod/forum/index.php', ['id' => $id]);
 if ($subscribe !== null) {
     require_sesskey();
     $url->param('subscribe', $subscribe);
@@ -38,7 +37,7 @@ $PAGE->set_url($url);
 $PAGE->set_secondary_active_tab('coursehome');
 
 if ($id) {
-    if (!$course = $DB->get_record('course', array('id' => $id))) {
+    if (!$course = $DB->get_record('course', ['id' => $id])) {
         throw new \moodle_exception('invalidcourseid');
     }
 } else {
@@ -51,9 +50,9 @@ $coursecontext = context_course::instance($course->id);
 
 unset($SESSION->fromdiscussion);
 
-$params = array(
-    'context' => context_course::instance($course->id)
-);
+$params = [
+    'context' => context_course::instance($course->id),
+];
 $event = \mod_forum\event\course_module_instance_list_viewed::create($params);
 $event->add_record_snapshot('course', $course);
 $event->trigger();
@@ -79,8 +78,8 @@ $searchform = forum_search_form($course);
 
 // Start of the table for General Forums.
 $generaltable = new html_table();
-$generaltable->head  = array ($strforum, $strdescription, $strdiscussions);
-$generaltable->align = array ('left', 'left', 'center');
+$generaltable->head  = [$strforum, $strdescription, $strdiscussions];
+$generaltable->align = ['left', 'left', 'center'];
 
 if ($usetracking = forum_tp_can_track_forums()) {
     $untracked = forum_tp_get_untracked_forums($USER->id, $course->id);
@@ -109,10 +108,10 @@ $forums = $DB->get_records_sql("
       FROM {forum} f
  LEFT JOIN {forum_digests} d ON d.forum = f.id AND d.userid = ?
      WHERE f.course = ?
-    ", array($USER->id, $course->id));
+    ", [$USER->id, $course->id]);
 
-$generalforums  = array();
-$learningforums = array();
+$generalforums  = [];
+$learningforums = [];
 $modinfo = get_fast_modinfo($course);
 $showsubscriptioncolumns = false;
 
@@ -162,7 +161,7 @@ if ($showsubscriptioncolumns) {
 
 }
 
-if ($show_rss = (($showsubscriptioncolumns || $course->id == SITEID) &&
+if ($showrss = (($showsubscriptioncolumns || $course->id == SITEID) &&
                  isset($CFG->enablerssfeeds) && isset($CFG->forum_enablerssfeeds) &&
                  $CFG->enablerssfeeds && $CFG->forum_enablerssfeeds)) {
     $generaltable->head[] = $strrss;
@@ -175,7 +174,7 @@ if (!is_null($subscribe)) {
     if (isguestuser() or !$showsubscriptioncolumns) {
         // There should not be any links leading to this place, just redirect.
         redirect(
-                new moodle_url('/mod/forum/index.php', array('id' => $id)),
+                new moodle_url('/mod/forum/index.php', ['id' => $id]),
                 get_string('subscribeenrolledonly', 'forum'),
                 null,
                 \core\output\notification::NOTIFY_ERROR
@@ -205,8 +204,8 @@ if (!is_null($subscribe)) {
             }
         }
     }
-    $returnto = forum_go_back_to(new moodle_url('/mod/forum/index.php', array('id' => $course->id)));
-    $shortname = format_string($course->shortname, true, array('context' => context_course::instance($course->id)));
+    $returnto = forum_go_back_to(new moodle_url('/mod/forum/index.php', ['id' => $course->id]));
+    $shortname = format_string($course->shortname, true, ['context' => context_course::instance($course->id)]);
     if ($subscribe) {
         redirect(
                 $returnto,
@@ -254,14 +253,14 @@ if ($generalforums) {
                 } else if ($forum->trackingtype === FORUM_TRACKING_OFF || ($USER->trackforums == 0)) {
                     $trackedlink = '-';
                 } else {
-                    $aurl = new moodle_url('/mod/forum/settracking.php', array(
+                    $aurl = new moodle_url('/mod/forum/settracking.php', [
                             'id' => $forum->id,
                             'sesskey' => sesskey(),
-                        ));
+                        ]);
                     if (!isset($untracked[$forum->id])) {
-                        $trackedlink = $OUTPUT->single_button($aurl, $stryes, 'post', array('title' => $strnotrackforum));
+                        $trackedlink = $OUTPUT->single_button($aurl, $stryes, 'post', ['title' => $strnotrackforum]);
                     } else {
-                        $trackedlink = $OUTPUT->single_button($aurl, $strno, 'post', array('title' => $strtrackforum));
+                        $trackedlink = $OUTPUT->single_button($aurl, $strno, 'post', ['title' => $strtrackforum]);
                     }
                 }
             }
@@ -275,26 +274,26 @@ if ($generalforums) {
         } else {
             $style = 'class="dimmed"';
         }
-        $forumlink = "<a href=\"view.php?f=$forum->id\" $style>".format_string($forum->name,true)."</a>";
+        $forumlink = "<a href=\"view.php?f=$forum->id\" $style>".format_string($forum->name, true)."</a>";
         $discussionlink = "<a href=\"view.php?f=$forum->id\" $style>".$count."</a>";
 
-        $row = array ($forumlink, $forum->intro, $discussionlink);
+        $row = [$forumlink, $forum->intro, $discussionlink];
         if ($usetracking) {
             $row[] = $unreadlink;
             $row[] = $trackedlink;    // Tracking.
         }
 
         if ($showsubscriptioncolumns) {
-            $row[] = forum_get_subscribe_link($forum, $context, array('subscribed' => $stryes,
+            $row[] = forum_get_subscribe_link($forum, $context, ['subscribed' => $stryes,
                 'unsubscribed' => $strno, 'forcesubscribed' => $stryes,
-                'cantsubscribe' => '-'), false, false, true);
+                'cantsubscribe' => '-'], false, false, true);
             $row[] = forum_index_get_forum_subscription_selector($forum);
         }
 
         // If this forum has RSS activated, calculate it.
-        if ($show_rss) {
+        if ($showrss) {
             if ($forum->rsstype and $forum->rssarticles) {
-                //Calculate the tooltip text
+                // Calculate the tooltip text
                 if ($forum->rsstype == 1) {
                     $tooltiptext = get_string('rsssubscriberssdiscussions', 'forum');
                 } else {
@@ -306,7 +305,7 @@ if ($generalforums) {
                 } else {
                     $userid = $USER->id;
                 }
-                //Get html code for RSS link
+                // Get html code for RSS link
                 $row[] = rss_get_link($context->id, $userid, 'mod_forum', $forum->id, $tooltiptext);
             } else {
                 $row[] = '&nbsp;';
@@ -320,8 +319,8 @@ if ($generalforums) {
 
 // Start of the table for Learning Forums
 $learningtable = new html_table();
-$learningtable->head  = array ($strforum, $strdescription, $strdiscussions);
-$learningtable->align = array ('left', 'left', 'center');
+$learningtable->head  = [$strforum, $strdescription, $strdiscussions];
+$learningtable->align = ['left', 'left', 'center'];
 
 if ($usetracking) {
     $learningtable->head[] = $strunreadposts;
@@ -339,7 +338,7 @@ if ($showsubscriptioncolumns) {
     $learningtable->align[] = 'center';
 }
 
-if ($show_rss = (($showsubscriptioncolumns || $course->id == SITEID) &&
+if ($showrss = (($showsubscriptioncolumns || $course->id == SITEID) &&
                  isset($CFG->enablerssfeeds) && isset($CFG->forum_enablerssfeeds) &&
                  $CFG->enablerssfeeds && $CFG->forum_enablerssfeeds)) {
     $learningtable->head[] = $strrss;
@@ -357,7 +356,7 @@ if ($course->id != SITEID) {    // Only real courses have learning forums
 
     if ($learningforums) {
         $currentsection = '';
-            foreach ($learningforums as $forum) {
+        foreach ($learningforums as $forum) {
             $cm      = $modinfo->instances['forum'][$forum->id];
             $context = context_module::instance($cm->id);
 
@@ -385,11 +384,11 @@ if ($course->id != SITEID) {    // Only real courses have learning forums
                     } else if ($forum->trackingtype === FORUM_TRACKING_OFF || ($USER->trackforums == 0)) {
                         $trackedlink = '-';
                     } else {
-                        $aurl = new moodle_url('/mod/forum/settracking.php', array('id' => $forum->id));
+                        $aurl = new moodle_url('/mod/forum/settracking.php', ['id' => $forum->id]);
                         if (!isset($untracked[$forum->id])) {
-                            $trackedlink = $OUTPUT->single_button($aurl, $stryes, 'post', array('title' => $strnotrackforum));
+                            $trackedlink = $OUTPUT->single_button($aurl, $stryes, 'post', ['title' => $strnotrackforum]);
                         } else {
-                            $trackedlink = $OUTPUT->single_button($aurl, $strno, 'post', array('title' => $strtrackforum));
+                            $trackedlink = $OUTPUT->single_button($aurl, $strno, 'post', ['title' => $strtrackforum]);
                         }
                     }
                 }
@@ -407,39 +406,39 @@ if ($course->id != SITEID) {    // Only real courses have learning forums
                 $printsection = '';
             }
 
-            $forumname = format_string($forum->name,true);
+            $forumname = format_string($forum->name, true);
 
             if ($cm->visible) {
                 $style = '';
             } else {
                 $style = 'class="dimmed"';
             }
-            $forumlink = "<a href=\"view.php?f=$forum->id\" $style>".format_string($forum->name,true)."</a>";
+            $forumlink = "<a href=\"view.php?f=$forum->id\" $style>".format_string($forum->name, true)."</a>";
             $discussionlink = "<a href=\"view.php?f=$forum->id\" $style>".$count."</a>";
 
-            $row = array ($printsection, $forumlink, $forum->intro, $discussionlink);
+            $row = [$printsection, $forumlink, $forum->intro, $discussionlink];
             if ($usetracking) {
                 $row[] = $unreadlink;
                 $row[] = $trackedlink;    // Tracking.
             }
 
             if ($showsubscriptioncolumns) {
-                $row[] = forum_get_subscribe_link($forum, $context, array('subscribed' => $stryes,
+                $row[] = forum_get_subscribe_link($forum, $context, ['subscribed' => $stryes,
                     'unsubscribed' => $strno, 'forcesubscribed' => $stryes,
-                    'cantsubscribe' => '-'), false, false, true);
+                    'cantsubscribe' => '-'], false, false, true);
                 $row[] = forum_index_get_forum_subscription_selector($forum);
             }
 
-            //If this forum has RSS activated, calculate it
-            if ($show_rss) {
+            // If this forum has RSS activated, calculate it
+            if ($showrss) {
                 if ($forum->rsstype and $forum->rssarticles) {
-                    //Calculate the tolltip text
+                    // Calculate the tolltip text
                     if ($forum->rsstype == 1) {
                         $tooltiptext = get_string('rsssubscriberssdiscussions', 'forum');
                     } else {
                         $tooltiptext = get_string('rsssubscriberssposts', 'forum');
                     }
-                    //Get html code for RSS link
+                    // Get html code for RSS link
                     $row[] = rss_get_link($context->id, $USER->id, 'mod_forum', $forum->id, $tooltiptext);
                 } else {
                     $row[] = '&nbsp;';

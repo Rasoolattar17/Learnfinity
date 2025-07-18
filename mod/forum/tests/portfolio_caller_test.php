@@ -26,7 +26,7 @@ namespace mod_forum;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @author     Brendan Cox <brendan.cox@totaralearning.com>
  */
-class portfolio_caller_test extends \advanced_testcase {
+final class portfolio_caller_test extends \advanced_testcase {
 
     /**
      * Ensure that a file will be loaded in an instance of the caller when supplied valid and
@@ -39,35 +39,35 @@ class portfolio_caller_test extends \advanced_testcase {
 
         $user = $this->getDataGenerator()->create_user();
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
         $context = \context_module::instance($forum->cmid);
 
         /* @var mod_forum_generator $forumgenerator */
         $forumgenerator = $this->getDataGenerator()->get_plugin_generator('mod_forum');
         $discussion = $forumgenerator->create_discussion(
-            array(
+            [
                 'course' => $course->id,
                 'forum' => $forum->id,
                 'userid' => $user->id,
-                'attachment' => 1
-            )
+                'attachment' => 1,
+            ]
         );
 
         $fs = get_file_storage();
-        $dummy = (object) array(
+        $dummy = (object) [
             'contextid' => $context->id,
             'component' => 'mod_forum',
             'filearea' => 'attachment',
             'itemid' => $discussion->firstpost,
             'filepath' => '/',
-            'filename' => 'myassignmnent.pdf'
-        );
+            'filename' => 'myassignmnent.pdf',
+        ];
         $firstpostfile = $fs->create_file_from_string($dummy, 'Content of ' . $dummy->filename);
 
-        $caller = new \forum_portfolio_caller(array(
+        $caller = new \forum_portfolio_caller([
             'postid' => $discussion->firstpost,
-            'attachment' => $firstpostfile->get_id()
-        ));
+            'attachment' => $firstpostfile->get_id(),
+        ]);
 
         $caller->load_data();
         $this->assertEquals($caller->get_sha1_file(), $firstpostfile->get_contenthash());
@@ -84,53 +84,53 @@ class portfolio_caller_test extends \advanced_testcase {
 
         $user = $this->getDataGenerator()->create_user();
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
         $context = \context_module::instance($forum->cmid);
 
         /* @var mod_forum_generator $forumgenerator */
         $forumgenerator = $this->getDataGenerator()->get_plugin_generator('mod_forum');
         $discussion = $forumgenerator->create_discussion(
-            array(
+            [
                 'course' => $course->id,
                 'forum' => $forum->id,
                 'userid' => $user->id,
-                'attachment' => 1
-            )
+                'attachment' => 1,
+            ]
         );
 
         $fs = get_file_storage();
-        $dummyone = (object) array(
+        $dummyone = (object) [
             'contextid' => $context->id,
             'component' => 'mod_forum',
             'filearea' => 'attachment',
             'itemid' => $discussion->firstpost,
             'filepath' => '/',
-            'filename' => 'myassignmnent.pdf'
-        );
+            'filename' => 'myassignmnent.pdf',
+        ];
         $firstpostfile = $fs->create_file_from_string($dummyone, 'Content of ' . $dummyone->filename);
 
         // Create a second post and add a file there.
         $secondpost = $forumgenerator->create_post(
-            array(
+            [
                 'discussion' => $discussion->id,
                 'userid' => $user->id,
-                'attachment' => 1
-            )
+                'attachment' => 1,
+            ]
         );
-        $dummytwo = (object) array(
+        $dummytwo = (object) [
             'contextid' => $context->id,
             'component' => 'mod_forum',
             'filearea' => 'attachment',
             'itemid' => $secondpost->id,
             'filepath' => '/',
-            'filename' => 'myotherthing.pdf'
-        );
+            'filename' => 'myotherthing.pdf',
+        ];
         $secondpostfile = $fs->create_file_from_string($dummytwo, 'Content of ' . $dummytwo->filename);
 
-        $caller = new \forum_portfolio_caller(array(
+        $caller = new \forum_portfolio_caller([
             'postid' => $discussion->firstpost,
-            'attachment' => $secondpostfile->get_id()
-        ));
+            'attachment' => $secondpostfile->get_id(),
+        ]);
 
         $this->expectExceptionMessage('Sorry, the requested file could not be found');
         $caller->load_data();

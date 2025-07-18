@@ -33,7 +33,7 @@ namespace mod_forum\event;
  * @copyright  2014 Dan Poltawski <dan@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class events_test extends \advanced_testcase {
+final class events_test extends \advanced_testcase {
 
     /**
      * Tests set up.
@@ -60,9 +60,9 @@ class events_test extends \advanced_testcase {
     public function test_course_searched_searchterm_validation(): void {
         $course = $this->getDataGenerator()->create_course();
         $coursectx = \context_course::instance($course->id);
-        $params = array(
+        $params = [
             'context' => $coursectx,
-        );
+        ];
 
         $this->expectException(\coding_exception::class);
         $this->expectExceptionMessage("The 'searchterm' value must be set in other.");
@@ -74,12 +74,12 @@ class events_test extends \advanced_testcase {
      */
     public function test_course_searched_context_validation(): void {
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
         $context = \context_module::instance($forum->cmid);
-        $params = array(
+        $params = [
             'context' => $context,
-            'other' => array('searchterm' => 'testing'),
-        );
+            'other' => ['searchterm' => 'testing'],
+        ];
 
         $this->expectException(\coding_exception::class);
         $this->expectExceptionMessage('Context level must be CONTEXT_COURSE.');
@@ -96,10 +96,10 @@ class events_test extends \advanced_testcase {
         $coursectx = \context_course::instance($course->id);
         $searchterm = 'testing123';
 
-        $params = array(
+        $params = [
             'context' => $coursectx,
-            'other' => array('searchterm' => $searchterm),
-        );
+            'other' => ['searchterm' => $searchterm],
+        ];
 
         // Create event.
         $event = \mod_forum\event\course_searched::create($params);
@@ -124,12 +124,12 @@ class events_test extends \advanced_testcase {
      */
     public function test_discussion_created_forumid_validation(): void {
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
         $context = \context_module::instance($forum->cmid);
 
-        $params = array(
+        $params = [
             'context' => $context,
-        );
+        ];
 
         $this->expectException(\coding_exception::class);
         $this->expectExceptionMessage("The 'forumid' value must be set in other.");
@@ -141,12 +141,12 @@ class events_test extends \advanced_testcase {
      */
     public function test_discussion_created_context_validation(): void {
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
 
-        $params = array(
+        $params = [
             'context' => \context_system::instance(),
-            'other' => array('forumid' => $forum->id),
-        );
+            'other' => ['forumid' => $forum->id],
+        ];
 
         $this->expectException(\coding_exception::class);
         $this->expectExceptionMessage('Context level must be CONTEXT_MODULE.');
@@ -160,11 +160,11 @@ class events_test extends \advanced_testcase {
 
         // Setup test data.
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
         $user = $this->getDataGenerator()->create_user();
 
         // Add a discussion.
-        $record = array();
+        $record = [];
         $record['course'] = $course->id;
         $record['forum'] = $forum->id;
         $record['userid'] = $user->id;
@@ -172,11 +172,11 @@ class events_test extends \advanced_testcase {
 
         $context = \context_module::instance($forum->cmid);
 
-        $params = array(
+        $params = [
             'context' => $context,
             'objectid' => $discussion->id,
-            'other' => array('forumid' => $forum->id),
-        );
+            'other' => ['forumid' => $forum->id],
+        ];
 
         // Create the event.
         $event = \mod_forum\event\discussion_created::create($params);
@@ -201,12 +201,12 @@ class events_test extends \advanced_testcase {
      */
     public function test_discussion_updated_forumid_validation(): void {
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
         $context = \context_module::instance($forum->cmid);
 
-        $params = array(
+        $params = [
             'context' => $context,
-        );
+        ];
 
         $this->expectException(\coding_exception::class);
         $this->expectExceptionMessage("The 'forumid' value must be set in other.");
@@ -218,12 +218,12 @@ class events_test extends \advanced_testcase {
      */
     public function test_discussion_updated_context_validation(): void {
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
 
-        $params = array(
+        $params = [
             'context' => \context_system::instance(),
-            'other' => array('forumid' => $forum->id),
-        );
+            'other' => ['forumid' => $forum->id],
+        ];
 
         $this->expectException(\coding_exception::class);
         $this->expectExceptionMessage('Context level must be CONTEXT_MODULE.');
@@ -237,11 +237,11 @@ class events_test extends \advanced_testcase {
 
         // Setup test data.
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
         $user = $this->getDataGenerator()->create_user();
 
         // Add a discussion.
-        $record = array();
+        $record = [];
         $record['course'] = $course->id;
         $record['forum'] = $forum->id;
         $record['userid'] = $user->id;
@@ -249,11 +249,11 @@ class events_test extends \advanced_testcase {
 
         $context = \context_module::instance($forum->cmid);
 
-        $params = array(
+        $params = [
             'context' => $context,
             'objectid' => $discussion->id,
-            'other' => array('forumid' => $forum->id),
-        );
+            'other' => ['forumid' => $forum->id],
+        ];
 
         // Create the event.
         $event = \mod_forum\event\discussion_updated::create($params);
@@ -278,12 +278,12 @@ class events_test extends \advanced_testcase {
      */
     public function test_discussion_deleted_forumid_validation(): void {
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
         $context = \context_module::instance($forum->cmid);
 
-        $params = array(
+        $params = [
             'context' => $context,
-        );
+        ];
 
         $this->expectException(\coding_exception::class);
         $this->expectExceptionMessage("The 'forumid' value must be set in other.");
@@ -295,12 +295,12 @@ class events_test extends \advanced_testcase {
      */
     public function test_discussion_deleted_context_validation(): void {
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
 
-        $params = array(
+        $params = [
             'context' => \context_system::instance(),
-            'other' => array('forumid' => $forum->id),
-        );
+            'other' => ['forumid' => $forum->id],
+        ];
 
         $this->expectException(\coding_exception::class);
         $this->expectExceptionMessage('Context level must be CONTEXT_MODULE.');
@@ -314,11 +314,11 @@ class events_test extends \advanced_testcase {
 
         // Setup test data.
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
         $user = $this->getDataGenerator()->create_user();
 
         // Add a discussion.
-        $record = array();
+        $record = [];
         $record['course'] = $course->id;
         $record['forum'] = $forum->id;
         $record['userid'] = $user->id;
@@ -326,11 +326,11 @@ class events_test extends \advanced_testcase {
 
         $context = \context_module::instance($forum->cmid);
 
-        $params = array(
+        $params = [
             'context' => $context,
             'objectid' => $discussion->id,
-            'other' => array('forumid' => $forum->id),
-        );
+            'other' => ['forumid' => $forum->id],
+        ];
 
         $event = \mod_forum\event\discussion_deleted::create($params);
 
@@ -354,14 +354,14 @@ class events_test extends \advanced_testcase {
      */
     public function test_discussion_moved_fromforumid_validation(): void {
         $course = $this->getDataGenerator()->create_course();
-        $toforum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $toforum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
 
         $context = \context_module::instance($toforum->cmid);
 
-        $params = array(
+        $params = [
             'context' => $context,
-            'other' => array('toforumid' => $toforum->id)
-        );
+            'other' => ['toforumid' => $toforum->id],
+        ];
 
         $this->expectException(\coding_exception::class);
         $this->expectExceptionMessage("The 'fromforumid' value must be set in other.");
@@ -373,14 +373,14 @@ class events_test extends \advanced_testcase {
      */
     public function test_discussion_moved_toforumid_validation(): void {
         $course = $this->getDataGenerator()->create_course();
-        $fromforum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
-        $toforum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $fromforum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
+        $toforum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
         $context = \context_module::instance($toforum->cmid);
 
-        $params = array(
+        $params = [
             'context' => $context,
-            'other' => array('fromforumid' => $fromforum->id)
-        );
+            'other' => ['fromforumid' => $fromforum->id],
+        ];
 
         $this->expectException(\coding_exception::class);
         $this->expectExceptionMessage("The 'toforumid' value must be set in other.");
@@ -392,22 +392,22 @@ class events_test extends \advanced_testcase {
      */
     public function test_discussion_moved_context_validation(): void {
         $course = $this->getDataGenerator()->create_course();
-        $fromforum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
-        $toforum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $fromforum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
+        $toforum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
         $user = $this->getDataGenerator()->create_user();
 
         // Add a discussion.
-        $record = array();
+        $record = [];
         $record['course'] = $course->id;
         $record['forum'] = $fromforum->id;
         $record['userid'] = $user->id;
         $discussion = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_discussion($record);
 
-        $params = array(
+        $params = [
             'context' => \context_system::instance(),
             'objectid' => $discussion->id,
-            'other' => array('fromforumid' => $fromforum->id, 'toforumid' => $toforum->id)
-        );
+            'other' => ['fromforumid' => $fromforum->id, 'toforumid' => $toforum->id],
+        ];
 
         $this->expectException(\coding_exception::class);
         $this->expectExceptionMessage('Context level must be CONTEXT_MODULE.');
@@ -420,12 +420,12 @@ class events_test extends \advanced_testcase {
     public function test_discussion_moved(): void {
         // Setup test data.
         $course = $this->getDataGenerator()->create_course();
-        $fromforum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
-        $toforum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $fromforum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
+        $toforum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
         $user = $this->getDataGenerator()->create_user();
 
         // Add a discussion.
-        $record = array();
+        $record = [];
         $record['course'] = $course->id;
         $record['forum'] = $fromforum->id;
         $record['userid'] = $user->id;
@@ -433,11 +433,11 @@ class events_test extends \advanced_testcase {
 
         $context = \context_module::instance($toforum->cmid);
 
-        $params = array(
+        $params = [
             'context' => $context,
             'objectid' => $discussion->id,
-            'other' => array('fromforumid' => $fromforum->id, 'toforumid' => $toforum->id)
-        );
+            'other' => ['fromforumid' => $fromforum->id, 'toforumid' => $toforum->id],
+        ];
 
         $event = \mod_forum\event\discussion_moved::create($params);
 
@@ -462,20 +462,20 @@ class events_test extends \advanced_testcase {
      */
     public function test_discussion_viewed_context_validation(): void {
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
         $user = $this->getDataGenerator()->create_user();
 
         // Add a discussion.
-        $record = array();
+        $record = [];
         $record['course'] = $course->id;
         $record['forum'] = $forum->id;
         $record['userid'] = $user->id;
         $discussion = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_discussion($record);
 
-        $params = array(
+        $params = [
             'context' => \context_system::instance(),
             'objectid' => $discussion->id,
-        );
+        ];
 
         $this->expectException(\coding_exception::class);
         $this->expectExceptionMessage('Context level must be CONTEXT_MODULE.');
@@ -488,11 +488,11 @@ class events_test extends \advanced_testcase {
     public function test_discussion_viewed(): void {
         // Setup test data.
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
         $user = $this->getDataGenerator()->create_user();
 
         // Add a discussion.
-        $record = array();
+        $record = [];
         $record['course'] = $course->id;
         $record['forum'] = $forum->id;
         $record['userid'] = $user->id;
@@ -500,10 +500,10 @@ class events_test extends \advanced_testcase {
 
         $context = \context_module::instance($forum->cmid);
 
-        $params = array(
+        $params = [
             'context' => $context,
             'objectid' => $discussion->id,
-        );
+        ];
 
         $event = \mod_forum\event\discussion_viewed::create($params);
 
@@ -527,12 +527,12 @@ class events_test extends \advanced_testcase {
      */
     public function test_course_module_viewed_context_validation(): void {
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
 
-        $params = array(
+        $params = [
             'context' => \context_system::instance(),
             'objectid' => $forum->id,
-        );
+        ];
 
         $this->expectException(\coding_exception::class);
         $this->expectExceptionMessage('Context level must be CONTEXT_MODULE.');
@@ -545,14 +545,14 @@ class events_test extends \advanced_testcase {
     public function test_course_module_viewed(): void {
         // Setup test data.
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
 
         $context = \context_module::instance($forum->cmid);
 
-        $params = array(
+        $params = [
             'context' => $context,
             'objectid' => $forum->id,
-        );
+        ];
 
         $event = \mod_forum\event\course_module_viewed::create($params);
 
@@ -566,7 +566,7 @@ class events_test extends \advanced_testcase {
         // Checking that the event contains the expected values.
         $this->assertInstanceOf('\mod_forum\event\course_module_viewed', $event);
         $this->assertEquals($context, $event->get_context());
-        $url = new \moodle_url('/mod/forum/view.php', array('f' => $forum->id));
+        $url = new \moodle_url('/mod/forum/view.php', ['f' => $forum->id]);
         $this->assertEquals($url, $event->get_url());
         $this->assertEventContextNotUsed($event);
 
@@ -579,12 +579,12 @@ class events_test extends \advanced_testcase {
     public function test_subscription_created_forumid_validation(): void {
         $user = $this->getDataGenerator()->create_user();
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
 
-        $params = array(
+        $params = [
             'context' => \context_module::instance($forum->cmid),
             'relateduserid' => $user->id,
-        );
+        ];
 
         $this->expectException(\coding_exception::class);
         $this->expectExceptionMessage("The 'forumid' value must be set in other.");
@@ -596,12 +596,12 @@ class events_test extends \advanced_testcase {
      */
     public function test_subscription_created_relateduserid_validation(): void {
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
 
-        $params = array(
+        $params = [
             'context' => \context_module::instance($forum->cmid),
             'objectid' => $forum->id,
-        );
+        ];
 
         $this->expectException(\coding_exception::class);
         $this->expectExceptionMessage("The 'relateduserid' must be set.");
@@ -614,13 +614,13 @@ class events_test extends \advanced_testcase {
     public function test_subscription_created_contextlevel_validation(): void {
         $user = $this->getDataGenerator()->create_user();
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
 
-        $params = array(
+        $params = [
             'context' => \context_system::instance(),
-            'other' => array('forumid' => $forum->id),
+            'other' => ['forumid' => $forum->id],
             'relateduserid' => $user->id,
-        );
+        ];
 
         $this->expectException(\coding_exception::class);
         $this->expectExceptionMessage('Context level must be CONTEXT_MODULE.');
@@ -634,23 +634,23 @@ class events_test extends \advanced_testcase {
         // Setup test data.
         $user = $this->getDataGenerator()->create_user();
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
         $user = $this->getDataGenerator()->create_user();
         $context = \context_module::instance($forum->cmid);
 
         // Add a subscription.
-        $record = array();
+        $record = [];
         $record['course'] = $course->id;
         $record['forum'] = $forum->id;
         $record['userid'] = $user->id;
         $subscription = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_subscription($record);
 
-        $params = array(
+        $params = [
             'context' => $context,
             'objectid' => $subscription->id,
-            'other' => array('forumid' => $forum->id),
+            'other' => ['forumid' => $forum->id],
             'relateduserid' => $user->id,
-        );
+        ];
 
         $event = \mod_forum\event\subscription_created::create($params);
 
@@ -664,7 +664,7 @@ class events_test extends \advanced_testcase {
         // Checking that the event contains the expected values.
         $this->assertInstanceOf('\mod_forum\event\subscription_created', $event);
         $this->assertEquals($context, $event->get_context());
-        $url = new \moodle_url('/mod/forum/subscribers.php', array('id' => $forum->id));
+        $url = new \moodle_url('/mod/forum/subscribers.php', ['id' => $forum->id]);
         $this->assertEquals($url, $event->get_url());
         $this->assertEventContextNotUsed($event);
 
@@ -677,12 +677,12 @@ class events_test extends \advanced_testcase {
     public function test_subscription_deleted_forumid_validation(): void {
         $user = $this->getDataGenerator()->create_user();
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
 
-        $params = array(
+        $params = [
             'context' => \context_module::instance($forum->cmid),
             'relateduserid' => $user->id,
-        );
+        ];
 
         $this->expectException(\coding_exception::class);
         $this->expectExceptionMessage("The 'forumid' value must be set in other.");
@@ -694,12 +694,12 @@ class events_test extends \advanced_testcase {
      */
     public function test_subscription_deleted_relateduserid_validation(): void {
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
 
-        $params = array(
+        $params = [
             'context' => \context_module::instance($forum->cmid),
             'objectid' => $forum->id,
-        );
+        ];
 
         $this->expectException(\coding_exception::class);
         $this->expectExceptionMessage("The 'relateduserid' must be set.");
@@ -712,13 +712,13 @@ class events_test extends \advanced_testcase {
     public function test_subscription_deleted_contextlevel_validation(): void {
         $user = $this->getDataGenerator()->create_user();
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
 
-        $params = array(
+        $params = [
             'context' => \context_system::instance(),
-            'other' => array('forumid' => $forum->id),
+            'other' => ['forumid' => $forum->id],
             'relateduserid' => $user->id,
-        );
+        ];
 
         $this->expectException(\coding_exception::class);
         $this->expectExceptionMessage('Context level must be CONTEXT_MODULE.');
@@ -732,23 +732,23 @@ class events_test extends \advanced_testcase {
         // Setup test data.
         $user = $this->getDataGenerator()->create_user();
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
         $user = $this->getDataGenerator()->create_user();
         $context = \context_module::instance($forum->cmid);
 
         // Add a subscription.
-        $record = array();
+        $record = [];
         $record['course'] = $course->id;
         $record['forum'] = $forum->id;
         $record['userid'] = $user->id;
         $subscription = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_subscription($record);
 
-        $params = array(
+        $params = [
             'context' => $context,
             'objectid' => $subscription->id,
-            'other' => array('forumid' => $forum->id),
+            'other' => ['forumid' => $forum->id],
             'relateduserid' => $user->id,
-        );
+        ];
 
         $event = \mod_forum\event\subscription_deleted::create($params);
 
@@ -762,7 +762,7 @@ class events_test extends \advanced_testcase {
         // Checking that the event contains the expected values.
         $this->assertInstanceOf('\mod_forum\event\subscription_deleted', $event);
         $this->assertEquals($context, $event->get_context());
-        $url = new \moodle_url('/mod/forum/subscribers.php', array('id' => $forum->id));
+        $url = new \moodle_url('/mod/forum/subscribers.php', ['id' => $forum->id]);
         $this->assertEquals($url, $event->get_url());
         $this->assertEventContextNotUsed($event);
 
@@ -775,12 +775,12 @@ class events_test extends \advanced_testcase {
     public function test_readtracking_enabled_forumid_validation(): void {
         $user = $this->getDataGenerator()->create_user();
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
 
-        $params = array(
+        $params = [
             'context' => \context_module::instance($forum->cmid),
             'relateduserid' => $user->id,
-        );
+        ];
 
         $this->expectException(\coding_exception::class);
         $this->expectExceptionMessage("The 'forumid' value must be set in other.");
@@ -792,12 +792,12 @@ class events_test extends \advanced_testcase {
      */
     public function test_readtracking_enabled_relateduserid_validation(): void {
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
 
-        $params = array(
+        $params = [
             'context' => \context_module::instance($forum->cmid),
             'objectid' => $forum->id,
-        );
+        ];
 
         $this->expectException(\coding_exception::class);
         $this->expectExceptionMessage("The 'relateduserid' must be set.");
@@ -810,13 +810,13 @@ class events_test extends \advanced_testcase {
     public function test_readtracking_enabled_contextlevel_validation(): void {
         $user = $this->getDataGenerator()->create_user();
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
 
-        $params = array(
+        $params = [
             'context' => \context_system::instance(),
-            'other' => array('forumid' => $forum->id),
+            'other' => ['forumid' => $forum->id],
             'relateduserid' => $user->id,
-        );
+        ];
 
         $this->expectException(\coding_exception::class);
         $this->expectExceptionMessage('Context level must be CONTEXT_MODULE.');
@@ -830,14 +830,14 @@ class events_test extends \advanced_testcase {
         // Setup test data.
         $user = $this->getDataGenerator()->create_user();
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
         $context = \context_module::instance($forum->cmid);
 
-        $params = array(
+        $params = [
             'context' => $context,
-            'other' => array('forumid' => $forum->id),
+            'other' => ['forumid' => $forum->id],
             'relateduserid' => $user->id,
-        );
+        ];
 
         $event = \mod_forum\event\readtracking_enabled::create($params);
 
@@ -851,7 +851,7 @@ class events_test extends \advanced_testcase {
         // Checking that the event contains the expected values.
         $this->assertInstanceOf('\mod_forum\event\readtracking_enabled', $event);
         $this->assertEquals($context, $event->get_context());
-        $url = new \moodle_url('/mod/forum/view.php', array('f' => $forum->id));
+        $url = new \moodle_url('/mod/forum/view.php', ['f' => $forum->id]);
         $this->assertEquals($url, $event->get_url());
         $this->assertEventContextNotUsed($event);
 
@@ -864,12 +864,12 @@ class events_test extends \advanced_testcase {
     public function test_readtracking_disabled_forumid_validation(): void {
         $user = $this->getDataGenerator()->create_user();
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
 
-        $params = array(
+        $params = [
             'context' => \context_module::instance($forum->cmid),
             'relateduserid' => $user->id,
-        );
+        ];
 
         $this->expectException(\coding_exception::class);
         $this->expectExceptionMessage("The 'forumid' value must be set in other.");
@@ -881,12 +881,12 @@ class events_test extends \advanced_testcase {
      */
     public function test_readtracking_disabled_relateduserid_validation(): void {
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
 
-        $params = array(
+        $params = [
             'context' => \context_module::instance($forum->cmid),
             'objectid' => $forum->id,
-        );
+        ];
 
         $this->expectException(\coding_exception::class);
         $this->expectExceptionMessage("The 'relateduserid' must be set.");
@@ -899,13 +899,13 @@ class events_test extends \advanced_testcase {
     public function test_readtracking_disabled_contextlevel_validation(): void {
         $user = $this->getDataGenerator()->create_user();
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
 
-        $params = array(
+        $params = [
             'context' => \context_system::instance(),
-            'other' => array('forumid' => $forum->id),
+            'other' => ['forumid' => $forum->id],
             'relateduserid' => $user->id,
-        );
+        ];
 
         $this->expectException(\coding_exception::class);
         $this->expectExceptionMessage('Context level must be CONTEXT_MODULE.');
@@ -919,14 +919,14 @@ class events_test extends \advanced_testcase {
         // Setup test data.
         $user = $this->getDataGenerator()->create_user();
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
         $context = \context_module::instance($forum->cmid);
 
-        $params = array(
+        $params = [
             'context' => $context,
-            'other' => array('forumid' => $forum->id),
+            'other' => ['forumid' => $forum->id],
             'relateduserid' => $user->id,
-        );
+        ];
 
         $event = \mod_forum\event\readtracking_disabled::create($params);
 
@@ -940,7 +940,7 @@ class events_test extends \advanced_testcase {
         // Checking that the event contains the expected values.
         $this->assertInstanceOf('\mod_forum\event\readtracking_disabled', $event);
         $this->assertEquals($context, $event->get_context());
-        $url = new \moodle_url('/mod/forum/view.php', array('f' => $forum->id));
+        $url = new \moodle_url('/mod/forum/view.php', ['f' => $forum->id]);
         $this->assertEquals($url, $event->get_url());
         $this->assertEventContextNotUsed($event);
 
@@ -953,12 +953,12 @@ class events_test extends \advanced_testcase {
     public function test_subscribers_viewed_forumid_validation(): void {
         $user = $this->getDataGenerator()->create_user();
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
 
-        $params = array(
+        $params = [
             'context' => \context_module::instance($forum->cmid),
             'relateduserid' => $user->id,
-        );
+        ];
 
         $this->expectException(\coding_exception::class);
         $this->expectExceptionMessage("The 'forumid' value must be set in other.");
@@ -971,13 +971,13 @@ class events_test extends \advanced_testcase {
     public function test_subscribers_viewed_contextlevel_validation(): void {
         $user = $this->getDataGenerator()->create_user();
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
 
-        $params = array(
+        $params = [
             'context' => \context_system::instance(),
-            'other' => array('forumid' => $forum->id),
+            'other' => ['forumid' => $forum->id],
             'relateduserid' => $user->id,
-        );
+        ];
 
         $this->expectException(\coding_exception::class);
         $this->expectExceptionMessage('Context level must be CONTEXT_MODULE.');
@@ -990,13 +990,13 @@ class events_test extends \advanced_testcase {
     public function test_subscribers_viewed(): void {
         // Setup test data.
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
         $context = \context_module::instance($forum->cmid);
 
-        $params = array(
+        $params = [
             'context' => $context,
-            'other' => array('forumid' => $forum->id),
-        );
+            'other' => ['forumid' => $forum->id],
+        ];
 
         $event = \mod_forum\event\subscribers_viewed::create($params);
 
@@ -1022,10 +1022,10 @@ class events_test extends \advanced_testcase {
         $user = $this->getDataGenerator()->create_user();
         $course = $this->getDataGenerator()->create_course();
 
-        $params = array(
+        $params = [
             'context' => \context_course::instance($course->id),
             'relateduserid' => $user->id,
-        );
+        ];
 
         $this->expectException(\coding_exception::class);
         $this->expectExceptionMessage("The 'reportmode' value must be set in other.");
@@ -1038,13 +1038,13 @@ class events_test extends \advanced_testcase {
     public function test_user_report_viewed_contextlevel_validation(): void {
         $user = $this->getDataGenerator()->create_user();
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
 
-        $params = array(
+        $params = [
             'context' => \context_module::instance($forum->cmid),
-            'other' => array('reportmode' => 'posts'),
+            'other' => ['reportmode' => 'posts'],
             'relateduserid' => $user->id,
-        );
+        ];
 
         $this->expectException(\coding_exception::class);
         $this->expectExceptionMessage('Context level must be either CONTEXT_SYSTEM, CONTEXT_COURSE or CONTEXT_USER.');
@@ -1056,10 +1056,10 @@ class events_test extends \advanced_testcase {
      */
     public function test_user_report_viewed_relateduserid_validation(): void {
 
-        $params = array(
+        $params = [
             'context' => \context_system::instance(),
-            'other' => array('reportmode' => 'posts'),
-        );
+            'other' => ['reportmode' => 'posts'],
+        ];
 
         $this->expectException(\coding_exception::class);
         $this->expectExceptionMessage("The 'relateduserid' must be set.");
@@ -1075,11 +1075,11 @@ class events_test extends \advanced_testcase {
         $course = $this->getDataGenerator()->create_course();
         $context = \context_course::instance($course->id);
 
-        $params = array(
+        $params = [
             'context' => $context,
             'relateduserid' => $user->id,
-            'other' => array('reportmode' => 'discussions'),
-        );
+            'other' => ['reportmode' => 'discussions'],
+        ];
 
         $event = \mod_forum\event\user_report_viewed::create($params);
 
@@ -1103,20 +1103,20 @@ class events_test extends \advanced_testcase {
      */
     public function test_post_created_postid_validation(): void {
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
         $user = $this->getDataGenerator()->create_user();
 
         // Add a discussion.
-        $record = array();
+        $record = [];
         $record['course'] = $course->id;
         $record['forum'] = $forum->id;
         $record['userid'] = $user->id;
         $discussion = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_discussion($record);
 
-        $params = array(
+        $params = [
             'context' => \context_module::instance($forum->cmid),
-            'other' => array('forumid' => $forum->id, 'forumtype' => $forum->type, 'discussionid' => $discussion->id)
-        );
+            'other' => ['forumid' => $forum->id, 'forumtype' => $forum->type, 'discussionid' => $discussion->id],
+        ];
 
         \mod_forum\event\post_created::create($params);
     }
@@ -1126,27 +1126,27 @@ class events_test extends \advanced_testcase {
      */
     public function test_post_created_discussionid_validation(): void {
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
         $user = $this->getDataGenerator()->create_user();
 
         // Add a discussion.
-        $record = array();
+        $record = [];
         $record['course'] = $course->id;
         $record['forum'] = $forum->id;
         $record['userid'] = $user->id;
         $discussion = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_discussion($record);
 
         // Add a post.
-        $record = array();
+        $record = [];
         $record['discussion'] = $discussion->id;
         $record['userid'] = $user->id;
         $post = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_post($record);
 
-        $params = array(
+        $params = [
             'context' => \context_module::instance($forum->cmid),
             'objectid' => $post->id,
-            'other' => array('forumid' => $forum->id, 'forumtype' => $forum->type)
-        );
+            'other' => ['forumid' => $forum->id, 'forumtype' => $forum->type],
+        ];
 
         $this->expectException(\coding_exception::class);
         $this->expectExceptionMessage("The 'discussionid' value must be set in other.");
@@ -1158,27 +1158,27 @@ class events_test extends \advanced_testcase {
      */
     public function test_post_created_forumid_validation(): void {
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
         $user = $this->getDataGenerator()->create_user();
 
         // Add a discussion.
-        $record = array();
+        $record = [];
         $record['course'] = $course->id;
         $record['forum'] = $forum->id;
         $record['userid'] = $user->id;
         $discussion = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_discussion($record);
 
         // Add a post.
-        $record = array();
+        $record = [];
         $record['discussion'] = $discussion->id;
         $record['userid'] = $user->id;
         $post = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_post($record);
 
-        $params = array(
+        $params = [
             'context' => \context_module::instance($forum->cmid),
             'objectid' => $post->id,
-            'other' => array('discussionid' => $discussion->id, 'forumtype' => $forum->type)
-        );
+            'other' => ['discussionid' => $discussion->id, 'forumtype' => $forum->type],
+        ];
 
         $this->expectException(\coding_exception::class);
         $this->expectExceptionMessage("The 'forumid' value must be set in other.");
@@ -1190,27 +1190,27 @@ class events_test extends \advanced_testcase {
      */
     public function test_post_created_forumtype_validation(): void {
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
         $user = $this->getDataGenerator()->create_user();
 
         // Add a discussion.
-        $record = array();
+        $record = [];
         $record['course'] = $course->id;
         $record['forum'] = $forum->id;
         $record['userid'] = $user->id;
         $discussion = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_discussion($record);
 
         // Add a post.
-        $record = array();
+        $record = [];
         $record['discussion'] = $discussion->id;
         $record['userid'] = $user->id;
         $post = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_post($record);
 
-        $params = array(
+        $params = [
             'context' => \context_module::instance($forum->cmid),
             'objectid' => $post->id,
-            'other' => array('discussionid' => $discussion->id, 'forumid' => $forum->id)
-        );
+            'other' => ['discussionid' => $discussion->id, 'forumid' => $forum->id],
+        ];
 
         $this->expectException(\coding_exception::class);
         $this->expectExceptionMessage("The 'forumtype' value must be set in other.");
@@ -1222,27 +1222,27 @@ class events_test extends \advanced_testcase {
      */
     public function test_post_created_context_validation(): void {
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
         $user = $this->getDataGenerator()->create_user();
 
         // Add a discussion.
-        $record = array();
+        $record = [];
         $record['course'] = $course->id;
         $record['forum'] = $forum->id;
         $record['userid'] = $user->id;
         $discussion = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_discussion($record);
 
         // Add a post.
-        $record = array();
+        $record = [];
         $record['discussion'] = $discussion->id;
         $record['userid'] = $user->id;
         $post = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_post($record);
 
-        $params = array(
+        $params = [
             'context' => \context_system::instance(),
             'objectid' => $post->id,
-            'other' => array('discussionid' => $discussion->id, 'forumid' => $forum->id, 'forumtype' => $forum->type)
-        );
+            'other' => ['discussionid' => $discussion->id, 'forumid' => $forum->id, 'forumtype' => $forum->type],
+        ];
 
         $this->expectException(\coding_exception::class);
         $this->expectExceptionMessage('Context level must be CONTEXT_MODULE.');
@@ -1255,29 +1255,29 @@ class events_test extends \advanced_testcase {
     public function test_post_created(): void {
         // Setup test data.
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
         $user = $this->getDataGenerator()->create_user();
 
         // Add a discussion.
-        $record = array();
+        $record = [];
         $record['course'] = $course->id;
         $record['forum'] = $forum->id;
         $record['userid'] = $user->id;
         $discussion = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_discussion($record);
 
         // Add a post.
-        $record = array();
+        $record = [];
         $record['discussion'] = $discussion->id;
         $record['userid'] = $user->id;
         $post = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_post($record);
 
         $context = \context_module::instance($forum->cmid);
 
-        $params = array(
+        $params = [
             'context' => $context,
             'objectid' => $post->id,
-            'other' => array('discussionid' => $discussion->id, 'forumid' => $forum->id, 'forumtype' => $forum->type)
-        );
+            'other' => ['discussionid' => $discussion->id, 'forumid' => $forum->id, 'forumtype' => $forum->type],
+        ];
 
         $event = \mod_forum\event\post_created::create($params);
 
@@ -1291,7 +1291,7 @@ class events_test extends \advanced_testcase {
         // Checking that the event contains the expected values.
         $this->assertInstanceOf('\mod_forum\event\post_created', $event);
         $this->assertEquals($context, $event->get_context());
-        $url = new \moodle_url('/mod/forum/discuss.php', array('d' => $discussion->id));
+        $url = new \moodle_url('/mod/forum/discuss.php', ['d' => $discussion->id]);
         $url->set_anchor('p'.$event->objectid);
         $this->assertEquals($url, $event->get_url());
         $this->assertEventContextNotUsed($event);
@@ -1305,29 +1305,29 @@ class events_test extends \advanced_testcase {
     public function test_post_created_single(): void {
         // Setup test data.
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id, 'type' => 'single'));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id, 'type' => 'single']);
         $user = $this->getDataGenerator()->create_user();
 
         // Add a discussion.
-        $record = array();
+        $record = [];
         $record['course'] = $course->id;
         $record['forum'] = $forum->id;
         $record['userid'] = $user->id;
         $discussion = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_discussion($record);
 
         // Add a post.
-        $record = array();
+        $record = [];
         $record['discussion'] = $discussion->id;
         $record['userid'] = $user->id;
         $post = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_post($record);
 
         $context = \context_module::instance($forum->cmid);
 
-        $params = array(
+        $params = [
             'context' => $context,
             'objectid' => $post->id,
-            'other' => array('discussionid' => $discussion->id, 'forumid' => $forum->id, 'forumtype' => $forum->type)
-        );
+            'other' => ['discussionid' => $discussion->id, 'forumid' => $forum->id, 'forumtype' => $forum->type],
+        ];
 
         $event = \mod_forum\event\post_created::create($params);
 
@@ -1341,7 +1341,7 @@ class events_test extends \advanced_testcase {
         // Checking that the event contains the expected values.
         $this->assertInstanceOf('\mod_forum\event\post_created', $event);
         $this->assertEquals($context, $event->get_context());
-        $url = new \moodle_url('/mod/forum/view.php', array('f' => $forum->id));
+        $url = new \moodle_url('/mod/forum/view.php', ['f' => $forum->id]);
         $url->set_anchor('p'.$event->objectid);
         $this->assertEquals($url, $event->get_url());
         $this->assertEventContextNotUsed($event);
@@ -1354,20 +1354,20 @@ class events_test extends \advanced_testcase {
      */
     public function test_post_deleted_postid_validation(): void {
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
         $user = $this->getDataGenerator()->create_user();
 
         // Add a discussion.
-        $record = array();
+        $record = [];
         $record['course'] = $course->id;
         $record['forum'] = $forum->id;
         $record['userid'] = $user->id;
         $discussion = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_discussion($record);
 
-        $params = array(
+        $params = [
             'context' => \context_module::instance($forum->cmid),
-            'other' => array('forumid' => $forum->id, 'forumtype' => $forum->type, 'discussionid' => $discussion->id)
-        );
+            'other' => ['forumid' => $forum->id, 'forumtype' => $forum->type, 'discussionid' => $discussion->id],
+        ];
 
         \mod_forum\event\post_deleted::create($params);
     }
@@ -1377,27 +1377,27 @@ class events_test extends \advanced_testcase {
      */
     public function test_post_deleted_discussionid_validation(): void {
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
         $user = $this->getDataGenerator()->create_user();
 
         // Add a discussion.
-        $record = array();
+        $record = [];
         $record['course'] = $course->id;
         $record['forum'] = $forum->id;
         $record['userid'] = $user->id;
         $discussion = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_discussion($record);
 
         // Add a post.
-        $record = array();
+        $record = [];
         $record['discussion'] = $discussion->id;
         $record['userid'] = $user->id;
         $post = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_post($record);
 
-        $params = array(
+        $params = [
             'context' => \context_module::instance($forum->cmid),
             'objectid' => $post->id,
-            'other' => array('forumid' => $forum->id, 'forumtype' => $forum->type)
-        );
+            'other' => ['forumid' => $forum->id, 'forumtype' => $forum->type],
+        ];
 
         $this->expectException(\coding_exception::class);
         $this->expectExceptionMessage("The 'discussionid' value must be set in other.");
@@ -1409,27 +1409,27 @@ class events_test extends \advanced_testcase {
      */
     public function test_post_deleted_forumid_validation(): void {
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
         $user = $this->getDataGenerator()->create_user();
 
         // Add a discussion.
-        $record = array();
+        $record = [];
         $record['course'] = $course->id;
         $record['forum'] = $forum->id;
         $record['userid'] = $user->id;
         $discussion = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_discussion($record);
 
         // Add a post.
-        $record = array();
+        $record = [];
         $record['discussion'] = $discussion->id;
         $record['userid'] = $user->id;
         $post = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_post($record);
 
-        $params = array(
+        $params = [
             'context' => \context_module::instance($forum->cmid),
             'objectid' => $post->id,
-            'other' => array('discussionid' => $discussion->id, 'forumtype' => $forum->type)
-        );
+            'other' => ['discussionid' => $discussion->id, 'forumtype' => $forum->type],
+        ];
 
         $this->expectException(\coding_exception::class);
         $this->expectExceptionMessage("The 'forumid' value must be set in other.");
@@ -1441,27 +1441,27 @@ class events_test extends \advanced_testcase {
      */
     public function test_post_deleted_forumtype_validation(): void {
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
         $user = $this->getDataGenerator()->create_user();
 
         // Add a discussion.
-        $record = array();
+        $record = [];
         $record['course'] = $course->id;
         $record['forum'] = $forum->id;
         $record['userid'] = $user->id;
         $discussion = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_discussion($record);
 
         // Add a post.
-        $record = array();
+        $record = [];
         $record['discussion'] = $discussion->id;
         $record['userid'] = $user->id;
         $post = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_post($record);
 
-        $params = array(
+        $params = [
             'context' => \context_module::instance($forum->cmid),
             'objectid' => $post->id,
-            'other' => array('discussionid' => $discussion->id, 'forumid' => $forum->id)
-        );
+            'other' => ['discussionid' => $discussion->id, 'forumid' => $forum->id],
+        ];
 
         $this->expectException(\coding_exception::class);
         $this->expectExceptionMessage("The 'forumtype' value must be set in other.");
@@ -1473,27 +1473,27 @@ class events_test extends \advanced_testcase {
      */
     public function test_post_deleted_context_validation(): void {
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
         $user = $this->getDataGenerator()->create_user();
 
         // Add a discussion.
-        $record = array();
+        $record = [];
         $record['course'] = $course->id;
         $record['forum'] = $forum->id;
         $record['userid'] = $user->id;
         $discussion = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_discussion($record);
 
         // Add a post.
-        $record = array();
+        $record = [];
         $record['discussion'] = $discussion->id;
         $record['userid'] = $user->id;
         $post = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_post($record);
 
-        $params = array(
+        $params = [
             'context' => \context_system::instance(),
             'objectid' => $post->id,
-            'other' => array('discussionid' => $discussion->id, 'forumid' => $forum->id, 'forumtype' => $forum->type)
-        );
+            'other' => ['discussionid' => $discussion->id, 'forumid' => $forum->id, 'forumtype' => $forum->type],
+        ];
 
         $this->expectException(\coding_exception::class);
         $this->expectExceptionMessage('Context level must be CONTEXT_MODULE.');
@@ -1508,12 +1508,12 @@ class events_test extends \advanced_testcase {
 
         // Setup test data.
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
         $user = $this->getDataGenerator()->create_user();
         $cm = get_coursemodule_from_instance('forum', $forum->id, $forum->course);
 
         // Add a discussion.
-        $record = array();
+        $record = [];
         $record['course'] = $course->id;
         $record['forum'] = $forum->id;
         $record['userid'] = $user->id;
@@ -1525,10 +1525,10 @@ class events_test extends \advanced_testcase {
         $discussionpost = reset($discussionpost);
 
         // Add a few posts.
-        $record = array();
+        $record = [];
         $record['discussion'] = $discussion->id;
         $record['userid'] = $user->id;
-        $posts = array();
+        $posts = [];
         $posts[$discussionpost->id] = $discussionpost;
         for ($i = 0; $i < 3; $i++) {
             $post = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_post($record);
@@ -1546,7 +1546,7 @@ class events_test extends \advanced_testcase {
         // Check that the events contain the expected values.
         $this->assertInstanceOf('\mod_forum\event\post_deleted', $event);
         $this->assertEquals(\context_module::instance($forum->cmid), $event->get_context());
-        $url = new \moodle_url('/mod/forum/discuss.php', array('d' => $discussion->id));
+        $url = new \moodle_url('/mod/forum/discuss.php', ['d' => $discussion->id]);
         $this->assertEquals($url, $event->get_url());
         $this->assertEventContextNotUsed($event);
         $this->assertNotEmpty($event->get_name());
@@ -1564,7 +1564,7 @@ class events_test extends \advanced_testcase {
                 // Check that the event contains the expected values.
                 $this->assertEquals($event->objectid, $discussion->id);
                 $this->assertEquals(\context_module::instance($forum->cmid), $event->get_context());
-                $url = new \moodle_url('/mod/forum/view.php', array('id' => $forum->cmid));
+                $url = new \moodle_url('/mod/forum/view.php', ['id' => $forum->cmid]);
                 $this->assertEquals($url, $event->get_url());
                 $this->assertEventContextNotUsed($event);
                 $this->assertNotEmpty($event->get_name());
@@ -1574,7 +1574,7 @@ class events_test extends \advanced_testcase {
                 $this->assertInstanceOf('\mod_forum\event\post_deleted', $event);
                 $this->assertEquals($event->objectid, $post->id);
                 $this->assertEquals(\context_module::instance($forum->cmid), $event->get_context());
-                $url = new \moodle_url('/mod/forum/discuss.php', array('d' => $discussion->id));
+                $url = new \moodle_url('/mod/forum/discuss.php', ['d' => $discussion->id]);
                 $this->assertEquals($url, $event->get_url());
                 $this->assertEventContextNotUsed($event);
                 $this->assertNotEmpty($event->get_name());
@@ -1588,29 +1588,29 @@ class events_test extends \advanced_testcase {
     public function test_post_deleted_single(): void {
         // Setup test data.
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id, 'type' => 'single'));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id, 'type' => 'single']);
         $user = $this->getDataGenerator()->create_user();
 
         // Add a discussion.
-        $record = array();
+        $record = [];
         $record['course'] = $course->id;
         $record['forum'] = $forum->id;
         $record['userid'] = $user->id;
         $discussion = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_discussion($record);
 
         // Add a post.
-        $record = array();
+        $record = [];
         $record['discussion'] = $discussion->id;
         $record['userid'] = $user->id;
         $post = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_post($record);
 
         $context = \context_module::instance($forum->cmid);
 
-        $params = array(
+        $params = [
             'context' => $context,
             'objectid' => $post->id,
-            'other' => array('discussionid' => $discussion->id, 'forumid' => $forum->id, 'forumtype' => $forum->type)
-        );
+            'other' => ['discussionid' => $discussion->id, 'forumid' => $forum->id, 'forumtype' => $forum->type],
+        ];
 
         $event = \mod_forum\event\post_deleted::create($params);
 
@@ -1624,7 +1624,7 @@ class events_test extends \advanced_testcase {
         // Checking that the event contains the expected values.
         $this->assertInstanceOf('\mod_forum\event\post_deleted', $event);
         $this->assertEquals($context, $event->get_context());
-        $url = new \moodle_url('/mod/forum/view.php', array('f' => $forum->id));
+        $url = new \moodle_url('/mod/forum/view.php', ['f' => $forum->id]);
         $this->assertEquals($url, $event->get_url());
         $this->assertEventContextNotUsed($event);
 
@@ -1636,27 +1636,27 @@ class events_test extends \advanced_testcase {
      */
     public function test_post_updated_discussionid_validation(): void {
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
         $user = $this->getDataGenerator()->create_user();
 
         // Add a discussion.
-        $record = array();
+        $record = [];
         $record['course'] = $course->id;
         $record['forum'] = $forum->id;
         $record['userid'] = $user->id;
         $discussion = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_discussion($record);
 
         // Add a post.
-        $record = array();
+        $record = [];
         $record['discussion'] = $discussion->id;
         $record['userid'] = $user->id;
         $post = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_post($record);
 
-        $params = array(
+        $params = [
             'context' => \context_module::instance($forum->cmid),
             'objectid' => $post->id,
-            'other' => array('forumid' => $forum->id, 'forumtype' => $forum->type)
-        );
+            'other' => ['forumid' => $forum->id, 'forumtype' => $forum->type],
+        ];
 
         $this->expectException(\coding_exception::class);
         $this->expectExceptionMessage("The 'discussionid' value must be set in other.");
@@ -1668,27 +1668,27 @@ class events_test extends \advanced_testcase {
      */
     public function test_post_updated_forumid_validation(): void {
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
         $user = $this->getDataGenerator()->create_user();
 
         // Add a discussion.
-        $record = array();
+        $record = [];
         $record['course'] = $course->id;
         $record['forum'] = $forum->id;
         $record['userid'] = $user->id;
         $discussion = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_discussion($record);
 
         // Add a post.
-        $record = array();
+        $record = [];
         $record['discussion'] = $discussion->id;
         $record['userid'] = $user->id;
         $post = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_post($record);
 
-        $params = array(
+        $params = [
             'context' => \context_module::instance($forum->cmid),
             'objectid' => $post->id,
-            'other' => array('discussionid' => $discussion->id, 'forumtype' => $forum->type)
-        );
+            'other' => ['discussionid' => $discussion->id, 'forumtype' => $forum->type],
+        ];
 
         $this->expectException(\coding_exception::class);
         $this->expectExceptionMessage("The 'forumid' value must be set in other.");
@@ -1700,27 +1700,27 @@ class events_test extends \advanced_testcase {
      */
     public function test_post_updated_forumtype_validation(): void {
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
         $user = $this->getDataGenerator()->create_user();
 
         // Add a discussion.
-        $record = array();
+        $record = [];
         $record['course'] = $course->id;
         $record['forum'] = $forum->id;
         $record['userid'] = $user->id;
         $discussion = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_discussion($record);
 
         // Add a post.
-        $record = array();
+        $record = [];
         $record['discussion'] = $discussion->id;
         $record['userid'] = $user->id;
         $post = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_post($record);
 
-        $params = array(
+        $params = [
             'context' => \context_module::instance($forum->cmid),
             'objectid' => $post->id,
-            'other' => array('discussionid' => $discussion->id, 'forumid' => $forum->id)
-        );
+            'other' => ['discussionid' => $discussion->id, 'forumid' => $forum->id],
+        ];
 
         $this->expectException(\coding_exception::class);
         $this->expectExceptionMessage("The 'forumtype' value must be set in other.");
@@ -1732,27 +1732,27 @@ class events_test extends \advanced_testcase {
      */
     public function test_post_updated_context_validation(): void {
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
         $user = $this->getDataGenerator()->create_user();
 
         // Add a discussion.
-        $record = array();
+        $record = [];
         $record['course'] = $course->id;
         $record['forum'] = $forum->id;
         $record['userid'] = $user->id;
         $discussion = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_discussion($record);
 
         // Add a post.
-        $record = array();
+        $record = [];
         $record['discussion'] = $discussion->id;
         $record['userid'] = $user->id;
         $post = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_post($record);
 
-        $params = array(
+        $params = [
             'context' => \context_system::instance(),
             'objectid' => $post->id,
-            'other' => array('discussionid' => $discussion->id, 'forumid' => $forum->id, 'forumtype' => $forum->type)
-        );
+            'other' => ['discussionid' => $discussion->id, 'forumid' => $forum->id, 'forumtype' => $forum->type],
+        ];
 
         $this->expectException(\coding_exception::class);
         $this->expectExceptionMessage('Context level must be CONTEXT_MODULE.');
@@ -1765,29 +1765,29 @@ class events_test extends \advanced_testcase {
     public function test_post_updated(): void {
         // Setup test data.
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
         $user = $this->getDataGenerator()->create_user();
 
         // Add a discussion.
-        $record = array();
+        $record = [];
         $record['course'] = $course->id;
         $record['forum'] = $forum->id;
         $record['userid'] = $user->id;
         $discussion = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_discussion($record);
 
         // Add a post.
-        $record = array();
+        $record = [];
         $record['discussion'] = $discussion->id;
         $record['userid'] = $user->id;
         $post = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_post($record);
 
         $context = \context_module::instance($forum->cmid);
 
-        $params = array(
+        $params = [
             'context' => $context,
             'objectid' => $post->id,
-            'other' => array('discussionid' => $discussion->id, 'forumid' => $forum->id, 'forumtype' => $forum->type)
-        );
+            'other' => ['discussionid' => $discussion->id, 'forumid' => $forum->id, 'forumtype' => $forum->type],
+        ];
 
         $event = \mod_forum\event\post_updated::create($params);
 
@@ -1801,7 +1801,7 @@ class events_test extends \advanced_testcase {
         // Checking that the event contains the expected values.
         $this->assertInstanceOf('\mod_forum\event\post_updated', $event);
         $this->assertEquals($context, $event->get_context());
-        $url = new \moodle_url('/mod/forum/discuss.php', array('d' => $discussion->id));
+        $url = new \moodle_url('/mod/forum/discuss.php', ['d' => $discussion->id]);
         $url->set_anchor('p'.$event->objectid);
         $this->assertEquals($url, $event->get_url());
         $this->assertEventContextNotUsed($event);
@@ -1815,29 +1815,29 @@ class events_test extends \advanced_testcase {
     public function test_post_updated_single(): void {
         // Setup test data.
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id, 'type' => 'single'));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id, 'type' => 'single']);
         $user = $this->getDataGenerator()->create_user();
 
         // Add a discussion.
-        $record = array();
+        $record = [];
         $record['course'] = $course->id;
         $record['forum'] = $forum->id;
         $record['userid'] = $user->id;
         $discussion = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_discussion($record);
 
         // Add a post.
-        $record = array();
+        $record = [];
         $record['discussion'] = $discussion->id;
         $record['userid'] = $user->id;
         $post = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_post($record);
 
         $context = \context_module::instance($forum->cmid);
 
-        $params = array(
+        $params = [
             'context' => $context,
             'objectid' => $post->id,
-            'other' => array('discussionid' => $discussion->id, 'forumid' => $forum->id, 'forumtype' => $forum->type)
-        );
+            'other' => ['discussionid' => $discussion->id, 'forumid' => $forum->id, 'forumtype' => $forum->type],
+        ];
 
         $event = \mod_forum\event\post_updated::create($params);
 
@@ -1851,7 +1851,7 @@ class events_test extends \advanced_testcase {
         // Checking that the event contains the expected values.
         $this->assertInstanceOf('\mod_forum\event\post_updated', $event);
         $this->assertEquals($context, $event->get_context());
-        $url = new \moodle_url('/mod/forum/view.php', array('f' => $forum->id));
+        $url = new \moodle_url('/mod/forum/view.php', ['f' => $forum->id]);
         $url->set_anchor('p'.$post->id);
         $this->assertEquals($url, $event->get_url());
         $this->assertEventContextNotUsed($event);
@@ -1871,18 +1871,18 @@ class events_test extends \advanced_testcase {
         $user = $this->getDataGenerator()->create_user();
         $this->getDataGenerator()->enrol_user($user->id, $course->id);
 
-        $options = array('course' => $course->id, 'forcesubscribe' => FORUM_CHOOSESUBSCRIBE);
+        $options = ['course' => $course->id, 'forcesubscribe' => FORUM_CHOOSESUBSCRIBE];
         $forum = $this->getDataGenerator()->create_module('forum', $options);
 
         // Add a discussion.
-        $record = array();
+        $record = [];
         $record['course'] = $course->id;
         $record['forum'] = $forum->id;
         $record['userid'] = $user->id;
         $discussion = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_discussion($record);
 
         // Add a post.
-        $record = array();
+        $record = [];
         $record['discussion'] = $discussion->id;
         $record['userid'] = $user->id;
         $post = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_post($record);
@@ -1904,10 +1904,10 @@ class events_test extends \advanced_testcase {
         $context = \context_module::instance($cm->id);
         $this->assertEquals($context, $event->get_context());
 
-        $url = new \moodle_url('/mod/forum/subscribe.php', array(
+        $url = new \moodle_url('/mod/forum/subscribe.php', [
             'id' => $forum->id,
-            'd' => $discussion->id
-        ));
+            'd' => $discussion->id,
+        ]);
 
         $this->assertEquals($url, $event->get_url());
         $this->assertEventContextNotUsed($event);
@@ -1926,18 +1926,18 @@ class events_test extends \advanced_testcase {
         $user = $this->getDataGenerator()->create_user();
         $this->getDataGenerator()->enrol_user($user->id, $course->id);
 
-        $options = array('course' => $course->id, 'forcesubscribe' => FORUM_CHOOSESUBSCRIBE);
+        $options = ['course' => $course->id, 'forcesubscribe' => FORUM_CHOOSESUBSCRIBE];
         $forum = $this->getDataGenerator()->create_module('forum', $options);
 
         // Add a discussion.
-        $record = array();
+        $record = [];
         $record['course'] = $course->id;
         $record['forum'] = $forum->id;
         $record['userid'] = $user->id;
         $discussion = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_discussion($record);
 
         // Add a post.
-        $record = array();
+        $record = [];
         $record['discussion'] = $discussion->id;
         $record['userid'] = $user->id;
         $post = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_post($record);
@@ -1953,15 +1953,15 @@ class events_test extends \advanced_testcase {
 
         $context = \context_module::instance($forum->cmid);
 
-        $params = array(
+        $params = [
             'context' => $context,
             'objectid' => $subscription->id,
             'relateduserid' => $user->id,
-            'other' => array(
+            'other' => [
                 'forumid' => $forum->id,
                 'discussion' => $discussion->id,
-            )
-        );
+            ],
+        ];
 
         $event = \mod_forum\event\discussion_subscription_created::create($params);
 
@@ -1985,18 +1985,18 @@ class events_test extends \advanced_testcase {
         $user = $this->getDataGenerator()->create_user();
         $this->getDataGenerator()->enrol_user($user->id, $course->id);
 
-        $options = array('course' => $course->id, 'forcesubscribe' => FORUM_CHOOSESUBSCRIBE);
+        $options = ['course' => $course->id, 'forcesubscribe' => FORUM_CHOOSESUBSCRIBE];
         $forum = $this->getDataGenerator()->create_module('forum', $options);
 
         // Add a discussion.
-        $record = array();
+        $record = [];
         $record['course'] = $course->id;
         $record['forum'] = $forum->id;
         $record['userid'] = $user->id;
         $discussion = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_discussion($record);
 
         // Add a post.
-        $record = array();
+        $record = [];
         $record['discussion'] = $discussion->id;
         $record['userid'] = $user->id;
         $post = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_post($record);
@@ -2012,15 +2012,15 @@ class events_test extends \advanced_testcase {
 
         $context = \context_module::instance($forum->cmid);
 
-        $params = array(
+        $params = [
             'context' => \context_course::instance($course->id),
             'objectid' => $subscription->id,
             'relateduserid' => $user->id,
-            'other' => array(
+            'other' => [
                 'forumid' => $forum->id,
                 'discussion' => $discussion->id,
-            )
-        );
+            ],
+        ];
 
         // Without an invalid context.
         $this->expectException(\coding_exception::class);
@@ -2040,18 +2040,18 @@ class events_test extends \advanced_testcase {
         $user = $this->getDataGenerator()->create_user();
         $this->getDataGenerator()->enrol_user($user->id, $course->id);
 
-        $options = array('course' => $course->id, 'forcesubscribe' => FORUM_CHOOSESUBSCRIBE);
+        $options = ['course' => $course->id, 'forcesubscribe' => FORUM_CHOOSESUBSCRIBE];
         $forum = $this->getDataGenerator()->create_module('forum', $options);
 
         // Add a discussion.
-        $record = array();
+        $record = [];
         $record['course'] = $course->id;
         $record['forum'] = $forum->id;
         $record['userid'] = $user->id;
         $discussion = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_discussion($record);
 
         // Add a post.
-        $record = array();
+        $record = [];
         $record['discussion'] = $discussion->id;
         $record['userid'] = $user->id;
         $post = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_post($record);
@@ -2066,14 +2066,14 @@ class events_test extends \advanced_testcase {
         $subscription->id = $DB->insert_record('forum_discussion_subs', $subscription);
 
         // Without the discussion.
-        $params = array(
+        $params = [
             'context' => \context_module::instance($forum->cmid),
             'objectid' => $subscription->id,
             'relateduserid' => $user->id,
-            'other' => array(
+            'other' => [
                 'forumid' => $forum->id,
-            )
-        );
+            ],
+        ];
 
         $this->expectException(\coding_exception::class);
         $this->expectExceptionMessage("The 'discussion' value must be set in other.");
@@ -2092,18 +2092,18 @@ class events_test extends \advanced_testcase {
         $user = $this->getDataGenerator()->create_user();
         $this->getDataGenerator()->enrol_user($user->id, $course->id);
 
-        $options = array('course' => $course->id, 'forcesubscribe' => FORUM_CHOOSESUBSCRIBE);
+        $options = ['course' => $course->id, 'forcesubscribe' => FORUM_CHOOSESUBSCRIBE];
         $forum = $this->getDataGenerator()->create_module('forum', $options);
 
         // Add a discussion.
-        $record = array();
+        $record = [];
         $record['course'] = $course->id;
         $record['forum'] = $forum->id;
         $record['userid'] = $user->id;
         $discussion = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_discussion($record);
 
         // Add a post.
-        $record = array();
+        $record = [];
         $record['discussion'] = $discussion->id;
         $record['userid'] = $user->id;
         $post = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_post($record);
@@ -2118,14 +2118,14 @@ class events_test extends \advanced_testcase {
         $subscription->id = $DB->insert_record('forum_discussion_subs', $subscription);
 
         // Without the forumid.
-        $params = array(
+        $params = [
             'context' => \context_module::instance($forum->cmid),
             'objectid' => $subscription->id,
             'relateduserid' => $user->id,
-            'other' => array(
+            'other' => [
                 'discussion' => $discussion->id,
-            )
-        );
+            ],
+        ];
 
         $this->expectException(\coding_exception::class);
         $this->expectExceptionMessage("The 'forumid' value must be set in other.");
@@ -2144,18 +2144,18 @@ class events_test extends \advanced_testcase {
         $user = $this->getDataGenerator()->create_user();
         $this->getDataGenerator()->enrol_user($user->id, $course->id);
 
-        $options = array('course' => $course->id, 'forcesubscribe' => FORUM_CHOOSESUBSCRIBE);
+        $options = ['course' => $course->id, 'forcesubscribe' => FORUM_CHOOSESUBSCRIBE];
         $forum = $this->getDataGenerator()->create_module('forum', $options);
 
         // Add a discussion.
-        $record = array();
+        $record = [];
         $record['course'] = $course->id;
         $record['forum'] = $forum->id;
         $record['userid'] = $user->id;
         $discussion = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_discussion($record);
 
         // Add a post.
-        $record = array();
+        $record = [];
         $record['discussion'] = $discussion->id;
         $record['userid'] = $user->id;
         $post = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_post($record);
@@ -2172,14 +2172,14 @@ class events_test extends \advanced_testcase {
         $context = \context_module::instance($forum->cmid);
 
         // Without the relateduserid.
-        $params = array(
+        $params = [
             'context' => \context_module::instance($forum->cmid),
             'objectid' => $subscription->id,
-            'other' => array(
+            'other' => [
                 'forumid' => $forum->id,
                 'discussion' => $discussion->id,
-            )
-        );
+            ],
+        ];
 
         $this->expectException(\coding_exception::class);
         $this->expectExceptionMessage("The 'relateduserid' must be set.");
@@ -2198,18 +2198,18 @@ class events_test extends \advanced_testcase {
         $user = $this->getDataGenerator()->create_user();
         $this->getDataGenerator()->enrol_user($user->id, $course->id);
 
-        $options = array('course' => $course->id, 'forcesubscribe' => FORUM_INITIALSUBSCRIBE);
+        $options = ['course' => $course->id, 'forcesubscribe' => FORUM_INITIALSUBSCRIBE];
         $forum = $this->getDataGenerator()->create_module('forum', $options);
 
         // Add a discussion.
-        $record = array();
+        $record = [];
         $record['course'] = $course->id;
         $record['forum'] = $forum->id;
         $record['userid'] = $user->id;
         $discussion = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_discussion($record);
 
         // Add a post.
-        $record = array();
+        $record = [];
         $record['discussion'] = $discussion->id;
         $record['userid'] = $user->id;
         $post = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_post($record);
@@ -2231,10 +2231,10 @@ class events_test extends \advanced_testcase {
         $context = \context_module::instance($cm->id);
         $this->assertEquals($context, $event->get_context());
 
-        $url = new \moodle_url('/mod/forum/subscribe.php', array(
+        $url = new \moodle_url('/mod/forum/subscribe.php', [
             'id' => $forum->id,
-            'd' => $discussion->id
-        ));
+            'd' => $discussion->id,
+        ]);
 
         $this->assertEquals($url, $event->get_url());
         $this->assertEventContextNotUsed($event);
@@ -2253,18 +2253,18 @@ class events_test extends \advanced_testcase {
         $user = $this->getDataGenerator()->create_user();
         $this->getDataGenerator()->enrol_user($user->id, $course->id);
 
-        $options = array('course' => $course->id, 'forcesubscribe' => FORUM_INITIALSUBSCRIBE);
+        $options = ['course' => $course->id, 'forcesubscribe' => FORUM_INITIALSUBSCRIBE];
         $forum = $this->getDataGenerator()->create_module('forum', $options);
 
         // Add a discussion.
-        $record = array();
+        $record = [];
         $record['course'] = $course->id;
         $record['forum'] = $forum->id;
         $record['userid'] = $user->id;
         $discussion = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_discussion($record);
 
         // Add a post.
-        $record = array();
+        $record = [];
         $record['discussion'] = $discussion->id;
         $record['userid'] = $user->id;
         $post = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_post($record);
@@ -2280,15 +2280,15 @@ class events_test extends \advanced_testcase {
 
         $context = \context_module::instance($forum->cmid);
 
-        $params = array(
+        $params = [
             'context' => $context,
             'objectid' => $subscription->id,
             'relateduserid' => $user->id,
-            'other' => array(
+            'other' => [
                 'forumid' => $forum->id,
                 'discussion' => $discussion->id,
-            )
-        );
+            ],
+        ];
 
         $event = \mod_forum\event\discussion_subscription_deleted::create($params);
 
@@ -2336,18 +2336,18 @@ class events_test extends \advanced_testcase {
         $user = $this->getDataGenerator()->create_user();
         $this->getDataGenerator()->enrol_user($user->id, $course->id);
 
-        $options = array('course' => $course->id, 'forcesubscribe' => FORUM_CHOOSESUBSCRIBE);
+        $options = ['course' => $course->id, 'forcesubscribe' => FORUM_CHOOSESUBSCRIBE];
         $forum = $this->getDataGenerator()->create_module('forum', $options);
 
         // Add a discussion.
-        $record = array();
+        $record = [];
         $record['course'] = $course->id;
         $record['forum'] = $forum->id;
         $record['userid'] = $user->id;
         $discussion = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_discussion($record);
 
         // Add a post.
-        $record = array();
+        $record = [];
         $record['discussion'] = $discussion->id;
         $record['userid'] = $user->id;
         $post = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_post($record);
@@ -2363,15 +2363,15 @@ class events_test extends \advanced_testcase {
 
         $context = \context_module::instance($forum->cmid);
 
-        $params = array(
+        $params = [
             'context' => \context_course::instance($course->id),
             'objectid' => $subscription->id,
             'relateduserid' => $user->id,
-            'other' => array(
+            'other' => [
                 'forumid' => $forum->id,
                 'discussion' => $discussion->id,
-            )
-        );
+            ],
+        ];
 
         // Without an invalid context.
         $this->expectException(\coding_exception::class);
@@ -2391,18 +2391,18 @@ class events_test extends \advanced_testcase {
         $user = $this->getDataGenerator()->create_user();
         $this->getDataGenerator()->enrol_user($user->id, $course->id);
 
-        $options = array('course' => $course->id, 'forcesubscribe' => FORUM_CHOOSESUBSCRIBE);
+        $options = ['course' => $course->id, 'forcesubscribe' => FORUM_CHOOSESUBSCRIBE];
         $forum = $this->getDataGenerator()->create_module('forum', $options);
 
         // Add a discussion.
-        $record = array();
+        $record = [];
         $record['course'] = $course->id;
         $record['forum'] = $forum->id;
         $record['userid'] = $user->id;
         $discussion = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_discussion($record);
 
         // Add a post.
-        $record = array();
+        $record = [];
         $record['discussion'] = $discussion->id;
         $record['userid'] = $user->id;
         $post = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_post($record);
@@ -2417,14 +2417,14 @@ class events_test extends \advanced_testcase {
         $subscription->id = $DB->insert_record('forum_discussion_subs', $subscription);
 
         // Without the discussion.
-        $params = array(
+        $params = [
             'context' => \context_module::instance($forum->cmid),
             'objectid' => $subscription->id,
             'relateduserid' => $user->id,
-            'other' => array(
+            'other' => [
                 'forumid' => $forum->id,
-            )
-        );
+            ],
+        ];
 
         $this->expectException(\coding_exception::class);
         $this->expectExceptionMessage("The 'discussion' value must be set in other.");
@@ -2443,18 +2443,18 @@ class events_test extends \advanced_testcase {
         $user = $this->getDataGenerator()->create_user();
         $this->getDataGenerator()->enrol_user($user->id, $course->id);
 
-        $options = array('course' => $course->id, 'forcesubscribe' => FORUM_CHOOSESUBSCRIBE);
+        $options = ['course' => $course->id, 'forcesubscribe' => FORUM_CHOOSESUBSCRIBE];
         $forum = $this->getDataGenerator()->create_module('forum', $options);
 
         // Add a discussion.
-        $record = array();
+        $record = [];
         $record['course'] = $course->id;
         $record['forum'] = $forum->id;
         $record['userid'] = $user->id;
         $discussion = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_discussion($record);
 
         // Add a post.
-        $record = array();
+        $record = [];
         $record['discussion'] = $discussion->id;
         $record['userid'] = $user->id;
         $post = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_post($record);
@@ -2469,14 +2469,14 @@ class events_test extends \advanced_testcase {
         $subscription->id = $DB->insert_record('forum_discussion_subs', $subscription);
 
         // Without the forumid.
-        $params = array(
+        $params = [
             'context' => \context_module::instance($forum->cmid),
             'objectid' => $subscription->id,
             'relateduserid' => $user->id,
-            'other' => array(
+            'other' => [
                 'discussion' => $discussion->id,
-            )
-        );
+            ],
+        ];
 
         $this->expectException(\coding_exception::class);
         $this->expectExceptionMessage("The 'forumid' value must be set in other.");
@@ -2495,18 +2495,18 @@ class events_test extends \advanced_testcase {
         $user = $this->getDataGenerator()->create_user();
         $this->getDataGenerator()->enrol_user($user->id, $course->id);
 
-        $options = array('course' => $course->id, 'forcesubscribe' => FORUM_CHOOSESUBSCRIBE);
+        $options = ['course' => $course->id, 'forcesubscribe' => FORUM_CHOOSESUBSCRIBE];
         $forum = $this->getDataGenerator()->create_module('forum', $options);
 
         // Add a discussion.
-        $record = array();
+        $record = [];
         $record['course'] = $course->id;
         $record['forum'] = $forum->id;
         $record['userid'] = $user->id;
         $discussion = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_discussion($record);
 
         // Add a post.
-        $record = array();
+        $record = [];
         $record['discussion'] = $discussion->id;
         $record['userid'] = $user->id;
         $post = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_post($record);
@@ -2523,14 +2523,14 @@ class events_test extends \advanced_testcase {
         $context = \context_module::instance($forum->cmid);
 
         // Without the relateduserid.
-        $params = array(
+        $params = [
             'context' => \context_module::instance($forum->cmid),
             'objectid' => $subscription->id,
-            'other' => array(
+            'other' => [
                 'forumid' => $forum->id,
                 'discussion' => $discussion->id,
-            )
-        );
+            ],
+        ];
 
         $this->expectException(\coding_exception::class);
         $this->expectExceptionMessage("The 'relateduserid' must be set.");
@@ -2550,19 +2550,19 @@ class events_test extends \advanced_testcase {
         $user = $this->getDataGenerator()->create_user();
         $this->getDataGenerator()->enrol_user($user->id, $course->id);
 
-        $options = array('course' => $course->id, 'forcesubscribe' => FORUM_CHOOSESUBSCRIBE);
+        $options = ['course' => $course->id, 'forcesubscribe' => FORUM_CHOOSESUBSCRIBE];
         $forum = $this->getDataGenerator()->create_module('forum', $options);
         $quiz = $this->getDataGenerator()->create_module('quiz', $options);
 
         // Add a discussion.
-        $record = array();
+        $record = [];
         $record['course'] = $course->id;
         $record['forum'] = $forum->id;
         $record['userid'] = $user->id;
         $discussion = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_discussion($record);
 
         // Add a post.
-        $record = array();
+        $record = [];
         $record['discussion'] = $discussion->id;
         $record['userid'] = $user->id;
         $post = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_post($record);
@@ -2749,21 +2749,21 @@ class events_test extends \advanced_testcase {
         $forumgen = $this->getDataGenerator()->get_plugin_generator('mod_forum');
 
         $course = $this->getDataGenerator()->create_course();
-        $trackedrecord = array('course' => $course->id, 'type' => 'general', 'forcesubscribe' => FORUM_INITIALSUBSCRIBE);
-        $untrackedrecord = array('course' => $course->id, 'type' => 'general');
+        $trackedrecord = ['course' => $course->id, 'type' => 'general', 'forcesubscribe' => FORUM_INITIALSUBSCRIBE];
+        $untrackedrecord = ['course' => $course->id, 'type' => 'general'];
         $trackedforum = $this->getDataGenerator()->create_module('forum', $trackedrecord);
         $untrackedforum = $this->getDataGenerator()->create_module('forum', $untrackedrecord);
 
         // Used functions don't require these settings; adding
         // them just in case there are APIs changes in future.
-        $user = $this->getDataGenerator()->create_user(array(
+        $user = $this->getDataGenerator()->create_user([
             'maildigest' => 1,
-            'trackforums' => 1
-        ));
+            'trackforums' => 1,
+        ]);
 
         $manplugin = enrol_get_plugin('manual');
-        $manualenrol = $DB->get_record('enrol', array('courseid' => $course->id, 'enrol' => 'manual'));
-        $student = $DB->get_record('role', array('shortname' => 'student'));
+        $manualenrol = $DB->get_record('enrol', ['courseid' => $course->id, 'enrol' => 'manual']);
+        $student = $DB->get_record('role', ['shortname' => 'student']);
 
         // The role_assign observer does it's job adding the forum_subscriptions record.
         $manplugin->enrol_user($manualenrol, $user->id, $student->id);
@@ -2773,13 +2773,13 @@ class events_test extends \advanced_testcase {
         set_config('forum_trackingtype', 1);
         set_config('forum_trackreadposts', 1);
 
-        $record = array();
+        $record = [];
         $record['course'] = $course->id;
         $record['forum'] = $trackedforum->id;
         $record['userid'] = $user->id;
         $discussion = $forumgen->create_discussion($record);
 
-        $record = array();
+        $record = [];
         $record['discussion'] = $discussion->id;
         $record['userid'] = $user->id;
         $post = $forumgen->create_post($record);
@@ -2794,7 +2794,7 @@ class events_test extends \advanced_testcase {
         $this->assertEquals(1, $DB->count_records('forum_read'));
 
         // The course_module_created observer does it's job adding a subscription.
-        $forumrecord = array('course' => $course->id, 'type' => 'general', 'forcesubscribe' => FORUM_INITIALSUBSCRIBE);
+        $forumrecord = ['course' => $course->id, 'type' => 'general', 'forcesubscribe' => FORUM_INITIALSUBSCRIBE];
         $extraforum = $this->getDataGenerator()->create_module('forum', $forumrecord);
         $this->assertEquals(2, $DB->count_records('forum_subscriptions'));
 

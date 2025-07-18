@@ -25,14 +25,14 @@
 namespace mod_forum\privacy;
 
 use core_grades\component_gradeitem as gradeitem;
-use \core_privacy\local\request\userlist;
-use \core_privacy\local\request\approved_contextlist;
-use \core_privacy\local\request\approved_userlist;
-use \core_privacy\local\request\deletion_criteria;
-use \core_privacy\local\request\writer;
-use \core_privacy\local\request\helper as request_helper;
-use \core_privacy\local\metadata\collection;
-use \core_privacy\local\request\transform;
+use core_privacy\local\request\userlist;
+use core_privacy\local\request\approved_contextlist;
+use core_privacy\local\request\approved_userlist;
+use core_privacy\local\request\deletion_criteria;
+use core_privacy\local\request\writer;
+use core_privacy\local\request\helper as request_helper;
+use core_privacy\local\metadata\collection;
+use core_privacy\local\request\transform;
 use tool_dataprivacy\context_instance;
 
 defined('MOODLE_INTERNAL') || die();
@@ -56,8 +56,8 @@ class provider implements
     \core_privacy\local\request\core_userlist_provider,
 
     // This plugin has some sitewide user preferences to export.
-    \core_privacy\local\request\user_preference_provider
-{
+    \core_privacy\local\request\user_preference_provider {
+
 
     use subcontext_info;
 
@@ -132,7 +132,7 @@ class provider implements
             'userid' => 'privacy:metadata:forum_queue:userid',
             'discussionid' => 'privacy:metadata:forum_queue:discussionid',
             'postid' => 'privacy:metadata:forum_queue:postid',
-            'timemodified' => 'privacy:metadata:forum_queue:timemodified'
+            'timemodified' => 'privacy:metadata:forum_queue:timemodified',
         ], 'privacy:metadata:forum_queue');
 
         // The 'forum_grades' table stores grade data.

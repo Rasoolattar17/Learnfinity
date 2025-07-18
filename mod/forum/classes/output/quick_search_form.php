@@ -72,7 +72,7 @@ class quick_search_form implements renderable, templatable {
             'query' => $this->query,
             'helpicon' => $this->helpicon->export_for_template($output),
             'inputname' => 'search',
-            'searchstring' => get_string('searchforums', 'mod_forum')
+            'searchstring' => get_string('searchforums', 'mod_forum'),
         ];
         return $data;
     }

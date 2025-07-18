@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -26,11 +25,11 @@
 require_once("../../config.php");
 require_once("lib.php");
 
-$id    = required_param('id',PARAM_INT);           // forum
-$group = optional_param('group',0,PARAM_INT);      // change of group
-$edit  = optional_param('edit',-1,PARAM_BOOL);     // Turn editing on and off
+$id    = required_param('id', PARAM_INT);           // forum
+$group = optional_param('group', 0, PARAM_INT);      // change of group
+$edit  = optional_param('edit', -1, PARAM_BOOL);     // Turn editing on and off
 
-$url = new moodle_url('/mod/forum/subscribers.php', array('id'=>$id));
+$url = new moodle_url('/mod/forum/subscribers.php', ['id' => $id]);
 if ($group !== 0) {
     $url->param('group', $group);
 }
@@ -43,8 +42,8 @@ if ($edit === 1) {
 
 $PAGE->set_url($url);
 
-$forum = $DB->get_record('forum', array('id'=>$id), '*', MUST_EXIST);
-$course = $DB->get_record('course', array('id'=>$forum->course), '*', MUST_EXIST);
+$forum = $DB->get_record('forum', ['id' => $id], '*', MUST_EXIST);
+$course = $DB->get_record('course', ['id' => $forum->course], '*', MUST_EXIST);
 if (! $cm = get_coursemodule_from_instance('forum', $forum->id, $course->id)) {
     $cm->id = 0;
 }
@@ -58,16 +57,16 @@ if (!has_capability('mod/forum:viewsubscribers', $context)) {
 
 unset($SESSION->fromdiscussion);
 
-$params = array(
+$params = [
     'context' => $context,
-    'other' => array('forumid' => $forum->id),
-);
+    'other' => ['forumid' => $forum->id],
+];
 $event = \mod_forum\event\subscribers_viewed::create($params);
 $event->trigger();
 
 $forumoutput = $PAGE->get_renderer('mod_forum');
 $currentgroup = groups_get_activity_group($cm);
-$options = array('forumid'=>$forum->id, 'currentgroup'=>$currentgroup, 'context'=>$context);
+$options = ['forumid' => $forum->id, 'currentgroup' => $currentgroup, 'context' => $context];
 $existingselector = new mod_forum_existing_subscriber_selector('existingsubscribers', $options);
 $subscriberselector = new mod_forum_potential_subscriber_selector('potentialsubscribers', $options);
 $subscriberselector->set_existing_subscribers($existingselector->find_users(''));
@@ -147,7 +146,7 @@ function mod_forum_filter_hidden_users(stdClass $cm, context_module $context, ar
         return $users;
     } else {
         // Filter for users that can view hidden activities.
-        $filteredusers = array();
+        $filteredusers = [];
         $hiddenviewers = get_users_by_capability($context, 'moodle/course:viewhiddenactivities');
         foreach ($hiddenviewers as $hiddenviewer) {
             if (array_key_exists($hiddenviewer->id, $users)) {

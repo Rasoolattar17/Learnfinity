@@ -201,7 +201,7 @@ function forum_unsubscribe() {
 
 /**
  * @deprecated since Moodle 2.8 use \mod_forum\subscriptions::fetch_subscribed_users() instead
-  */
+ */
 function forum_subscribed_users() {
     throw new coding_exception(__FUNCTION__ . '() can not be used any more. Please use '
         . \mod_forum\subscriptions::class . '::fetch_subscribed_users() instead');

@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -228,16 +227,16 @@ if ($search) {
     $search = forum_clean_search_terms($search);
 }
 
-if (!$course = $DB->get_record('course', array('id'=>$id))) {
+if (!$course = $DB->get_record('course', ['id' => $id])) {
     throw new \moodle_exception('invalidcourseid');
 }
 
 require_course_login($course);
 
-$params = array(
+$params = [
     'context' => $PAGE->context,
-    'other' => array('searchterm' => $search)
-);
+    'other' => ['searchterm' => $search],
+];
 
 $event = \mod_forum\event\course_searched::create($params);
 $event->trigger();
@@ -249,9 +248,9 @@ $strpage = get_string("page");
 
 if (!$search || $showform) {
 
-    $url = new moodle_url('/mod/forum/index.php', array('id' => $course->id));
+    $url = new moodle_url('/mod/forum/index.php', ['id' => $course->id]);
     $PAGE->navbar->add($strforums, $url);
-    $url = new moodle_url('/mod/forum/search.php', array('id' => $course->id));
+    $url = new moodle_url('/mod/forum/search.php', ['id' => $course->id]);
     $PAGE->navbar->add(get_string('advancedsearch', 'forum'), $url);
 
     $PAGE->set_title($strsearch);
@@ -270,9 +269,9 @@ $searchterms = explode(' ', $searchterms);
 
 $searchform = forum_search_form($course, $search);
 
-$PAGE->navbar->add($strsearch, new moodle_url('/mod/forum/search.php', array('id'=>$course->id)));
+$PAGE->navbar->add($strsearch, new moodle_url('/mod/forum/search.php', ['id' => $course->id]));
 $PAGE->navbar->add($strsearchresults);
-if (!$posts = forum_search_posts($searchterms, $course->id, $page*$perpage, $perpage, $totalcount)) {
+if (!$posts = forum_search_posts($searchterms, $course->id, $page * $perpage, $perpage, $totalcount)) {
     $PAGE->set_title($strsearchresults);
     $PAGE->set_heading($course->fullname);
     echo $OUTPUT->header();
@@ -292,10 +291,10 @@ if (!$posts = forum_search_posts($searchterms, $course->id, $page*$perpage, $per
     exit;
 }
 
-//including this here to prevent it being included if there are no search results
+// including this here to prevent it being included if there are no search results
 require_once($CFG->dirroot.'/rating/lib.php');
 
-//set up the ratings information that will be the same for all posts
+// set up the ratings information that will be the same for all posts
 $ratingoptions = new stdClass();
 $ratingoptions->component = 'mod_forum';
 $ratingoptions->ratingarea = 'post';
@@ -322,7 +321,7 @@ $params = [
     'dateto'    => $dateto,
     'datefrom'  => $datefrom,
     'showform'  => 1,
-    'starredonly' => $starredonly
+    'starredonly' => $starredonly,
 ];
 $url    = new moodle_url("/mod/forum/search.php", $params);
 foreach ($tags as $tag) {
@@ -336,20 +335,20 @@ echo $OUTPUT->heading($strforums, 2);
 
 echo $OUTPUT->heading("$strsearchresults: $totalcount", 3);
 
-$url = new moodle_url('search.php', array('search' => $search, 'id' => $course->id, 'perpage' => $perpage));
+$url = new moodle_url('search.php', ['search' => $search, 'id' => $course->id, 'perpage' => $perpage]);
 echo $OUTPUT->paging_bar($totalcount, $page, $perpage, $url);
 
-//added to implement highlighting of search terms found only in HTML markup
-//fiedorow - 9/2/2005
-$strippedsearch = str_replace('user:','',$search);
-$strippedsearch = str_replace('subject:','',$strippedsearch);
-$strippedsearch = str_replace('&quot;','',$strippedsearch);
+// added to implement highlighting of search terms found only in HTML markup
+// fiedorow - 9/2/2005
+$strippedsearch = str_replace('user:', '', $search);
+$strippedsearch = str_replace('subject:', '', $strippedsearch);
+$strippedsearch = str_replace('&quot;', '', $strippedsearch);
 $searchterms = explode(' ', $strippedsearch);    // Search for words independently
 foreach ($searchterms as $key => $searchterm) {
-    if (preg_match('/^\-/',$searchterm)) {
+    if (preg_match('/^\-/', $searchterm)) {
         unset($searchterms[$key]);
     } else {
-        $searchterms[$key] = preg_replace('/^\+/','',$searchterm);
+        $searchterms[$key] = preg_replace('/^\+/', '', $searchterm);
     }
 }
 $strippedsearch = implode(' ', $searchterms);    // Rebuild the string
@@ -486,8 +485,8 @@ function forum_clean_search_terms($words, $prefix='') {
   * @param stdClass $course The Course to use.
   * @return array A set of formatted forum names stored against the forum id.
   */
-function forum_menu_list($course)  {
-    $menu = array();
+function forum_menu_list($course) {
+    $menu = [];
 
     $modinfo = get_fast_modinfo($course);
     if (empty($modinfo->instances['forum'])) {

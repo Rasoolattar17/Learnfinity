@@ -25,95 +25,95 @@ use mod_forum\output\forum_post_email;
  * @copyright  2016 Andrew Nicols <andrew@nicols.co.uk>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class output_email_test extends \advanced_testcase {
+final class output_email_test extends \advanced_testcase {
     /**
      * Data provider for the postdate function tests.
      */
     public function postdate_provider() {
-        return array(
-            'Timed discussions disabled, timestart unset' => array(
-                'globalconfig'      => array(
+        return [
+            'Timed discussions disabled, timestart unset' => [
+                'globalconfig'      => [
                     'forum_enabletimedposts' => 0,
-                ),
-                'forumconfig'       => array(
-                ),
-                'postconfig'        => array(
+                ],
+                'forumconfig'       => [
+                ],
+                'postconfig'        => [
                     'modified'  => 1000,
-                ),
-                'discussionconfig'  => array(
-                ),
+                ],
+                'discussionconfig'  => [
+                ],
                 'expectation'       => 1000,
-            ),
-            'Timed discussions disabled, timestart set and newer' => array(
-                'globalconfig'      => array(
+            ],
+            'Timed discussions disabled, timestart set and newer' => [
+                'globalconfig'      => [
                     'forum_enabletimedposts' => 0,
-                ),
-                'forumconfig'       => array(
-                ),
-                'postconfig'        => array(
+                ],
+                'forumconfig'       => [
+                ],
+                'postconfig'        => [
                     'modified'  => 1000,
-                ),
-                'discussionconfig'  => array(
+                ],
+                'discussionconfig'  => [
                     'timestart' => 2000,
-                ),
+                ],
                 'expectation'       => 1000,
-            ),
-            'Timed discussions disabled, timestart set but older' => array(
-                'globalconfig'      => array(
+            ],
+            'Timed discussions disabled, timestart set but older' => [
+                'globalconfig'      => [
                     'forum_enabletimedposts' => 0,
-                ),
-                'forumconfig'       => array(
-                ),
-                'postconfig'        => array(
+                ],
+                'forumconfig'       => [
+                ],
+                'postconfig'        => [
                     'modified'  => 1000,
-                ),
-                'discussionconfig'  => array(
+                ],
+                'discussionconfig'  => [
                     'timestart' => 500,
-                ),
+                ],
                 'expectation'       => 1000,
-            ),
-            'Timed discussions enabled, timestart unset' => array(
-                'globalconfig'      => array(
+            ],
+            'Timed discussions enabled, timestart unset' => [
+                'globalconfig'      => [
                     'forum_enabletimedposts' => 1,
-                ),
-                'forumconfig'       => array(
-                ),
-                'postconfig'        => array(
+                ],
+                'forumconfig'       => [
+                ],
+                'postconfig'        => [
                     'modified'  => 1000,
-                ),
-                'discussionconfig'  => array(
-                ),
+                ],
+                'discussionconfig'  => [
+                ],
                 'expectation'       => 1000,
-            ),
-            'Timed discussions enabled, timestart set and newer' => array(
-                'globalconfig'      => array(
+            ],
+            'Timed discussions enabled, timestart set and newer' => [
+                'globalconfig'      => [
                     'forum_enabletimedposts' => 1,
-                ),
-                'forumconfig'       => array(
-                ),
-                'postconfig'        => array(
+                ],
+                'forumconfig'       => [
+                ],
+                'postconfig'        => [
                     'modified'  => 1000,
-                ),
-                'discussionconfig'  => array(
+                ],
+                'discussionconfig'  => [
                     'timestart' => 2000,
-                ),
+                ],
                 'expectation'       => 2000,
-            ),
-            'Timed discussions enabled, timestart set but older' => array(
-                'globalconfig'      => array(
+            ],
+            'Timed discussions enabled, timestart set but older' => [
+                'globalconfig'      => [
                     'forum_enabletimedposts' => 1,
-                ),
-                'forumconfig'       => array(
-                ),
-                'postconfig'        => array(
+                ],
+                'forumconfig'       => [
+                ],
+                'postconfig'        => [
                     'modified'  => 1000,
-                ),
-                'discussionconfig'  => array(
+                ],
+                'discussionconfig'  => [
                     'timestart' => 500,
-                ),
+                ],
                 'expectation'       => 1000,
-            ),
-        );
+            ],
+        ];
     }
 
     /**
@@ -139,22 +139,22 @@ class output_email_test extends \advanced_testcase {
         // Create the fixture.
         $user = $this->getDataGenerator()->create_user();
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', (object) array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', (object) ['course' => $course->id]);
         $cm = get_coursemodule_from_instance('forum', $forum->id, $course->id, false, MUST_EXIST);
 
         $this->getDataGenerator()->enrol_user($user->id, $course->id);
 
         // Create a new discussion.
         $discussion = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_discussion(
-            (object) array_merge($discussionconfig, array(
+            (object) array_merge($discussionconfig, [
                 'course'    => $course->id,
                 'forum'     => $forum->id,
                 'userid'    => $user->id,
-            )));
+            ]));
 
         // Apply the discussion configuration.
         // Some settings are ignored by the generator and must be set manually.
-        $discussion = $DB->get_record('forum_discussions', array('id' => $discussion->id));
+        $discussion = $DB->get_record('forum_discussions', ['id' => $discussion->id]);
         foreach ($discussionconfig as $key => $value) {
             $discussion->$key = $value;
         }
@@ -162,7 +162,7 @@ class output_email_test extends \advanced_testcase {
 
         // Apply the post configuration.
         // Some settings are ignored by the generator and must be set manually.
-        $post = $DB->get_record('forum_posts', array('discussion' => $discussion->id));
+        $post = $DB->get_record('forum_posts', ['discussion' => $discussion->id]);
         foreach ($postconfig as $key => $value) {
             $post->$key = $value;
         }

@@ -79,7 +79,7 @@ class course_searched extends \core\event\base {
      */
     public function get_url() {
         return new \moodle_url('/mod/forum/search.php',
-            array('id' => $this->courseid, 'search' => $this->other['searchterm']));
+            ['id' => $this->courseid, 'search' => $this->other['searchterm']]);
     }
 
     /**

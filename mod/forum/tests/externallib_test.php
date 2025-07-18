@@ -112,7 +112,7 @@ final class externallib_test extends externallib_advanced_testcase {
         $this->resetAfterTest(true);
 
         // Create a user.
-        $user = self::getDataGenerator()->create_user(array('trackforums' => 1));
+        $user = self::getDataGenerator()->create_user(['trackforums' => 1]);
 
         // Set to the user.
         self::setUser($user);
@@ -165,7 +165,7 @@ final class externallib_test extends externallib_advanced_testcase {
 
         // Check the forum was correctly created.
         $this->assertEquals(2, $DB->count_records_select('forum', 'id = :forum1 OR id = :forum2',
-                array('forum1' => $forum1->id, 'forum2' => $forum2->id)));
+                ['forum1' => $forum1->id, 'forum2' => $forum2->id]));
 
         // Enrol the user in two courses.
         // DataGenerator->enrol_user automatically sets a role for the user with the permission mod/form:viewdiscussion.
@@ -191,12 +191,12 @@ final class externallib_test extends externallib_advanced_testcase {
         unset($forum1->displaywordcount);
         unset($forum2->displaywordcount);
 
-        $expectedforums = array();
+        $expectedforums = [];
         $expectedforums[$forum1->id] = (array) $forum1;
         $expectedforums[$forum2->id] = (array) $forum2;
 
         // Call the external function passing course ids.
-        $forums = mod_forum_external::get_forums_by_courses(array($course1->id, $course2->id));
+        $forums = mod_forum_external::get_forums_by_courses([$course1->id, $course2->id]);
         $forums = external_api::clean_returnvalue(mod_forum_external::get_forums_by_courses_returns(), $forums);
         $this->assertCount(2, $forums);
         foreach ($forums as $forum) {
@@ -223,13 +223,13 @@ final class externallib_test extends externallib_advanced_testcase {
         $this->assertTrue($forums[0]['cancreatediscussions']);
 
         // Change the type of the forum, the user shouldn't be able to add discussions.
-        $DB->set_field('forum', 'type', 'news', array('id' => $forum1->id));
+        $DB->set_field('forum', 'type', 'news', ['id' => $forum1->id]);
         $forums = mod_forum_external::get_forums_by_courses();
         $forums = external_api::clean_returnvalue(mod_forum_external::get_forums_by_courses_returns(), $forums);
         $this->assertFalse($forums[0]['cancreatediscussions']);
 
         // Call for the second course we unenrolled the user from.
-        $forums = mod_forum_external::get_forums_by_courses(array($course2->id));
+        $forums = mod_forum_external::get_forums_by_courses([$course2->id]);
         $forums = external_api::clean_returnvalue(mod_forum_external::get_forums_by_courses_returns(), $forums);
         $this->assertCount(0, $forums);
     }
@@ -243,7 +243,7 @@ final class externallib_test extends externallib_advanced_testcase {
         $this->resetAfterTest(true);
 
         // Create a user.
-        $user = self::getDataGenerator()->create_user(array('trackforums' => 1));
+        $user = self::getDataGenerator()->create_user(['trackforums' => 1]);
 
         // Set to the user.
         self::setUser($user);
@@ -289,7 +289,7 @@ final class externallib_test extends externallib_advanced_testcase {
         $this->resetAfterTest(true);
 
         // Create a user.
-        $user = self::getDataGenerator()->create_user(array('trackforums' => 1));
+        $user = self::getDataGenerator()->create_user(['trackforums' => 1]);
 
         // Set to the user.
         self::setUser($user);
@@ -363,7 +363,7 @@ final class externallib_test extends externallib_advanced_testcase {
             'urls' => [
                 'profile' => $urlfactory->get_author_profile_url($user2entity, $course1->id)->out(false),
                 'profileimage' => $urlfactory->get_author_profile_image_url($user2entity),
-            ]
+            ],
         ];
         $user2->fullname = $exporteduser2['fullname'];
 
@@ -377,7 +377,7 @@ final class externallib_test extends externallib_advanced_testcase {
             'urls' => [
                 'profile' => $urlfactory->get_author_profile_url($user3entity, $course1->id)->out(false),
                 'profileimage' => $urlfactory->get_author_profile_image_url($user3entity),
-            ]
+            ],
         ];
         $user3->fullname = $exporteduser3['fullname'];
         $forumgenerator = self::getDataGenerator()->get_plugin_generator('mod_forum');
@@ -428,14 +428,14 @@ final class externallib_test extends externallib_advanced_testcase {
         $discussion1reply1 = $forumgenerator->create_post($record);
         $filename = 'shouldbeanimage.jpg';
         // Add a fake inline image to the post.
-        $filerecordinline = array(
+        $filerecordinline = [
             'contextid' => $forum1context->id,
             'component' => 'mod_forum',
             'filearea'  => 'post',
             'itemid'    => $discussion1reply1->id,
             'filepath'  => '/',
             'filename'  => $filename,
-        );
+        ];
         $fs = get_file_storage();
         $timepost = time();
         $file = $fs->create_file_from_string($filerecordinline, 'image contents (not really)');
@@ -461,32 +461,32 @@ final class externallib_test extends externallib_advanced_testcase {
             'urls' => [
                 'profile' => $urlfactory->get_author_profile_url($user3entity, $course1->id)->out(false),
                 'profileimage' => $urlfactory->get_author_profile_image_url($user3entity),
-            ]
+            ],
         ];
 
         // Create what we expect to be returned when querying the discussion.
-        $expectedposts = array(
-            'posts' => array(),
+        $expectedposts = [
+            'posts' => [],
             'courseid' => $course1->id,
             'forumid' => $forum1->id,
-            'ratinginfo' => array(
+            'ratinginfo' => [
                 'contextid' => $forum1context->id,
                 'component' => 'mod_forum',
                 'ratingarea' => 'post',
                 'canviewall' => null,
                 'canviewany' => null,
-                'scales' => array(),
-                'ratings' => array(),
-            ),
-            'warnings' => array(),
-        );
+                'scales' => [],
+                'ratings' => [],
+            ],
+            'warnings' => [],
+        ];
 
         // User pictures are initially empty, we should get the links once the external function is called.
         $isolatedurl = $urlfactory->get_discussion_view_url_from_discussion_id($discussion1reply2->discussion);
         $isolatedurl->params(['parent' => $discussion1reply2->id]);
         $message = file_rewrite_pluginfile_urls($discussion1reply2->message, 'pluginfile.php',
             $forum1context->id, 'mod_forum', 'post', $discussion1reply2->id);
-        $expectedposts['posts'][] = array(
+        $expectedposts['posts'][] = [
             'id' => $discussion1reply2->id,
             'discussionid' => $discussion1reply2->discussion,
             'parentid' => $discussion1reply2->parent,
@@ -503,14 +503,14 @@ final class externallib_test extends externallib_advanced_testcase {
             'haswordcount' => true,
             'wordcount' => count_words($message),
             'charcount' => count_letters($message),
-            'author'=> $exporteduser3,
+            'author' => $exporteduser3,
             'attachments' => [],
             'messageinlinefiles' => [],
             'tags' => [],
             'html' => [
                 'rating' => null,
                 'taglist' => null,
-                'authorsubheading' => $forumgenerator->get_author_subheading_html((object)$exporteduser3, $discussion1reply2->created)
+                'authorsubheading' => $forumgenerator->get_author_subheading_html((object)$exporteduser3, $discussion1reply2->created),
             ],
             'capabilities' => [
                 'view' => 1,
@@ -521,31 +521,30 @@ final class externallib_test extends externallib_advanced_testcase {
                 'export' => 0,
                 'controlreadstatus' => 0,
                 'canreplyprivately' => 0,
-                'selfenrol' => 0
+                'selfenrol' => 0,
             ],
             'urls' => [
                 'view' => $urlfactory->get_view_post_url_from_post_id($discussion1reply2->discussion, $discussion1reply2->id),
                 'viewisolated' => $isolatedurl->out(false),
                 'viewparent' => $urlfactory->get_view_post_url_from_post_id($discussion1reply2->discussion, $discussion1reply2->parent),
                 'edit' => null,
-                'delete' =>null,
+                'delete' => null,
                 'split' => null,
                 'reply' => (new \moodle_url('/mod/forum/post.php#mformforum', [
-                    'reply' => $discussion1reply2->id
+                    'reply' => $discussion1reply2->id,
                 ]))->out(false),
                 'export' => null,
                 'markasread' => null,
                 'markasunread' => null,
                 'discuss' => $urlfactory->get_discussion_view_url_from_discussion_id($discussion1reply2->discussion),
             ],
-        );
-
+        ];
 
         $isolatedurl = $urlfactory->get_discussion_view_url_from_discussion_id($discussion1reply1->discussion);
         $isolatedurl->params(['parent' => $discussion1reply1->id]);
         $message = file_rewrite_pluginfile_urls($discussion1reply1->message, 'pluginfile.php',
             $forum1context->id, 'mod_forum', 'post', $discussion1reply1->id);
-        $expectedposts['posts'][] = array(
+        $expectedposts['posts'][] = [
             'id' => $discussion1reply1->id,
             'discussionid' => $discussion1reply1->discussion,
             'parentid' => $discussion1reply1->parent,
@@ -562,16 +561,16 @@ final class externallib_test extends externallib_advanced_testcase {
             'haswordcount' => true,
             'wordcount' => count_words($message),
             'charcount' => count_letters($message),
-            'author'=> $exporteduser2,
+            'author' => $exporteduser2,
             'attachments' => [],
             'messageinlinefiles' => [
-                0 => $this->get_expected_attachment($file)
+                0 => $this->get_expected_attachment($file),
             ],
             'tags' => [],
             'html' => [
                 'rating' => null,
                 'taglist' => null,
-                'authorsubheading' => $forumgenerator->get_author_subheading_html((object)$exporteduser2, $discussion1reply1->created)
+                'authorsubheading' => $forumgenerator->get_author_subheading_html((object)$exporteduser2, $discussion1reply1->created),
             ],
             'capabilities' => [
                 'view' => 1,
@@ -582,24 +581,24 @@ final class externallib_test extends externallib_advanced_testcase {
                 'export' => 0,
                 'controlreadstatus' => 0,
                 'canreplyprivately' => 0,
-                'selfenrol' => 0
+                'selfenrol' => 0,
             ],
             'urls' => [
                 'view' => $urlfactory->get_view_post_url_from_post_id($discussion1reply1->discussion, $discussion1reply1->id),
                 'viewisolated' => $isolatedurl->out(false),
                 'viewparent' => $urlfactory->get_view_post_url_from_post_id($discussion1reply1->discussion, $discussion1reply1->parent),
                 'edit' => null,
-                'delete' =>null,
+                'delete' => null,
                 'split' => null,
                 'reply' => (new \moodle_url('/mod/forum/post.php#mformforum', [
-                    'reply' => $discussion1reply1->id
+                    'reply' => $discussion1reply1->id,
                 ]))->out(false),
                 'export' => null,
                 'markasread' => null,
                 'markasunread' => null,
                 'discuss' => $urlfactory->get_discussion_view_url_from_discussion_id($discussion1reply1->discussion),
             ],
-        );
+        ];
 
         // Test a discussion with two additional posts (total 3 posts).
         $posts = mod_forum_external::get_discussion_posts($discussion1->id, 'modified', 'DESC', true);
@@ -612,7 +611,7 @@ final class externallib_test extends externallib_advanced_testcase {
 
         // Check we receive the unread count correctly on tracked forum.
         forum_tp_count_forum_unread_posts($forum2cm, $course1, true);    // Reset static cache.
-        $result = mod_forum_external::get_forums_by_courses(array($course1->id));
+        $result = mod_forum_external::get_forums_by_courses([$course1->id]);
         $result = external_api::clean_returnvalue(mod_forum_external::get_forums_by_courses_returns(), $result);
         foreach ($result as $f) {
             if ($f['id'] == $forum2->id) {
@@ -653,7 +652,7 @@ final class externallib_test extends externallib_advanced_testcase {
 
         // Check we receive 0 unread posts.
         forum_tp_count_forum_unread_posts($forum2cm, $course1, true);    // Reset static cache.
-        $result = mod_forum_external::get_forums_by_courses(array($course1->id));
+        $result = mod_forum_external::get_forums_by_courses([$course1->id]);
         $result = external_api::clean_returnvalue(mod_forum_external::get_forums_by_courses_returns(), $result);
         foreach ($result as $f) {
             if ($f['id'] == $forum2->id) {
@@ -757,7 +756,6 @@ final class externallib_test extends externallib_advanced_testcase {
         $user = self::getDataGenerator()->create_user();
         $this->getDataGenerator()->enrol_user($user->id, $course->id);
 
-
         // Set the first created user to the test user.
         self::setUser($user);
 
@@ -793,12 +791,12 @@ final class externallib_test extends externallib_advanced_testcase {
         $options = [
             [
                 'name' => 'inlineattachmentsid',
-                'value' => $draftidinlineattach
+                'value' => $draftidinlineattach,
             ],
             [
                 'name' => 'attachmentsid',
-                'value' => $draftidattach
-            ]
+                'value' => $draftidattach,
+            ],
         ];
         $discussion = mod_forum_external::add_discussion($forum->id, 'the inline attachment subject', $dummytext,
             -1, $options);
@@ -960,10 +958,10 @@ final class externallib_test extends externallib_advanced_testcase {
 
         // Create what we expect to be returned when querying the forums.
 
-        $post1 = $DB->get_record('forum_posts', array('id' => $discussion1->firstpost), '*', MUST_EXIST);
+        $post1 = $DB->get_record('forum_posts', ['id' => $discussion1->firstpost], '*', MUST_EXIST);
 
         // User pictures are initially empty, we should get the links once the external function is called.
-        $expecteddiscussions = array(
+        $expecteddiscussions = [
             'id' => $discussion1->firstpost,
             'name' => $discussion1->name,
             'groupid' => (int) $discussion1->groupid,
@@ -995,16 +993,16 @@ final class externallib_test extends externallib_advanced_testcase {
             'canreply' => false,
             'canlock' => false,
             'starred' => false,
-            'canfavourite' => true
-        );
+            'canfavourite' => true,
+        ];
 
         // Call the external function passing forum id.
         $discussions = mod_forum_external::get_forum_discussions($forum1->id);
         $discussions = external_api::clean_returnvalue(mod_forum_external::get_forum_discussions_returns(), $discussions);
-        $expectedreturn = array(
-            'discussions' => array($expecteddiscussions),
-            'warnings' => array()
-        );
+        $expectedreturn = [
+            'discussions' => [$expecteddiscussions],
+            'warnings' => [],
+        ];
 
         // Wait the theme to be loaded (the external_api call does that) to generate the user profiles.
         $userpicture = new \user_picture($user1);
@@ -1217,7 +1215,7 @@ final class externallib_test extends externallib_advanced_testcase {
 
         // Pin discussion2.
         $DB->update_record('forum_discussions',
-            (object) array('id' => $discussion2->id, 'pinned' => FORUM_DISCUSSION_PINNED));
+            (object) ['id' => $discussion2->id, 'pinned' => FORUM_DISCUSSION_PINNED]);
 
         // Call the external function passing forum id.
         $discussions = mod_forum_external::get_forum_discussions($forum1->id);
@@ -1252,7 +1250,7 @@ final class externallib_test extends externallib_advanced_testcase {
         self::setAdminUser();
 
         // Create course to add the module.
-        $course = self::getDataGenerator()->create_course(array('groupmode' => VISIBLEGROUPS, 'groupmodeforce' => 0));
+        $course = self::getDataGenerator()->create_course(['groupmode' => VISIBLEGROUPS, 'groupmodeforce' => 0]);
 
         // Forum with tracking off.
         $record = new \stdClass();
@@ -1335,14 +1333,14 @@ final class externallib_test extends externallib_advanced_testcase {
         $filearea = 'draft';
         $component = 'user';
         $filenameimg = 'shouldbeanimage.txt';
-        $filerecordinline = array(
+        $filerecordinline = [
             'contextid' => $usercontext->id,
             'component' => $component,
             'filearea'  => $filearea,
             'itemid'    => $draftidinlineattach,
             'filepath'  => $filepath,
             'filename'  => $filenameimg,
-        );
+        ];
         $fs = get_file_storage();
 
         // Create a file in a draft area for regular attachments.
@@ -1353,8 +1351,8 @@ final class externallib_test extends externallib_advanced_testcase {
         $fs->create_file_from_string($filerecordinline, 'image contents (not really)');
         $fs->create_file_from_string($filerecordattach, 'simple text attachment');
 
-        $options = array(array('name' => 'inlineattachmentsid', 'value' => $draftidinlineattach),
-                         array('name' => 'attachmentsid', 'value' => $draftidattach));
+        $options = [['name' => 'inlineattachmentsid', 'value' => $draftidinlineattach],
+                         ['name' => 'attachmentsid', 'value' => $draftidattach]];
         $dummytext = 'Here is an inline image: <img src="' . $CFG->wwwroot
                      . "/draftfile.php/{$usercontext->id}/user/draft/{$draftidinlineattach}/{$filenameimg}"
                      . '" alt="inlineimage">.';
@@ -1382,10 +1380,10 @@ final class externallib_test extends externallib_advanced_testcase {
         $this->assertTrue($postfound);
 
         // Check not posting in groups the user is not member of.
-        $group = $this->getDataGenerator()->create_group(array('courseid' => $course->id));
+        $group = $this->getDataGenerator()->create_group(['courseid' => $course->id]);
         groups_add_member($group->id, $otheruser->id);
 
-        $forum = self::getDataGenerator()->create_module('forum', $record, array('groupmode' => SEPARATEGROUPS));
+        $forum = self::getDataGenerator()->create_module('forum', $record, ['groupmode' => SEPARATEGROUPS]);
         $record->forum = $forum->id;
         $record->userid = $otheruser->id;
         $record->groupid = $group->id;
@@ -1412,7 +1410,7 @@ final class externallib_test extends externallib_advanced_testcase {
         $user = self::getDataGenerator()->create_user();
         $admin = get_admin();
         // Create course to add the module.
-        $course = self::getDataGenerator()->create_course(array('groupmode' => VISIBLEGROUPS, 'groupmodeforce' => 0));
+        $course = self::getDataGenerator()->create_course(['groupmode' => VISIBLEGROUPS, 'groupmodeforce' => 0]);
 
         $this->getDataGenerator()->enrol_user($user->id, $course->id);
 
@@ -1472,7 +1470,7 @@ final class externallib_test extends externallib_advanced_testcase {
         $this->assertFalse(\mod_forum\subscriptions::is_subscribed($user->id, $forum, $discussion2->id, $cm));
         // Add a discussion post in a forum discussion where the user is not subscribed (auto-subscribe preference disabled),
         // and the option parameter 'discussionsubscribe' => true in the webservice.
-        $option = array('name' => 'discussionsubscribe', 'value' => true);
+        $option = ['name' => 'discussionsubscribe', 'value' => true];
         $options[] = $option;
         mod_forum_external::add_discussion_post($discussion2->firstpost, 'some subject 2', 'some text here 2...',
             $options);
@@ -1530,8 +1528,8 @@ final class externallib_test extends externallib_advanced_testcase {
         $this->assertEquals('some text here...', $discussions['discussions'][0]['message']);
 
         $discussion2pinned = mod_forum_external::add_discussion($forum->id, 'the pinned subject', 'some 2 text here...', -1,
-                                                                array('options' => array('name' => 'discussionpinned',
-                                                                                         'value' => true)));
+                                                                ['options' => ['name' => 'discussionpinned',
+                                                                                         'value' => true]]);
         $discussion3 = mod_forum_external::add_discussion($forum->id, 'the non pinnedsubject', 'some 3 text here...');
         $discussions = mod_forum_external::get_forum_discussions($forum->id);
         $discussions = external_api::clean_returnvalue(mod_forum_external::get_forum_discussions_returns(), $discussions);
@@ -1551,14 +1549,14 @@ final class externallib_test extends externallib_advanced_testcase {
         $filearea = 'draft';
         $component = 'user';
         $filenameimg = 'shouldbeanimage.txt';
-        $filerecord = array(
+        $filerecord = [
             'contextid' => $usercontext->id,
             'component' => $component,
             'filearea'  => $filearea,
             'itemid'    => $draftidinlineattach,
             'filepath'  => $filepath,
             'filename'  => $filenameimg,
-        );
+        ];
 
         // Create a file in a draft area for regular attachments.
         $filerecordattach = $filerecord;
@@ -1572,8 +1570,8 @@ final class externallib_test extends externallib_advanced_testcase {
                     "/draftfile.php/{$usercontext->id}/user/draft/{$draftidinlineattach}/{$filenameimg}" .
                     '" alt="inlineimage">.';
 
-        $options = array(array('name' => 'inlineattachmentsid', 'value' => $draftidinlineattach),
-                         array('name' => 'attachmentsid', 'value' => $draftidattach));
+        $options = [['name' => 'inlineattachmentsid', 'value' => $draftidinlineattach],
+                         ['name' => 'attachmentsid', 'value' => $draftidattach]];
         $createddiscussion = mod_forum_external::add_discussion($forum->id, 'the inline attachment subject',
                                                                 $dummytext, -1, $options);
         $createddiscussion = external_api::clean_returnvalue(mod_forum_external::add_discussion_returns(), $createddiscussion);
@@ -1609,14 +1607,14 @@ final class externallib_test extends externallib_advanced_testcase {
         $this->resetAfterTest(true);
 
         // Create course to add the module.
-        $course = self::getDataGenerator()->create_course(array('groupmode' => VISIBLEGROUPS, 'groupmodeforce' => 0));
+        $course = self::getDataGenerator()->create_course(['groupmode' => VISIBLEGROUPS, 'groupmodeforce' => 0]);
         $user = self::getDataGenerator()->create_user();
         $this->getDataGenerator()->enrol_user($user->id, $course->id);
 
         // Forum forcing separate gropus.
         $record = new \stdClass();
         $record->course = $course->id;
-        $forum = self::getDataGenerator()->create_module('forum', $record, array('groupmode' => SEPARATEGROUPS));
+        $forum = self::getDataGenerator()->create_module('forum', $record, ['groupmode' => SEPARATEGROUPS]);
 
         // Try to post (user not enrolled).
         self::setUser($user);
@@ -1637,7 +1635,7 @@ final class externallib_test extends externallib_advanced_testcase {
         }
 
         // Create a group.
-        $group = $this->getDataGenerator()->create_group(array('courseid' => $course->id));
+        $group = $this->getDataGenerator()->create_group(['courseid' => $course->id]);
 
         // Try to post in a group the user is not enrolled.
         try {
@@ -1683,7 +1681,7 @@ final class externallib_test extends externallib_advanced_testcase {
         $this->assertEquals($group->id, $discussions['discussions'][1]['groupid']);
 
         // Enrol the same user in other group.
-        $group2 = $this->getDataGenerator()->create_group(array('courseid' => $course->id));
+        $group2 = $this->getDataGenerator()->create_group(['courseid' => $course->id]);
         groups_add_member($group2->id, $user->id);
 
         // Now add a discussions without indicating a group. The function should guess the correct group (the first one).
@@ -1713,7 +1711,7 @@ final class externallib_test extends externallib_advanced_testcase {
         // Create courses to add the modules.
         $course = self::getDataGenerator()->create_course();
         $user = self::getDataGenerator()->create_user();
-        $studentrole = $DB->get_record('role', array('shortname' => 'student'));
+        $studentrole = $DB->get_record('role', ['shortname' => 'student']);
 
         // First forum with tracking off.
         $record = new \stdClass();
@@ -1805,13 +1803,13 @@ final class externallib_test extends externallib_advanced_testcase {
         $this->assertTrue($result['cancreateattachment']);
 
         // Disable attachments.
-        $DB->set_field('forum', 'maxattachments', 0, array('id' => $forum->id));
+        $DB->set_field('forum', 'maxattachments', 0, ['id' => $forum->id]);
         $result = mod_forum_external::can_add_discussion($forum->id);
         $result = external_api::clean_returnvalue(mod_forum_external::can_add_discussion_returns(), $result);
         $this->assertFalse($result['status']);
         $this->assertFalse($result['canpindiscussions']);
         $this->assertFalse($result['cancreateattachment']);
-        $DB->set_field('forum', 'maxattachments', 1, array('id' => $forum->id));    // Enable attachments again.
+        $DB->set_field('forum', 'maxattachments', 1, ['id' => $forum->id]);    // Enable attachments again.
 
         self::setAdminUser();
         $result = mod_forum_external::can_add_discussion($forum->id);
@@ -1866,8 +1864,8 @@ final class externallib_test extends externallib_advanced_testcase {
         // Create course to add the module.
         $course = self::getDataGenerator()->create_course();
 
-        $studentrole = $DB->get_record('role', array('shortname' => 'student'));
-        $teacherrole = $DB->get_record('role', array('shortname' => 'editingteacher'));
+        $studentrole = $DB->get_record('role', ['shortname' => 'student']);
+        $teacherrole = $DB->get_record('role', ['shortname' => 'editingteacher']);
         $this->getDataGenerator()->enrol_user($user1->id, $course->id, $studentrole->id, 'manual');
         $this->getDataGenerator()->enrol_user($user2->id, $course->id, $studentrole->id, 'manual');
         $this->getDataGenerator()->enrol_user($user3->id, $course->id, $studentrole->id, 'manual');
@@ -1890,7 +1888,7 @@ final class externallib_test extends externallib_advanced_testcase {
         $discussion = self::getDataGenerator()->get_plugin_generator('mod_forum')->create_discussion($record);
 
         // Retrieve the first post.
-        $post = $DB->get_record('forum_posts', array('discussion' => $discussion->id));
+        $post = $DB->get_record('forum_posts', ['discussion' => $discussion->id]);
 
         // Rate the discussion as user2.
         $rating1 = new \stdClass();
@@ -1956,7 +1954,7 @@ final class externallib_test extends externallib_advanced_testcase {
         $record->course = $course->id;
         $forum = self::getDataGenerator()->create_module('forum', $record);
 
-        $studentrole = $DB->get_record('role', array('shortname' => 'student'));
+        $studentrole = $DB->get_record('role', ['shortname' => 'student']);
         $this->getDataGenerator()->enrol_user($student->id, $course->id, $studentrole->id, 'manual');
 
         self::setUser($student);
@@ -1964,8 +1962,8 @@ final class externallib_test extends externallib_advanced_testcase {
         $result = external_api::clean_returnvalue(mod_forum_external::get_forum_access_information_returns(), $result);
 
         // Check default values for capabilities.
-        $enabledcaps = array('canviewdiscussion', 'canstartdiscussion', 'canreplypost', 'canviewrating', 'cancreateattachment',
-            'canexportownpost', 'cancantogglefavourite', 'cancanmailnow', 'candeleteownpost', 'canallowforcesubscribe');
+        $enabledcaps = ['canviewdiscussion', 'canstartdiscussion', 'canreplypost', 'canviewrating', 'cancreateattachment',
+            'canexportownpost', 'cancantogglefavourite', 'cancanmailnow', 'candeleteownpost', 'canallowforcesubscribe'];
 
         unset($result['warnings']);
         foreach ($result as $capname => $capvalue) {
@@ -2042,7 +2040,7 @@ final class externallib_test extends externallib_advanced_testcase {
                 ],
             ]);
         $post = external_api::clean_returnvalue(mod_forum_external::add_discussion_post_returns(), $post);
-        $privatereply = $DB->get_record('forum_posts', array('id' => $post['postid']));
+        $privatereply = $DB->get_record('forum_posts', ['id' => $post['postid']]);
         $this->assertEquals($student1->id, $privatereply->privatereplyto);
         // Bump the time of the private reply to ensure order.
         $privatereply->created++;
@@ -2219,9 +2217,9 @@ final class externallib_test extends externallib_advanced_testcase {
 
         // Setup test data.
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
         $user = $this->getDataGenerator()->create_user();
-        $role = $DB->get_record('role', array('shortname' => 'student'), '*', MUST_EXIST);
+        $role = $DB->get_record('role', ['shortname' => 'student'], '*', MUST_EXIST);
         self::getDataGenerator()->enrol_user($user->id, $course->id, $role->id);
 
         // Add a discussion.
@@ -2235,8 +2233,8 @@ final class externallib_test extends externallib_advanced_testcase {
         $result = mod_forum_external::delete_post($discussion->firstpost);
         $result = external_api::clean_returnvalue(mod_forum_external::delete_post_returns(), $result);
         $this->assertTrue($result['status']);
-        $this->assertEquals(0, $DB->count_records('forum_posts', array('id' => $discussion->firstpost)));
-        $this->assertEquals(0, $DB->count_records('forum_discussions', array('id' => $discussion->id)));
+        $this->assertEquals(0, $DB->count_records('forum_posts', ['id' => $discussion->firstpost]));
+        $this->assertEquals(0, $DB->count_records('forum_discussions', ['id' => $discussion->id]));
     }
 
     /**
@@ -2248,9 +2246,9 @@ final class externallib_test extends externallib_advanced_testcase {
 
         // Setup test data.
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
         $user = $this->getDataGenerator()->create_user();
-        $role = $DB->get_record('role', array('shortname' => 'student'), '*', MUST_EXIST);
+        $role = $DB->get_record('role', ['shortname' => 'student'], '*', MUST_EXIST);
         self::getDataGenerator()->enrol_user($user->id, $course->id, $role->id);
 
         // Add a discussion.
@@ -2259,7 +2257,7 @@ final class externallib_test extends externallib_advanced_testcase {
         $record->userid = $user->id;
         $record->forum = $forum->id;
         $discussion = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_discussion($record);
-        $parentpost = $DB->get_record('forum_posts', array('discussion' => $discussion->id));
+        $parentpost = $DB->get_record('forum_posts', ['discussion' => $discussion->id]);
 
         // Add a post.
         $record = new \stdClass();
@@ -2274,8 +2272,8 @@ final class externallib_test extends externallib_advanced_testcase {
         $result = mod_forum_external::delete_post($post->id);
         $result = external_api::clean_returnvalue(mod_forum_external::delete_post_returns(), $result);
         $this->assertTrue($result['status']);
-        $this->assertEquals(1, $DB->count_records('forum_posts', array('discussion' => $discussion->id)));
-        $this->assertEquals(1, $DB->count_records('forum_discussions', array('id' => $discussion->id)));
+        $this->assertEquals(1, $DB->count_records('forum_posts', ['discussion' => $discussion->id]));
+        $this->assertEquals(1, $DB->count_records('forum_discussions', ['id' => $discussion->id]));
     }
 
     /**
@@ -2287,20 +2285,20 @@ final class externallib_test extends externallib_advanced_testcase {
 
         // Setup test data.
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
         $user = $this->getDataGenerator()->create_user();
         $otheruser = $this->getDataGenerator()->create_user();
-        $role = $DB->get_record('role', array('shortname' => 'student'), '*', MUST_EXIST);
+        $role = $DB->get_record('role', ['shortname' => 'student'], '*', MUST_EXIST);
         self::getDataGenerator()->enrol_user($user->id, $course->id, $role->id);
         self::getDataGenerator()->enrol_user($otheruser->id, $course->id, $role->id);
 
         // Add a discussion.
-        $record = array();
+        $record = [];
         $record['course'] = $course->id;
         $record['forum'] = $forum->id;
         $record['userid'] = $user->id;
         $discussion = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_discussion($record);
-        $parentpost = $DB->get_record('forum_posts', array('discussion' => $discussion->id));
+        $parentpost = $DB->get_record('forum_posts', ['discussion' => $discussion->id]);
 
         // Add a post.
         $record = new \stdClass();
@@ -2401,14 +2399,14 @@ final class externallib_test extends externallib_advanced_testcase {
         $discussion1reply1 = $forumgenerator->create_post($record);
         $filename = 'shouldbeanimage.jpg';
         // Add a fake inline image to the post.
-        $filerecordinline = array(
+        $filerecordinline = [
                 'contextid' => $forum1context->id,
                 'component' => 'mod_forum',
                 'filearea'  => 'post',
                 'itemid'    => $discussion1reply1->id,
                 'filepath'  => '/',
                 'filename'  => $filename,
-        );
+        ];
         $fs = get_file_storage();
         $file1 = $fs->create_file_from_string($filerecordinline, 'image contents (not really)');
 
@@ -2420,14 +2418,14 @@ final class externallib_test extends externallib_advanced_testcase {
         $discussion2reply1 = $forumgenerator->create_post($record);
         $filename = 'shouldbeanimage.jpg';
         // Add a fake inline image to the post.
-        $filerecordinline = array(
+        $filerecordinline = [
                 'contextid' => $forum1context->id,
                 'component' => 'mod_forum',
                 'filearea'  => 'post',
                 'itemid'    => $discussion2reply1->id,
                 'filepath'  => '/',
                 'filename'  => $filename,
-        );
+        ];
         $fs = get_file_storage();
         $file2 = $fs->create_file_from_string($filerecordinline, 'image contents (not really)');
 
@@ -2447,10 +2445,10 @@ final class externallib_test extends externallib_advanced_testcase {
         $discussion->timeend = $time - 100;
         $DB->update_record('forum_discussions', $discussion);
         // Create what we expect to be returned when querying the discussion.
-        $expectedposts = array(
-            'discussions' => array(),
-            'warnings' => array(),
-        );
+        $expectedposts = [
+            'discussions' => [],
+            'warnings' => [],
+        ];
 
         $isolatedurluser = $urlfactory->get_discussion_view_url_from_discussion_id($discussion1reply1->discussion);
         $isolatedurluser->params(['parent' => $discussion1reply1->id]);
@@ -2489,7 +2487,7 @@ final class externallib_test extends externallib_advanced_testcase {
                             'rating' => null,
                             'taglist' => null,
                             'authorsubheading' => $forumgenerator->get_author_subheading_html(
-                                (object)$exporteduser2, $discussion1reply1->created)
+                                (object)$exporteduser2, $discussion1reply1->created),
                         ],
                         'charcount' => null,
                         'capabilities' => [
@@ -2501,7 +2499,7 @@ final class externallib_test extends externallib_advanced_testcase {
                             'export' => false,
                             'controlreadstatus' => false,
                             'canreplyprivately' => true,
-                            'selfenrol' => false
+                            'selfenrol' => false,
                         ],
                         'urls' => [
                             'view' => $urlfactory->get_view_post_url_from_post_id(
@@ -2510,16 +2508,16 @@ final class externallib_test extends externallib_advanced_testcase {
                             'viewparent' => $urlfactory->get_view_post_url_from_post_id(
                                 $discussion1reply1->discussion, $discussion1reply1->parent)->out(false),
                             'edit' => (new \moodle_url('/mod/forum/post.php', [
-                                'edit' => $discussion1reply1->id
+                                'edit' => $discussion1reply1->id,
                             ]))->out(false),
                             'delete' => (new \moodle_url('/mod/forum/post.php', [
-                                'delete' => $discussion1reply1->id
+                                'delete' => $discussion1reply1->id,
                             ]))->out(false),
                             'split' => (new \moodle_url('/mod/forum/post.php', [
-                                'prune' => $discussion1reply1->id
+                                'prune' => $discussion1reply1->id,
                             ]))->out(false),
                             'reply' => (new \moodle_url('/mod/forum/post.php#mformforum', [
-                                'reply' => $discussion1reply1->id
+                                'reply' => $discussion1reply1->id,
                             ]))->out(false),
                             'export' => null,
                             'markasread' => null,
@@ -2527,7 +2525,7 @@ final class externallib_test extends externallib_advanced_testcase {
                             'discuss' => $urlfactory->get_discussion_view_url_from_discussion_id(
                                 $discussion1reply1->discussion)->out(false),
                         ],
-                    ]
+                    ],
                 ],
                 'parentposts' => [
                     [
@@ -2555,7 +2553,7 @@ final class externallib_test extends externallib_advanced_testcase {
                             'rating' => null,
                             'taglist' => null,
                             'authorsubheading' => $forumgenerator->get_author_subheading_html(
-                                (object)$exporteduser1, $discussion1firstpostobject->created)
+                                (object)$exporteduser1, $discussion1firstpostobject->created),
                         ],
                         'charcount' => null,
                         'capabilities' => [
@@ -2567,7 +2565,7 @@ final class externallib_test extends externallib_advanced_testcase {
                             'export' => false,
                             'controlreadstatus' => false,
                             'canreplyprivately' => true,
-                            'selfenrol' => false
+                            'selfenrol' => false,
                         ],
                         'urls' => [
                             'view' => $urlfactory->get_view_post_url_from_post_id(
@@ -2575,14 +2573,14 @@ final class externallib_test extends externallib_advanced_testcase {
                             'viewisolated' => $isolatedurlparent->out(false),
                             'viewparent' => null,
                             'edit' => (new \moodle_url('/mod/forum/post.php', [
-                                'edit' => $discussion1firstpostobject->id
+                                'edit' => $discussion1firstpostobject->id,
                             ]))->out(false),
                             'delete' => (new \moodle_url('/mod/forum/post.php', [
-                                'delete' => $discussion1firstpostobject->id
+                                'delete' => $discussion1firstpostobject->id,
                             ]))->out(false),
                             'split' => null,
                             'reply' => (new \moodle_url('/mod/forum/post.php#mformforum', [
-                                'reply' => $discussion1firstpostobject->id
+                                'reply' => $discussion1firstpostobject->id,
                             ]))->out(false),
                             'export' => null,
                             'markasread' => null,
@@ -2590,7 +2588,7 @@ final class externallib_test extends externallib_advanced_testcase {
                             'discuss' => $urlfactory->get_discussion_view_url_from_discussion_id(
                                 $discussion1firstpostobject->discussion)->out(false),
                         ],
-                    ]
+                    ],
                 ],
             ],
         ];
@@ -2632,7 +2630,7 @@ final class externallib_test extends externallib_advanced_testcase {
                             'rating' => null,
                             'taglist' => null,
                             'authorsubheading' => $forumgenerator->get_author_subheading_html(
-                                (object)$exporteduser2, $discussion2reply1->created)
+                                (object)$exporteduser2, $discussion2reply1->created),
                         ],
                         'charcount' => null,
                         'capabilities' => [
@@ -2644,7 +2642,7 @@ final class externallib_test extends externallib_advanced_testcase {
                             'export' => false,
                             'controlreadstatus' => false,
                             'canreplyprivately' => true,
-                            'selfenrol' => false
+                            'selfenrol' => false,
                         ],
                         'urls' => [
                             'view' => $urlfactory->get_view_post_url_from_post_id(
@@ -2653,16 +2651,16 @@ final class externallib_test extends externallib_advanced_testcase {
                             'viewparent' => $urlfactory->get_view_post_url_from_post_id(
                                 $discussion2reply1->discussion, $discussion2reply1->parent)->out(false),
                             'edit' => (new \moodle_url('/mod/forum/post.php', [
-                                'edit' => $discussion2reply1->id
+                                'edit' => $discussion2reply1->id,
                             ]))->out(false),
                             'delete' => (new \moodle_url('/mod/forum/post.php', [
-                                'delete' => $discussion2reply1->id
+                                'delete' => $discussion2reply1->id,
                             ]))->out(false),
                             'split' => (new \moodle_url('/mod/forum/post.php', [
-                                'prune' => $discussion2reply1->id
+                                'prune' => $discussion2reply1->id,
                             ]))->out(false),
                             'reply' => (new \moodle_url('/mod/forum/post.php#mformforum', [
-                                'reply' => $discussion2reply1->id
+                                'reply' => $discussion2reply1->id,
                             ]))->out(false),
                             'export' => null,
                             'markasread' => null,
@@ -2670,7 +2668,7 @@ final class externallib_test extends externallib_advanced_testcase {
                             'discuss' => $urlfactory->get_discussion_view_url_from_discussion_id(
                                 $discussion2reply1->discussion)->out(false),
                         ],
-                    ]
+                    ],
                 ],
                 'parentposts' => [
                     [
@@ -2698,7 +2696,7 @@ final class externallib_test extends externallib_advanced_testcase {
                             'rating' => null,
                             'taglist' => null,
                             'authorsubheading' => $forumgenerator->get_author_subheading_html(
-                                (object)$exporteduser1, $discussion2firstpostobject->created)
+                                (object)$exporteduser1, $discussion2firstpostobject->created),
                         ],
                         'charcount' => null,
                         'capabilities' => [
@@ -2710,7 +2708,7 @@ final class externallib_test extends externallib_advanced_testcase {
                             'export' => false,
                             'controlreadstatus' => false,
                             'canreplyprivately' => true,
-                            'selfenrol' => false
+                            'selfenrol' => false,
                         ],
                         'urls' => [
                             'view' => $urlfactory->get_view_post_url_from_post_id(
@@ -2718,14 +2716,14 @@ final class externallib_test extends externallib_advanced_testcase {
                             'viewisolated' => $isolatedurlparent->out(false),
                             'viewparent' => null,
                             'edit' => (new \moodle_url('/mod/forum/post.php', [
-                                'edit' => $discussion2firstpostobject->id
+                                'edit' => $discussion2firstpostobject->id,
                             ]))->out(false),
                             'delete' => (new \moodle_url('/mod/forum/post.php', [
-                                'delete' => $discussion2firstpostobject->id
+                                'delete' => $discussion2firstpostobject->id,
                             ]))->out(false),
                             'split' => null,
                             'reply' => (new \moodle_url('/mod/forum/post.php#mformforum', [
-                                'reply' => $discussion2firstpostobject->id
+                                'reply' => $discussion2firstpostobject->id,
                             ]))->out(false),
                             'export' => null,
                             'markasread' => null,
@@ -2733,9 +2731,9 @@ final class externallib_test extends externallib_advanced_testcase {
                             'discuss' => $urlfactory->get_discussion_view_url_from_discussion_id(
                                 $discussion2firstpostobject->discussion)->out(false),
 
-                        ]
+                        ],
                     ],
-                ]
+                ],
             ],
         ];
 
@@ -2764,7 +2762,7 @@ final class externallib_test extends externallib_advanced_testcase {
         $cm->groupmode = SEPARATEGROUPS;
         $DB->update_record('course_modules', $cm);
         $teacher = self::getDataGenerator()->create_user();
-        $role = $DB->get_record('role', array('shortname' => 'teacher'), '*', MUST_EXIST);
+        $role = $DB->get_record('role', ['shortname' => 'teacher'], '*', MUST_EXIST);
         self::getDataGenerator()->enrol_user($teacher->id, $course1->id, $role->id);
         groups_add_member($group2->id, $teacher->id);
         self::setUser($teacher);
@@ -2783,9 +2781,9 @@ final class externallib_test extends externallib_advanced_testcase {
         $this->resetAfterTest(true);
         // Setup test data.
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
         $user = $this->getDataGenerator()->create_user();
-        $role = $DB->get_record('role', array('shortname' => 'student'), '*', MUST_EXIST);
+        $role = $DB->get_record('role', ['shortname' => 'student'], '*', MUST_EXIST);
         self::getDataGenerator()->enrol_user($user->id, $course->id, $role->id);
         // Add a discussion.
         $record = new \stdClass();
@@ -2809,9 +2807,9 @@ final class externallib_test extends externallib_advanced_testcase {
         $this->resetAfterTest(true);
         // Setup test data.
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
         $user = $this->getDataGenerator()->create_user();
-        $role = $DB->get_record('role', array('shortname' => 'student'), '*', MUST_EXIST);
+        $role = $DB->get_record('role', ['shortname' => 'student'], '*', MUST_EXIST);
         self::getDataGenerator()->enrol_user($user->id, $course->id, $role->id);
         // Add a discussion.
         $record = new \stdClass();
@@ -2819,7 +2817,7 @@ final class externallib_test extends externallib_advanced_testcase {
         $record->userid = $user->id;
         $record->forum = $forum->id;
         $discussion = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_discussion($record);
-        $parentpost = $DB->get_record('forum_posts', array('discussion' => $discussion->id));
+        $parentpost = $DB->get_record('forum_posts', ['discussion' => $discussion->id]);
         // Add a post.
         $record = new \stdClass();
         $record->course = $course->id;
@@ -2844,19 +2842,19 @@ final class externallib_test extends externallib_advanced_testcase {
         $this->resetAfterTest(true);
         // Setup test data.
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
         $user = $this->getDataGenerator()->create_user();
         $otheruser = $this->getDataGenerator()->create_user();
-        $role = $DB->get_record('role', array('shortname' => 'student'), '*', MUST_EXIST);
+        $role = $DB->get_record('role', ['shortname' => 'student'], '*', MUST_EXIST);
         self::getDataGenerator()->enrol_user($user->id, $course->id, $role->id);
         self::getDataGenerator()->enrol_user($otheruser->id, $course->id, $role->id);
         // Add a discussion.
-        $record = array();
+        $record = [];
         $record['course'] = $course->id;
         $record['forum'] = $forum->id;
         $record['userid'] = $user->id;
         $discussion = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_discussion($record);
-        $parentpost = $DB->get_record('forum_posts', array('discussion' => $discussion->id));
+        $parentpost = $DB->get_record('forum_posts', ['discussion' => $discussion->id]);
         // Add a post.
         $record = new \stdClass();
         $record->course = $course->id;
@@ -2882,17 +2880,17 @@ final class externallib_test extends externallib_advanced_testcase {
         $this->resetAfterTest(true);
         // Setup test data.
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
         $user = $this->getDataGenerator()->create_user();
-        $role = $DB->get_record('role', array('shortname' => 'student'), '*', MUST_EXIST);
+        $role = $DB->get_record('role', ['shortname' => 'student'], '*', MUST_EXIST);
         self::getDataGenerator()->enrol_user($user->id, $course->id, $role->id);
         // Add a discussion.
-        $record = array();
+        $record = [];
         $record['course'] = $course->id;
         $record['forum'] = $forum->id;
         $record['userid'] = $user->id;
         $discussion = $this->getDataGenerator()->get_plugin_generator('mod_forum')->create_discussion($record);
-        $parentpost = $DB->get_record('forum_posts', array('discussion' => $discussion->id));
+        $parentpost = $DB->get_record('forum_posts', ['discussion' => $discussion->id]);
         // Add a post.
         $record = new \stdClass();
         $record->course = $course->id;
@@ -2904,14 +2902,14 @@ final class externallib_test extends externallib_advanced_testcase {
 
         // Add some files only in the attachment area.
         $filename = 'faketxt.txt';
-        $filerecordinline = array(
+        $filerecordinline = [
             'contextid' => \context_module::instance($forum->cmid)->id,
             'component' => 'mod_forum',
             'filearea'  => 'attachment',
             'itemid'    => $post->id,
             'filepath'  => '/',
             'filename'  => $filename,
-        );
+        ];
         $fs = get_file_storage();
         $fs->create_file_from_string($filerecordinline, 'fake txt contents 1.');
         $filerecordinline['filename'] = 'otherfaketxt.txt';
@@ -2933,7 +2931,7 @@ final class externallib_test extends externallib_advanced_testcase {
         $this->assertCount(2, $result['files']);
 
         // Keep only certain files in the area.
-        $filestokeep = array(array('filename' => $filename, 'filepath' => '/'));
+        $filestokeep = [['filename' => $filename, 'filepath' => '/']];
         $result = mod_forum_external::prepare_draft_area_for_post($post->id, 'attachment', $result['draftitemid'], $filestokeep);
         $result = external_api::clean_returnvalue(mod_forum_external::prepare_draft_area_for_post_returns(), $result);
         $this->assertCount(1, $result['files']);
@@ -2959,7 +2957,7 @@ final class externallib_test extends externallib_advanced_testcase {
         $this->resetAfterTest(true);
         // Setup test data.
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
 
         $this->setAdminUser();
 
@@ -3004,10 +3002,10 @@ final class externallib_test extends externallib_advanced_testcase {
         $this->resetAfterTest(true);
         // Setup test data.
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
         $cm = get_coursemodule_from_id('forum', $forum->cmid, 0, false, MUST_EXIST);
         $user = $this->getDataGenerator()->create_user();
-        $role = $DB->get_record('role', array('shortname' => 'student'), '*', MUST_EXIST);
+        $role = $DB->get_record('role', ['shortname' => 'student'], '*', MUST_EXIST);
         self::getDataGenerator()->enrol_user($user->id, $course->id, $role->id);
 
         $this->setUser($user);
@@ -3036,14 +3034,14 @@ final class externallib_test extends externallib_advanced_testcase {
         $filearea = 'draft';
         $component = 'user';
         $filenameimg = 'fakeimage.png';
-        $filerecordinline = array(
+        $filerecordinline = [
             'contextid' => $usercontext->id,
             'component' => $component,
             'filearea'  => $filearea,
             'itemid'    => $draftidinlineattach,
             'filepath'  => $filepath,
             'filename'  => $filenameimg,
-        );
+        ];
         $fs = get_file_storage();
 
         // Create a file in a draft area for regular attachments.
@@ -3096,9 +3094,9 @@ final class externallib_test extends externallib_advanced_testcase {
         $this->resetAfterTest(true);
         // Setup test data.
         $course = $this->getDataGenerator()->create_course();
-        $forum = $this->getDataGenerator()->create_module('forum', array('course' => $course->id));
+        $forum = $this->getDataGenerator()->create_module('forum', ['course' => $course->id]);
         $user = $this->getDataGenerator()->create_user();
-        $role = $DB->get_record('role', array('shortname' => 'student'), '*', MUST_EXIST);
+        $role = $DB->get_record('role', ['shortname' => 'student'], '*', MUST_EXIST);
         self::getDataGenerator()->enrol_user($user->id, $course->id, $role->id);
 
         $this->setAdminUser();

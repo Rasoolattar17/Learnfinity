@@ -78,8 +78,8 @@ class user_report_viewed extends \core\event\base {
      */
     public function get_url() {
 
-        $url = new \moodle_url('/mod/forum/user.php', array('id' => $this->relateduserid,
-            'mode' => $this->other['reportmode']));
+        $url = new \moodle_url('/mod/forum/user.php', ['id' => $this->relateduserid,
+            'mode' => $this->other['reportmode']]);
 
         if ($this->courseid != SITEID) {
             $url->param('course', $this->courseid);

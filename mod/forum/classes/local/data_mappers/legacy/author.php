@@ -56,7 +56,7 @@ class author {
                 'firstnamephonetic' => $author->get_first_name_phonetic(),
                 'lastnamephonetic' => $author->get_last_name_phonetic(),
                 'alternatename' => $author->get_alternate_name(),
-                'imagealt' => $author->get_image_alt()
+                'imagealt' => $author->get_image_alt(),
             ];
         }, $authors);
     }

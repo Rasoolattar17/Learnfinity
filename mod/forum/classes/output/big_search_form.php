@@ -80,7 +80,7 @@ class big_search_form implements renderable, templatable {
         $this->forumoptions = array_map(function($option) use ($forumoptions) {
             return [
                 'value' => $option,
-                'name' => $forumoptions[$option]
+                'name' => $forumoptions[$option],
             ];
         }, array_keys($forumoptions));
     }
@@ -206,19 +206,19 @@ class big_search_form implements renderable, templatable {
         $showstandard = ($tagtypestoshow != \core_tag_tag::HIDE_STANDARD);
         $typenewtags = ($tagtypestoshow != \core_tag_tag::STANDARD_ONLY);
 
-        $PAGE->requires->js_call_amd('core/form-autocomplete', 'enhance', $params = array('#tags', $typenewtags, '',
-                              get_string('entertags', 'tag'), false, $showstandard, get_string('noselection', 'form')));
+        $PAGE->requires->js_call_amd('core/form-autocomplete', 'enhance', $params = ['#tags', $typenewtags, '',
+                              get_string('entertags', 'tag'), false, $showstandard, get_string('noselection', 'form')]);
 
         $data->tagsenabled = \core_tag_tag::is_enabled('mod_forum', 'forum_posts');
         $namefield = empty($CFG->keeptagnamecase) ? 'name' : 'rawname';
         $tags = $DB->get_records('tag',
-            array('isstandard' => 1, 'tagcollid' => \core_tag_area::get_collection('mod_forum', 'forum_posts')),
+            ['isstandard' => 1, 'tagcollid' => \core_tag_area::get_collection('mod_forum', 'forum_posts')],
             $namefield, 'rawname,' . $namefield . ' as fieldname');
         $data->tags = [];
         foreach ($tags as $tag) {
             $data->tagoptions[] = ['value'    => $tag->rawname,
                                    'text'     => $tag->fieldname,
-                                   'selected' => in_array($tag->rawname, $this->tags)
+                                   'selected' => in_array($tag->rawname, $this->tags),
             ];
         }
 

@@ -69,7 +69,7 @@ class assessable_uploaded extends \core\event\assessable_uploaded {
      * @return \moodle_url
      */
     public function get_url() {
-        return new \moodle_url('/mod/forum/discuss.php', array('d' => $this->other['discussionid'], 'parent' => $this->objectid));
+        return new \moodle_url('/mod/forum/discuss.php', ['d' => $this->other['discussionid'], 'parent' => $this->objectid]);
     }
 
     /**
@@ -99,12 +99,12 @@ class assessable_uploaded extends \core\event\assessable_uploaded {
     }
 
     public static function get_objectid_mapping() {
-        return array('db' => 'forum_posts', 'restore' => 'forum_post');
+        return ['db' => 'forum_posts', 'restore' => 'forum_post'];
     }
 
     public static function get_other_mapping() {
-        $othermapped = array();
-        $othermapped['discussionid'] = array('db' => 'forum_discussions', 'restore' => 'forum_discussion');
+        $othermapped = [];
+        $othermapped['discussionid'] = ['db' => 'forum_discussions', 'restore' => 'forum_discussion'];
 
         return $othermapped;
     }

@@ -83,9 +83,9 @@ class post_deleted extends \core\event\base {
             // Single discussion forums are an exception. We show
             // the forum itself since it only has one discussion
             // thread.
-            $url = new \moodle_url('/mod/forum/view.php', array('f' => $this->other['forumid']));
+            $url = new \moodle_url('/mod/forum/view.php', ['f' => $this->other['forumid']]);
         } else {
-            $url = new \moodle_url('/mod/forum/discuss.php', array('d' => $this->other['discussionid']));
+            $url = new \moodle_url('/mod/forum/discuss.php', ['d' => $this->other['discussionid']]);
         }
         return $url;
     }
@@ -117,13 +117,13 @@ class post_deleted extends \core\event\base {
     }
 
     public static function get_objectid_mapping() {
-        return array('db' => 'forum_posts', 'restore' => 'forum_post');
+        return ['db' => 'forum_posts', 'restore' => 'forum_post'];
     }
 
     public static function get_other_mapping() {
-        $othermapped = array();
-        $othermapped['forumid'] = array('db' => 'forum', 'restore' => 'forum');
-        $othermapped['discussionid'] = array('db' => 'forum_discussions', 'restore' => 'forum_discussion');
+        $othermapped = [];
+        $othermapped['forumid'] = ['db' => 'forum', 'restore' => 'forum'];
+        $othermapped['discussionid'] = ['db' => 'forum_discussions', 'restore' => 'forum_discussion'];
 
         return $othermapped;
     }

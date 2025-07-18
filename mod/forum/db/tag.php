@@ -25,11 +25,11 @@
 defined('MOODLE_INTERNAL') || die();
 
 
-$tagareas = array(
-    array(
+$tagareas = [
+    [
         'itemtype' => 'forum_posts',
         'component' => 'mod_forum',
         'callback' => 'mod_forum_get_tagged_posts',
         'callbackfile' => '/mod/forum/locallib.php',
-    ),
-);
+    ],
+];

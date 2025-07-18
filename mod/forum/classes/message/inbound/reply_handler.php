@@ -70,22 +70,22 @@ class reply_handler extends \core\message\inbound\handler {
         global $DB, $USER;
 
         // Load the post being replied to.
-        $post = $DB->get_record('forum_posts', array('id' => $record->datavalue));
+        $post = $DB->get_record('forum_posts', ['id' => $record->datavalue]);
         if (!$post) {
             mtrace("--> Unable to find a post matching with id {$record->datavalue}");
             return false;
         }
 
         // Load the discussion that this post is in.
-        $discussion = $DB->get_record('forum_discussions', array('id' => $post->discussion));
+        $discussion = $DB->get_record('forum_discussions', ['id' => $post->discussion]);
         if (!$post) {
             mtrace("--> Unable to find the discussion for post {$record->datavalue}");
             return false;
         }
 
         // Load the other required data.
-        $forum = $DB->get_record('forum', array('id' => $discussion->forum));
-        $course = $DB->get_record('course', array('id' => $forum->course));
+        $forum = $DB->get_record('forum', ['id' => $discussion->forum]);
+        $course = $DB->get_record('course', ['id' => $forum->course]);
         $cm = get_fast_modinfo($course->id)->instances['forum'][$forum->id];
         $modcontext = \context_module::instance($cm->id);
         $usercontext = \context_user::instance($USER->id);
@@ -242,15 +242,15 @@ class reply_handler extends \core\message\inbound\handler {
         $addpost->id = forum_add_new_post($addpost, true);
 
         // Log the new post creation.
-        $params = array(
+        $params = [
             'context' => $modcontext,
             'objectid' => $addpost->id,
-            'other' => array(
+            'other' => [
                 'discussionid'  => $discussion->id,
                 'forumid'       => $forum->id,
                 'forumtype'     => $forum->type,
-            )
-        );
+            ],
+        ];
         $event = \mod_forum\event\post_created::create($params);
         $event->add_record_snapshot('forum_posts', $addpost);
         $event->add_record_snapshot('forum_discussions', $discussion);
@@ -315,7 +315,7 @@ class reply_handler extends \core\message\inbound\handler {
     public function get_success_message(\stdClass $messagedata, $handlerresult) {
         $a = new \stdClass();
         $a->subject = $handlerresult->subject;
-        $discussionurl = new \moodle_url('/mod/forum/discuss.php', array('d' => $handlerresult->discussion));
+        $discussionurl = new \moodle_url('/mod/forum/discuss.php', ['d' => $handlerresult->discussion]);
         $discussionurl->set_anchor('p' . $handlerresult->id);
         $a->discussionurl = $discussionurl->out();
 

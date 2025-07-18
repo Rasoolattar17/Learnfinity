@@ -52,11 +52,11 @@ class forum_portfolio_caller extends portfolio_module_caller_base {
      * @return array
      */
     public static function expected_callbackargs() {
-        return array(
+        return [
             'postid'       => false,
             'discussionid' => false,
             'attachment'   => false,
-        );
+        ];
     }
     /**
      * @param array $callbackargs
@@ -74,16 +74,16 @@ class forum_portfolio_caller extends portfolio_module_caller_base {
         global $DB;
 
         if ($this->postid) {
-            if (!$this->post = $DB->get_record('forum_posts', array('id' => $this->postid))) {
+            if (!$this->post = $DB->get_record('forum_posts', ['id' => $this->postid])) {
                 throw new portfolio_caller_exception('invalidpostid', 'forum');
             }
         }
 
-        $dparams = array();
+        $dparams = [];
         if ($this->discussionid) {
-            $dbparams = array('id' => $this->discussionid);
+            $dbparams = ['id' => $this->discussionid];
         } else if ($this->post) {
-            $dbparams = array('id' => $this->post->discussion);
+            $dbparams = ['id' => $this->post->discussion];
         } else {
             throw new portfolio_caller_exception('mustprovidediscussionorpost', 'forum');
         }
@@ -92,7 +92,7 @@ class forum_portfolio_caller extends portfolio_module_caller_base {
             throw new portfolio_caller_exception('invaliddiscussionid', 'forum');
         }
 
-        if (!$this->forum = $DB->get_record('forum', array('id' => $this->discussion->forum))) {
+        if (!$this->forum = $DB->get_record('forum', ['id' => $this->discussion->forum])) {
             throw new portfolio_caller_exception('invalidforumid', 'forum');
         }
 
@@ -120,12 +120,12 @@ class forum_portfolio_caller extends portfolio_module_caller_base {
             if (!empty($this->multifiles)) {
                 $this->keyedfiles[$this->post->id] = $this->multifiles;
             } else if (!empty($this->singlefile)) {
-                $this->keyedfiles[$this->post->id] = array($this->singlefile);
+                $this->keyedfiles[$this->post->id] = [$this->singlefile];
             }
         } else { // whole thread
             $fs = get_file_storage();
             $this->posts = forum_get_all_discussion_posts($this->discussion->id, 'p.created ASC');
-            $this->multifiles = array();
+            $this->multifiles = [];
             foreach ($this->posts as $post) {
                 $attach = $fs->get_area_files($this->modcontext->id, 'mod_forum', 'attachment', $post->id, 'timemodified', false);
                 $embed  = $fs->get_area_files($this->modcontext->id, 'mod_forum', 'post', $post->id, 'timemodified', false);
@@ -139,7 +139,7 @@ class forum_portfolio_caller extends portfolio_module_caller_base {
             }
         }
         if (empty($this->multifiles) && !empty($this->singlefile)) {
-            $this->multifiles = array($this->singlefile); // copy_files workaround
+            $this->multifiles = [$this->singlefile]; // copy_files workaround
         }
         // depending on whether there are files or not, we might have to change richhtml/plainhtml
         if (empty($this->attachment)) {
@@ -166,13 +166,13 @@ class forum_portfolio_caller extends portfolio_module_caller_base {
     function get_navigation() {
         global $CFG;
 
-        $navlinks = array();
-        $navlinks[] = array(
+        $navlinks = [];
+        $navlinks[] = [
             'name' => format_string($this->discussion->name),
             'link' => $CFG->wwwroot . '/mod/forum/discuss.php?d=' . $this->discussion->id,
-            'type' => 'title'
-        );
-        return array($navlinks, $this->cm);
+            'type' => 'title',
+        ];
+        return [$navlinks, $this->cm];
     }
     /**
      * either a whole discussion
@@ -194,7 +194,7 @@ class forum_portfolio_caller extends portfolio_module_caller_base {
             $writingleap = true;
         }
         if ($this->attachment) { // simplest case first - single file attachment
-            $this->copy_files(array($this->singlefile), $this->attachment);
+            $this->copy_files([$this->singlefile], $this->attachment);
             if ($writingleap) { // if we're writing leap, make the manifest to go along with the file
                 $entry = new portfolio_format_leap2a_file($this->singlefile->get_filename(), $this->singlefile);
                 $leapwriter->add_entry($entry);
@@ -203,9 +203,9 @@ class forum_portfolio_caller extends portfolio_module_caller_base {
 
         } else if (empty($this->post)) {  // exporting whole discussion
             $content = ''; // if we're just writing HTML, start a string to add each post to
-            $ids = array(); // if we're writing leap2a, keep track of all entryids so we can add a selection element
+            $ids = []; // if we're writing leap2a, keep track of all entryids so we can add a selection element
             foreach ($this->posts as $post) {
-                $posthtml =  $this->prepare_post($post);
+                $posthtml = $this->prepare_post($post);
                 if ($writingleap) {
                     $ids[] = $this->prepare_post_leap2a($leapwriter, $post, $posthtml);
                 } else {
@@ -299,10 +299,10 @@ class forum_portfolio_caller extends portfolio_module_caller_base {
         global $DB;
         static $users;
         if (empty($users)) {
-            $users = array($this->user->id => $this->user);
+            $users = [$this->user->id => $this->user];
         }
         if (!array_key_exists($post->userid, $users)) {
-            $users[$post->userid] = $DB->get_record('user', array('id' => $post->userid));
+            $users[$post->userid] = $DB->get_record('user', ['id' => $post->userid]);
         }
         // add the user object on to the post so we can pass it to the leap writer if necessary
         $post->author = $users[$post->userid];
@@ -360,12 +360,13 @@ class forum_portfolio_caller extends portfolio_module_caller_base {
         $filesha = '';
         try {
             $filesha = $this->get_sha1_file();
-        } catch (portfolio_caller_exception $e) { } // no files
+        } catch (portfolio_caller_exception $e) {
+        } // no files
 
         if ($this->post) {
             return sha1($filesha . ',' . $this->post->subject . ',' . $this->post->message);
         } else {
-            $sha1s = array($filesha);
+            $sha1s = [$filesha];
             foreach ($this->posts as $post) {
                 $sha1s[] = sha1($post->subject . ',' . $post->message);
             }
@@ -404,7 +405,7 @@ class forum_portfolio_caller extends portfolio_module_caller_base {
     }
 
     public static function base_supported_formats() {
-        return array(PORTFOLIO_FORMAT_FILE, PORTFOLIO_FORMAT_RICHHTML, PORTFOLIO_FORMAT_PLAINHTML, PORTFOLIO_FORMAT_LEAP2A);
+        return [PORTFOLIO_FORMAT_FILE, PORTFOLIO_FORMAT_RICHHTML, PORTFOLIO_FORMAT_PLAINHTML, PORTFOLIO_FORMAT_LEAP2A];
     }
 }
 
@@ -457,14 +458,14 @@ class forum_file_info_container extends file_info {
      * @return array with keys contextid, filearea, itemid, filepath and filename
      */
     public function get_params() {
-        return array(
+        return [
             'contextid' => $this->context->id,
             'component' => $this->component,
             'filearea' => $this->filearea,
             'itemid' => null,
             'filepath' => null,
             'filename' => null,
-        );
+        ];
     }
 
     /**
@@ -513,9 +514,9 @@ class forum_file_info_container extends file_info {
      */
     private function get_filtered_children($extensions = '*', $countonly = false, $returnemptyfolders = false) {
         global $DB;
-        $params = array('contextid' => $this->context->id,
+        $params = ['contextid' => $this->context->id,
             'component' => $this->component,
-            'filearea' => $this->filearea);
+            'filearea' => $this->filearea];
         $sql = 'SELECT DISTINCT itemid
                     FROM {files}
                     WHERE contextid = :contextid
@@ -533,7 +534,7 @@ class forum_file_info_container extends file_info {
         }
 
         $rs = $DB->get_recordset_sql($sql, $params);
-        $children = array();
+        $children = [];
         foreach ($rs as $record) {
             if (($child = $this->browser->get_file_info($this->context, 'mod_forum', $this->filearea, $record->itemid))
                     && ($returnemptyfolders || $child->count_non_empty_children($extensions))) {
@@ -620,8 +621,8 @@ function mod_forum_get_tagged_posts($tag, $exclusivemode = false, $fromctx = 0, 
                  AND cm.deletioninprogress = 0
                  AND fp.id %ITEMFILTER% AND c.id %COURSEFILTER%";
 
-    $params = array('itemtype' => 'forum_posts', 'tagid' => $tag->id, 'component' => 'mod_forum',
-                    'coursemodulecontextlevel' => CONTEXT_MODULE);
+    $params = ['itemtype' => 'forum_posts', 'tagid' => $tag->id, 'component' => 'mod_forum',
+                    'coursemodulecontextlevel' => CONTEXT_MODULE];
 
     if ($ctx) {
         $context = $ctx ? context::instance_by_id($ctx) : context_system::instance();
@@ -659,18 +660,18 @@ function mod_forum_get_tagged_posts($tag, $exclusivemode = false, $fromctx = 0, 
                 $cm = $modinfo->get_cm($taggeditem->cmid);
                 $forum = (object)['id'     => $taggeditem->forum,
                                   'course' => $taggeditem->courseid,
-                                  'type'   => $taggeditem->type
+                                  'type'   => $taggeditem->type,
                 ];
                 $discussion = (object)['id'        => $taggeditem->discussion,
                                        'timestart' => $taggeditem->timestart,
                                        'timeend'   => $taggeditem->timeend,
                                        'groupid'   => $taggeditem->groupid,
-                                       'firstpost' => $taggeditem->firstpost
+                                       'firstpost' => $taggeditem->firstpost,
                 ];
                 $post = (object)['id' => $taggeditem->id,
                                        'parent' => $taggeditem->parent,
                                        'userid'   => $taggeditem->userid,
-                                       'groupid'   => $taggeditem->groupid
+                                       'groupid'   => $taggeditem->groupid,
                 ];
 
                 $accessible = forum_user_can_see_post($forum, $discussion, $post, null, $cm);
@@ -692,14 +693,14 @@ function mod_forum_get_tagged_posts($tag, $exclusivemode = false, $fromctx = 0, 
             context_helper::preload_from_record($item);
             $modinfo = get_fast_modinfo($item->courseid);
             $cm = $modinfo->get_cm($item->cmid);
-            $pageurl = new moodle_url('/mod/forum/discuss.php', array('d' => $item->discussion), 'p' . $item->id);
-            $pagename = format_string($item->subject, true, array('context' => context_module::instance($item->cmid)));
+            $pageurl = new moodle_url('/mod/forum/discuss.php', ['d' => $item->discussion], 'p' . $item->id);
+            $pagename = format_string($item->subject, true, ['context' => context_module::instance($item->cmid)]);
             $pagename = html_writer::link($pageurl, $pagename);
             $courseurl = course_get_url($item->courseid, $cm->sectionnum);
             $cmname = html_writer::link($cm->url, $cm->get_formatted_name());
-            $coursename = format_string($item->fullname, true, array('context' => context_course::instance($item->courseid)));
+            $coursename = format_string($item->fullname, true, ['context' => context_course::instance($item->courseid)]);
             $coursename = html_writer::link($courseurl, $coursename);
-            $icon = html_writer::link($pageurl, html_writer::empty_tag('img', array('src' => $cm->get_icon_url())));
+            $icon = html_writer::link($pageurl, html_writer::empty_tag('img', ['src' => $cm->get_icon_url()]));
             $tagfeed->add($icon, $pagename, $cmname.'<br>'.$coursename);
         }
 
@@ -740,7 +741,7 @@ function forum_update_calendar($forum, $cmid) {
     }
 
     $event->id = $DB->get_field('event', 'id',
-            array('modulename' => 'forum', 'instance' => $forum->id, 'eventtype' => FORUM_EVENT_TYPE_DUE));
+            ['modulename' => 'forum', 'instance' => $forum->id, 'eventtype' => FORUM_EVENT_TYPE_DUE]);
 
     if ($event->id) {
         $calendarevent = calendar_event::load($event->id);

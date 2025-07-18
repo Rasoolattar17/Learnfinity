@@ -150,7 +150,7 @@ class summary_table extends table_sql {
                 'label' => get_string('selectall'),
                 'labelclasses' => 'sr-only',
                 'classes' => 'm-1',
-                'checked' => false
+                'checked' => false,
             ]);
             $columnheaders['select'] = $OUTPUT->render($mastercheckbox);
         }
@@ -274,7 +274,7 @@ class summary_table extends table_sql {
         }
 
         global $OUTPUT;
-        return $OUTPUT->user_picture($data, array('courseid' => $this->courseid, 'includefullname' => true));
+        return $OUTPUT->user_picture($data, ['courseid' => $this->courseid, 'includefullname' => true]);
     }
 
     /**
@@ -824,7 +824,7 @@ class summary_table extends table_sql {
         $xmldbtable = new \xmldb_table($temptablename);
         $xmldbtable->add_field('userid', XMLDB_TYPE_INTEGER, 10, null, XMLDB_NOTNULL, null, null);
         $xmldbtable->add_field('viewcount', XMLDB_TYPE_INTEGER, 10, null, XMLDB_NOTNULL, null, null);
-        $xmldbtable->add_key('primary', XMLDB_KEY_PRIMARY, array('userid'));
+        $xmldbtable->add_key('primary', XMLDB_KEY_PRIMARY, ['userid']);
 
         $dbman->create_temp_table($xmldbtable);
     }
@@ -994,26 +994,26 @@ class summary_table extends table_sql {
             $data->attributes = [
                 [
                     'name' => 'data-action',
-                    'value' => 'toggle'
+                    'value' => 'toggle',
                 ],
                 [
                     'name' => 'data-togglegroup',
-                    'value' => 'summaryreport-table'
+                    'value' => 'summaryreport-table',
                 ],
                 [
                     'name' => 'data-toggle',
-                    'value' => 'action'
+                    'value' => 'action',
                 ],
                 [
                     'name' => 'disabled',
-                    'value' => true
-                ]
+                    'value' => true,
+                ],
             ];
             $data->actions = [
                 [
                     'value' => '#messageselect',
-                    'name' => get_string('messageselectadd')
-                ]
+                    'name' => get_string('messageselectadd'),
+                ],
             ];
         }
 

@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -42,7 +41,7 @@ $sesskey        = optional_param('sesskey', null, PARAM_RAW);
 $returnurl      = optional_param('returnurl', null, PARAM_LOCALURL);
 $edit           = optional_param('edit', 'off', PARAM_ALPHANUM);
 
-$url = new moodle_url('/mod/forum/subscribe.php', array('id'=>$id));
+$url = new moodle_url('/mod/forum/subscribe.php', ['id' => $id]);
 if (!is_null($mode)) {
     $url->param('mode', $mode);
 }
@@ -54,14 +53,14 @@ if (!is_null($sesskey)) {
 }
 if (!is_null($discussionid)) {
     $url->param('d', $discussionid);
-    if (!$discussion = $DB->get_record('forum_discussions', array('id' => $discussionid, 'forum' => $id))) {
+    if (!$discussion = $DB->get_record('forum_discussions', ['id' => $discussionid, 'forum' => $id])) {
         throw new \moodle_exception('invaliddiscussionid', 'forum');
     }
 }
 $PAGE->set_url($url);
 
-$forum   = $DB->get_record('forum', array('id' => $id), '*', MUST_EXIST);
-$course  = $DB->get_record('course', array('id' => $forum->course), '*', MUST_EXIST);
+$forum   = $DB->get_record('forum', ['id' => $id], '*', MUST_EXIST);
+$course  = $DB->get_record('course', ['id' => $forum->course], '*', MUST_EXIST);
 $cm      = get_coursemodule_from_instance('forum', $forum->id, $course->id, false, MUST_EXIST);
 $context = context_module::instance($cm->id);
 
@@ -70,7 +69,7 @@ if ($user) {
     if (!has_capability('mod/forum:managesubscriptions', $context)) {
         throw new \moodle_exception('nopermissiontosubscribe', 'forum');
     }
-    $user = $DB->get_record('user', array('id' => $user), '*', MUST_EXIST);
+    $user = $DB->get_record('user', ['id' => $user], '*', MUST_EXIST);
 } else {
     $user = $USER;
 }
@@ -98,13 +97,13 @@ if (is_null($mode) and !is_enrolled($context, $USER, '', true)) {   // Guests an
     if (isguestuser()) {
         echo $OUTPUT->header();
         echo $OUTPUT->confirm(get_string('subscribeenrolledonly', 'forum').'<br /><br />'.get_string('liketologin'),
-                     get_login_url(), new moodle_url('/mod/forum/view.php', array('f'=>$id)));
+                     get_login_url(), new moodle_url('/mod/forum/view.php', ['f' => $id]));
         echo $OUTPUT->footer();
         exit;
     } else {
         // There should not be any links leading to this place, just redirect.
         redirect(
-                new moodle_url('/mod/forum/view.php', array('f'=>$id)),
+                new moodle_url('/mod/forum/view.php', ['f' => $id]),
                 get_string('subscribeenrolledonly', 'forum'),
                 null,
                 \core\output\notification::NOTIFY_ERROR
@@ -112,7 +111,7 @@ if (is_null($mode) and !is_enrolled($context, $USER, '', true)) {   // Guests an
     }
 }
 
-$returnto = optional_param('backtoindex',0,PARAM_INT)
+$returnto = optional_param('backtoindex', 0, PARAM_INT)
     ? "index.php?id=".$course->id
     : "view.php?f=$id";
 
@@ -147,7 +146,7 @@ if (!is_null($mode) and has_capability('mod/forum:managesubscriptions', $context
             \mod_forum\subscriptions::set_subscription_mode($forum, FORUM_INITIALSUBSCRIBE);
             if ($forum->forcesubscribe <> FORUM_INITIALSUBSCRIBE) {
                 // Reload the forum again to get the updated forcesubscribe field.
-                $forum = $DB->get_record('forum', array('id' => $id), '*', MUST_EXIST);
+                $forum = $DB->get_record('forum', ['id' => $id], '*', MUST_EXIST);
                 $users = \mod_forum\subscriptions::get_potential_subscribers($context, 0, 'u.id, u.email', '');
                 foreach ($users as $user) {
                     \mod_forum\subscriptions::subscribe_user($user->id, $forum, $context);
@@ -190,7 +189,7 @@ if ($issubscribed) {
         $PAGE->set_heading($course->fullname);
         echo $OUTPUT->header();
 
-        $viewurl = new moodle_url('/mod/forum/view.php', array('f' => $id));
+        $viewurl = new moodle_url('/mod/forum/view.php', ['f' => $id]);
         if ($discussionid) {
             $a = new stdClass();
             $a->forum = format_string($forum->name);
@@ -243,7 +242,7 @@ if ($issubscribed) {
         $PAGE->set_heading($course->fullname);
         echo $OUTPUT->header();
 
-        $viewurl = new moodle_url('/mod/forum/view.php', array('f' => $id));
+        $viewurl = new moodle_url('/mod/forum/view.php', ['f' => $id]);
         if ($discussionid) {
             $a = new stdClass();
             $a->forum = format_string($forum->name);

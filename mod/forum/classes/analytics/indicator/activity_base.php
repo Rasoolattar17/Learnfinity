@@ -42,8 +42,8 @@ abstract class activity_base extends \core_analytics\local\indicator\community_o
      */
     protected function feedback_viewed_events() {
         // We could add any forum event, but it will make feedback_post_action slower.
-        return array('\mod_forum\event\assessable_uploaded', '\mod_forum\event\course_module_viewed',
-            '\mod_forum\event\discussion_viewed');
+        return ['\mod_forum\event\assessable_uploaded', '\mod_forum\event\course_module_viewed',
+            '\mod_forum\event\discussion_viewed'];
     }
 
     /**

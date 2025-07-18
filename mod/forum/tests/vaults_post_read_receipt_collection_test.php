@@ -29,7 +29,7 @@ require_once(__DIR__ . '/generator_trait.php');
  * @copyright  2019 Ryan Wyllie <ryan@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class vaults_post_read_receipt_collection_test extends \advanced_testcase {
+final class vaults_post_read_receipt_collection_test extends \advanced_testcase {
     // Make use of the test generator trait.
     use mod_forum_tests_generator_trait;
 
@@ -58,7 +58,7 @@ class vaults_post_read_receipt_collection_test extends \advanced_testcase {
             'discussionid' => $discussion1->id,
             'postid' => $post1->id,
             'firstread' => time(),
-            'lastread' => time()
+            'lastread' => time(),
         ]);
         // Receipt for other user.
         $DB->insert_record('forum_read', [
@@ -67,7 +67,7 @@ class vaults_post_read_receipt_collection_test extends \advanced_testcase {
             'discussionid' => $discussion1->id,
             'postid' => $post1->id,
             'firstread' => time(),
-            'lastread' => time()
+            'lastread' => time(),
         ]);
         $DB->insert_record('forum_read', [
             'userid' => $user->id,
@@ -75,7 +75,7 @@ class vaults_post_read_receipt_collection_test extends \advanced_testcase {
             'discussionid' => $discussion2->id,
             'postid' => $post3->id,
             'firstread' => time(),
-            'lastread' => time()
+            'lastread' => time(),
         ]);
 
         $post1 = $entityfactory->get_post_from_stdClass($post1);

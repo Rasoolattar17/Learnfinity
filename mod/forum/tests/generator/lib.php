@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-
 /**
  * Forum module data generator class
  *
@@ -212,7 +211,7 @@ class mod_forum_generator extends testing_module_generator {
         // Add the discussion.
         $record->id = forum_add_discussion($record, null, null, $record->userid);
 
-        $post = $DB->get_record('forum_posts', array('discussion' => $record->id));
+        $post = $DB->get_record('forum_posts', ['discussion' => $record->id]);
 
         if (isset($timemodified) || isset($mailed)) {
             if (isset($mailed)) {
@@ -347,23 +346,23 @@ class mod_forum_generator extends testing_module_generator {
         return $record;
     }
 
-    public function create_content($instance, $record = array()) {
+    public function create_content($instance, $record = []) {
         global $USER, $DB;
-        $record = (array)$record + array(
+        $record = (array)$record + [
             'forum' => $instance->id,
             'userid' => $USER->id,
-            'course' => $instance->course
-        );
+            'course' => $instance->course,
+        ];
         if (empty($record['discussion']) && empty($record['parent'])) {
             // Create discussion.
             $discussion = $this->create_discussion($record);
-            $post = $DB->get_record('forum_posts', array('id' => $discussion->firstpost));
+            $post = $DB->get_record('forum_posts', ['id' => $discussion->firstpost]);
         } else {
             // Create post.
             if (empty($record['parent'])) {
-                $record['parent'] = $DB->get_field('forum_discussions', 'firstpost', array('id' => $record['discussion']), MUST_EXIST);
+                $record['parent'] = $DB->get_field('forum_discussions', 'firstpost', ['id' => $record['discussion']], MUST_EXIST);
             } else if (empty($record['discussion'])) {
-                $record['discussion'] = $DB->get_field('forum_posts', 'discussion', array('id' => $record['parent']), MUST_EXIST);
+                $record['discussion'] = $DB->get_field('forum_posts', 'discussion', ['id' => $record['parent']], MUST_EXIST);
             }
             $post = $this->create_post($record);
         }

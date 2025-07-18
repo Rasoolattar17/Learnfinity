@@ -215,7 +215,7 @@ class discussion {
                 'movediscussion' => null,
                 'pindiscussion' => null,
                 'neighbourlinks' => $this->get_neighbour_links_html(),
-                'exportdiscussion' => !empty($CFG->enableportfolios) ? $this->get_export_discussion_html($user) : null
+                'exportdiscussion' => !empty($CFG->enableportfolios) ? $this->get_export_discussion_html($user) : null,
             ],
             'settingsselector' => true,
         ]);
@@ -231,7 +231,7 @@ class discussion {
             $exporteddiscussion['loggedinuser'] = [
                 'firstname' => $loggedinuser->get_first_name(),
                 'fullname' => $loggedinuser->get_full_name(),
-                'profileimageurl' => ($urlfactory->get_author_profile_image_url($loggedinuser, null))->out(false)
+                'profileimageurl' => ($urlfactory->get_author_profile_image_url($loggedinuser, null))->out(false),
             ];
         }
 
@@ -419,8 +419,8 @@ class discussion {
                 get_string('discussionlocked', 'forum'),
                 notification::NOTIFY_INFO
             ))
-            ->set_extra_classes(['discussionlocked'])
-            ->set_show_closebutton();
+                ->set_extra_classes(['discussionlocked'])
+                ->set_show_closebutton();
         }
 
         if ($forum->get_type() == 'qanda') {
@@ -435,7 +435,7 @@ class discussion {
             $notifications[] = (new notification(
                 get_string('thisforumisthrottled', 'forum', [
                     'blockafter' => $forum->get_block_after(),
-                    'blockperiod' => get_string('secondstotime' . $forum->get_block_period())
+                    'blockperiod' => get_string('secondstotime' . $forum->get_block_period()),
                 ]),
                 notification::NOTIFY_INFO
             ))->set_show_closebutton();

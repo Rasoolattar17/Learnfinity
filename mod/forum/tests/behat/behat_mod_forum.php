@@ -156,7 +156,7 @@ class behat_mod_forum extends behat_base {
         $this->execute('behat_general::i_click_on_in_the', [
             "[data-container='discussion-tools'] [data-toggle='dropdown']", "css_element",
             "//tr[contains(concat(' ', normalize-space(@class), ' '), ' discussion ') and contains(.,'$discussion')]",
-            "xpath_element"
+            "xpath_element",
         ]);
     }
 
@@ -514,7 +514,7 @@ class behat_mod_forum extends behat_base {
      */
     protected function goto_main_post_reply($postsubject) {
         global $DB;
-        $post = $DB->get_record("forum_posts", array("subject" => $postsubject), 'id', MUST_EXIST);
+        $post = $DB->get_record("forum_posts", ["subject" => $postsubject], 'id', MUST_EXIST);
         $url = new moodle_url('/mod/forum/post.php', ['reply' => $post->id]);
         $this->execute('behat_general::i_visit', [$url]);
     }

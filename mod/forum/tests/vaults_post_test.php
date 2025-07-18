@@ -30,7 +30,7 @@ require_once(__DIR__ . '/generator_trait.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @coversDefaultClass \mod_forum\local\vaults\post
  */
-class vaults_post_test extends \advanced_testcase {
+final class vaults_post_test extends \advanced_testcase {
     // Make use of the test generator trait.
     use mod_forum_tests_generator_trait;
 
@@ -232,7 +232,7 @@ class vaults_post_test extends \advanced_testcase {
         // ----> Otherpost reply private reply (teacher 1).
         [$discussion, $post] = $this->helper_post_to_forum($forum, $student);
         $postprivatereply = $this->helper_reply_to_post($post, $teacher, [
-            'privatereplyto' => $student->id
+            'privatereplyto' => $student->id,
         ]);
         [$otherdiscussion, $otherpost] = $this->helper_post_to_forum($forum, $teacher);
         $otherpostprivatereply = $this->helper_reply_to_post($otherpost, $otherteacher, [
@@ -240,7 +240,7 @@ class vaults_post_test extends \advanced_testcase {
         ]);
         $otherpostreply = $this->helper_reply_to_post($otherpost, $student);
         $otherpostreplyprivatereply = $this->helper_reply_to_post($otherpostreply, $teacher, [
-            'privatereplyto' => $student->id
+            'privatereplyto' => $student->id,
         ]);
 
         // Teacher 1. Request all posts from the vault, telling the vault that the teacher CAN see private replies made by anyone.
@@ -324,7 +324,7 @@ class vaults_post_test extends \advanced_testcase {
             'userid' => $user->id,
             'mailnow' => 1,
             'subject' => 'Some subject',
-            'created' => $post1->created
+            'created' => $post1->created,
         ]);
         $post3 = $this->helper_reply_to_post($post1, $user);
         $post4 = $this->helper_reply_to_post($post2, $user);
@@ -558,7 +558,7 @@ class vaults_post_test extends \advanced_testcase {
         $counts = $this->vault->get_reply_count_for_discussion_ids($user, [
             $discussion1->id,
             $discussion2->id,
-            $discussion3->id
+            $discussion3->id,
         ], false);
         $this->assertCount(2, $counts);
         $this->assertEquals(3, $counts[$discussion1->id]);
@@ -568,7 +568,7 @@ class vaults_post_test extends \advanced_testcase {
             $discussion1->id,
             $discussion2->id,
             $discussion3->id,
-            $discussion3->id + 1000
+            $discussion3->id + 1000,
         ], false);
         $this->assertCount(2, $counts);
         $this->assertEquals(3, $counts[$discussion1->id]);
@@ -734,7 +734,7 @@ class vaults_post_test extends \advanced_testcase {
             'mailnow' => 1,
             'subject' => 'old post',
             // Two days ago which makes it an "old post".
-            'modified' => time() - 172800
+            'modified' => time() - 172800,
         ]);
 
         forum_tp_add_read_record($user->id, $post1->id);
@@ -753,7 +753,7 @@ class vaults_post_test extends \advanced_testcase {
         $counts = $this->vault->get_unread_count_for_discussion_ids($user, [
             $discussion1->id,
             $discussion2->id,
-            $discussion2->id + 1000
+            $discussion2->id + 1000,
         ], false);
         $this->assertCount(2, $counts);
         $this->assertEquals(2, $counts[$discussion1->id]);
@@ -835,7 +835,7 @@ class vaults_post_test extends \advanced_testcase {
             $discussion1->id,
             $discussion2->id,
             $discussion3->id,
-            $discussion3->id + 1000
+            $discussion3->id + 1000,
         ], false);
         $this->assertCount(3, $ids);
         $this->assertEquals($post4->id, $ids[$discussion1->id]->get_id());
@@ -898,7 +898,7 @@ class vaults_post_test extends \advanced_testcase {
             $discussion1->id,
             $discussion2->id,
             $discussion3->id,
-            $discussion3->id + 1000
+            $discussion3->id + 1000,
         ]);
         $this->assertCount(3, $firstposts);
         $this->assertEquals($post1->id, $firstposts[$post1->id]->get_id());
@@ -1061,7 +1061,7 @@ class vaults_post_test extends \advanced_testcase {
         // ----> Otherpost reply private reply (teacher 1).
         [$discussion, $post] = $this->helper_post_to_forum($forum, $student);
         $postprivatereply = $this->helper_reply_to_post($post, $teacher, [
-            'privatereplyto' => $student->id
+            'privatereplyto' => $student->id,
         ]);
         [$otherdiscussion, $otherpost] = $this->helper_post_to_forum($forum, $teacher);
         $otherpostprivatereply = $this->helper_reply_to_post($otherpost, $otherteacher, [
@@ -1069,7 +1069,7 @@ class vaults_post_test extends \advanced_testcase {
         ]);
         $otherpostreply = $this->helper_reply_to_post($otherpost, $student);
         $otherpostreplyprivatereply = $this->helper_reply_to_post($otherpostreply, $teacher, [
-            'privatereplyto' => $student->id
+            'privatereplyto' => $student->id,
         ]);
 
         $userids = [$otherstudent->id, $teacher->id, $otherteacher->id];

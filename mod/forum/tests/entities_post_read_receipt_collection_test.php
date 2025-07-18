@@ -26,7 +26,7 @@ use mod_forum\local\entities\post as post_entity;
  * @copyright  2019 Ryan Wyllie <ryan@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class entities_post_read_receipt_collection_test extends \advanced_testcase {
+final class entities_post_read_receipt_collection_test extends \advanced_testcase {
     /**
      * Test the entity returns expected values.
      */
@@ -77,16 +77,16 @@ class entities_post_read_receipt_collection_test extends \advanced_testcase {
         $collection = new collection_entity([
             (object) [
                 'postid' => 1,
-                'userid' => $user->id + 1
+                'userid' => $user->id + 1,
             ],
             (object) [
                 'postid' => 1,
-                'userid' => $user->id
+                'userid' => $user->id,
             ],
             (object) [
                 'postid' => 4,
-                'userid' => $user->id + 1
-            ]
+                'userid' => $user->id + 1,
+            ],
         ]);
 
         $this->assertEquals(true, $collection->has_user_read_post($user, $post));

@@ -44,13 +44,13 @@ class mod_forum_post_form extends moodleform {
     public static function attachment_options($forum) {
         global $COURSE, $PAGE, $CFG;
         $maxbytes = get_user_max_upload_file_size($PAGE->context, $CFG->maxbytes, $COURSE->maxbytes, $forum->maxbytes);
-        return array(
+        return [
             'subdirs' => 0,
             'maxbytes' => $maxbytes,
             'maxfiles' => $forum->maxattachments,
             'accepted_types' => '*',
-            'return_types' => FILE_INTERNAL | FILE_CONTROLLED_LINK
-        );
+            'return_types' => FILE_INTERNAL | FILE_CONTROLLED_LINK,
+        ];
     }
 
     /**
@@ -64,13 +64,13 @@ class mod_forum_post_form extends moodleform {
         global $COURSE, $PAGE, $CFG;
         // TODO: add max files and max size support
         $maxbytes = get_user_max_upload_file_size($PAGE->context, $CFG->maxbytes, $COURSE->maxbytes);
-        return array(
+        return [
             'maxfiles' => EDITOR_UNLIMITED_FILES,
             'maxbytes' => $maxbytes,
-            'trusttext'=> true,
-            'return_types'=> FILE_INTERNAL | FILE_EXTERNAL,
-            'subdirs' => file_area_contains_subdirs($context, 'mod_forum', 'post', $postid)
-        );
+            'trusttext' => true,
+            'return_types' => FILE_INTERNAL | FILE_EXTERNAL,
+            'subdirs' => file_area_contains_subdirs($context, 'mod_forum', 'post', $postid),
+        ];
     }
 
     /**
@@ -174,11 +174,11 @@ class mod_forum_post_form extends moodleform {
                 $mform->addElement('header', 'displayperiod', get_string('displayperiod', 'forum'));
 
                 $mform->addElement('date_time_selector', 'timestart', get_string('displaystart', 'forum'),
-                    array('optional' => true));
+                    ['optional' => true]);
                 $mform->addHelpButton('timestart', 'displaystart', 'forum');
 
                 $mform->addElement('date_time_selector', 'timeend', get_string('displayend', 'forum'),
-                    array('optional' => true));
+                    ['optional' => true]);
                 $mform->addHelpButton('timeend', 'displayend', 'forum');
 
             } else {
@@ -186,18 +186,18 @@ class mod_forum_post_form extends moodleform {
                 $mform->setType('timestart', PARAM_INT);
                 $mform->addElement('hidden', 'timeend');
                 $mform->setType('timeend', PARAM_INT);
-                $mform->setConstants(array('timestart' => 0, 'timeend' => 0));
+                $mform->setConstants(['timestart' => 0, 'timeend' => 0]);
             }
 
             if (core_tag_tag::is_enabled('mod_forum', 'forum_posts')) {
                 $mform->addElement('header', 'tagshdr', get_string('tags', 'tag'));
 
                 $mform->addElement('tags', 'tags', get_string('tags'),
-                    array('itemtype' => 'forum_posts', 'component' => 'mod_forum'));
+                    ['itemtype' => 'forum_posts', 'component' => 'mod_forum']);
             }
         }
 
-        //-------------------------------------------------------------------------------
+        // -------------------------------------------------------------------------------
         // buttons
         if (isset($post->edit)) { // hack alert
             $submitstring = get_string('savechanges');
@@ -213,7 +213,7 @@ class mod_forum_post_form extends moodleform {
             $mform->addElement('hidden', 'discussionsubscribe');
             $mform->setType('discussionsubscribe', PARAM_INT);
 
-            $buttonarray = array();
+            $buttonarray = [];
             $buttonarray[] = &$mform->createElement('submit', 'submitbutton', $submitstring);
             $buttonarray[] = &$mform->createElement('button', 'cancelbtn',
                 get_string('cancel', 'core'),
@@ -222,7 +222,7 @@ class mod_forum_post_form extends moodleform {
             $buttonarray[] = &$mform->createElement('submit', 'advancedadddiscussion',
                 get_string('showadvancededitor'), null, null, ['customclassoverride' => 'btn-link']);
 
-            $mform->addGroup($buttonarray, 'buttonar', '', array(' '), false);
+            $mform->addGroup($buttonarray, 'buttonar', '', [' '], false);
             $mform->closeHeaderBefore('buttonar');
         } else {
             $this->add_action_buttons(true, $submitstring);
@@ -259,7 +259,7 @@ class mod_forum_post_form extends moodleform {
      */
     function validation($data, $files) {
         $errors = parent::validation($data, $files);
-        if (($data['timeend']!=0) && ($data['timestart']!=0) && $data['timeend'] <= $data['timestart']) {
+        if (($data['timeend'] != 0) && ($data['timestart'] != 0) && $data['timeend'] <= $data['timestart']) {
             $errors['timeend'] = get_string('timestartenderror', 'forum');
         }
         if (empty($data['message']['text'])) {

@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -38,63 +37,63 @@ class backup_forum_activity_structure_step extends backup_activity_structure_ste
 
         // Define each element separated
 
-        $forum = new backup_nested_element('forum', array('id'), array(
+        $forum = new backup_nested_element('forum', ['id'], [
             'type', 'name', 'intro', 'introformat', 'duedate', 'cutoffdate',
             'assessed', 'assesstimestart', 'assesstimefinish', 'scale',
             'maxbytes', 'maxattachments', 'forcesubscribe', 'trackingtype',
             'rsstype', 'rssarticles', 'timemodified', 'warnafter',
             'blockafter', 'blockperiod', 'completiondiscussions', 'completionreplies',
-            'completionposts', 'displaywordcount', 'lockdiscussionafter', 'grade_forum'));
+            'completionposts', 'displaywordcount', 'lockdiscussionafter', 'grade_forum']);
 
         $discussions = new backup_nested_element('discussions');
 
-        $discussion = new backup_nested_element('discussion', array('id'), array(
+        $discussion = new backup_nested_element('discussion', ['id'], [
             'name', 'firstpost', 'userid', 'groupid',
             'assessed', 'timemodified', 'usermodified', 'timestart',
-            'timeend', 'pinned', 'timelocked'));
+            'timeend', 'pinned', 'timelocked']);
 
         $posts = new backup_nested_element('posts');
 
-        $post = new backup_nested_element('post', array('id'), array(
+        $post = new backup_nested_element('post', ['id'], [
             'parent', 'userid', 'created', 'modified',
             'mailed', 'subject', 'message', 'messageformat',
-            'messagetrust', 'attachment', 'totalscore', 'mailnow', 'privatereplyto'));
+            'messagetrust', 'attachment', 'totalscore', 'mailnow', 'privatereplyto']);
 
         $tags = new backup_nested_element('poststags');
-        $tag = new backup_nested_element('tag', array('id'), array('itemid', 'rawname'));
+        $tag = new backup_nested_element('tag', ['id'], ['itemid', 'rawname']);
 
         $ratings = new backup_nested_element('ratings');
 
-        $rating = new backup_nested_element('rating', array('id'), array(
-            'component', 'ratingarea', 'scaleid', 'value', 'userid', 'timecreated', 'timemodified'));
+        $rating = new backup_nested_element('rating', ['id'], [
+            'component', 'ratingarea', 'scaleid', 'value', 'userid', 'timecreated', 'timemodified']);
 
         $discussionsubs = new backup_nested_element('discussion_subs');
 
-        $discussionsub = new backup_nested_element('discussion_sub', array('id'), array(
+        $discussionsub = new backup_nested_element('discussion_sub', ['id'], [
             'userid',
             'preference',
-        ));
+        ]);
 
         $subscriptions = new backup_nested_element('subscriptions');
 
-        $subscription = new backup_nested_element('subscription', array('id'), array(
-            'userid'));
+        $subscription = new backup_nested_element('subscription', ['id'], [
+            'userid']);
 
         $digests = new backup_nested_element('digests');
 
-        $digest = new backup_nested_element('digest', array('id'), array(
-            'userid', 'maildigest'));
+        $digest = new backup_nested_element('digest', ['id'], [
+            'userid', 'maildigest']);
 
         $readposts = new backup_nested_element('readposts');
 
-        $read = new backup_nested_element('read', array('id'), array(
+        $read = new backup_nested_element('read', ['id'], [
             'userid', 'discussionid', 'postid', 'firstread',
-            'lastread'));
+            'lastread']);
 
         $trackedprefs = new backup_nested_element('trackedprefs');
 
-        $track = new backup_nested_element('track', array('id'), array(
-            'userid'));
+        $track = new backup_nested_element('track', ['id'], [
+            'userid']);
 
         $grades = new backup_nested_element('grades');
 
@@ -141,7 +140,7 @@ class backup_forum_activity_structure_step extends backup_activity_structure_ste
 
         // Define sources
 
-        $forum->set_source_table('forum', array('id' => backup::VAR_ACTIVITYID));
+        $forum->set_source_table('forum', ['id' => backup::VAR_ACTIVITYID]);
 
         // All these source definitions only happen if we are including user info
         if ($userinfo) {
@@ -149,23 +148,23 @@ class backup_forum_activity_structure_step extends backup_activity_structure_ste
                 SELECT *
                   FROM {forum_discussions}
                  WHERE forum = ?',
-                array(backup::VAR_PARENTID));
+                [backup::VAR_PARENTID]);
 
             // Need posts ordered by id so parents are always before childs on restore
-            $post->set_source_table('forum_posts', array('discussion' => backup::VAR_PARENTID), 'id ASC');
-            $discussionsub->set_source_table('forum_discussion_subs', array('discussion' => backup::VAR_PARENTID));
+            $post->set_source_table('forum_posts', ['discussion' => backup::VAR_PARENTID], 'id ASC');
+            $discussionsub->set_source_table('forum_discussion_subs', ['discussion' => backup::VAR_PARENTID]);
 
-            $subscription->set_source_table('forum_subscriptions', array('forum' => backup::VAR_PARENTID));
-            $digest->set_source_table('forum_digests', array('forum' => backup::VAR_PARENTID));
+            $subscription->set_source_table('forum_subscriptions', ['forum' => backup::VAR_PARENTID]);
+            $digest->set_source_table('forum_digests', ['forum' => backup::VAR_PARENTID]);
 
-            $read->set_source_table('forum_read', array('forumid' => backup::VAR_PARENTID));
+            $read->set_source_table('forum_read', ['forumid' => backup::VAR_PARENTID]);
 
-            $track->set_source_table('forum_track_prefs', array('forumid' => backup::VAR_PARENTID));
+            $track->set_source_table('forum_track_prefs', ['forumid' => backup::VAR_PARENTID]);
 
-            $rating->set_source_table('rating', array('contextid'  => backup::VAR_CONTEXTID,
+            $rating->set_source_table('rating', ['contextid'  => backup::VAR_CONTEXTID,
                                                       'component'  => backup_helper::is_sqlparam('mod_forum'),
                                                       'ratingarea' => backup_helper::is_sqlparam('post'),
-                                                      'itemid'     => backup::VAR_PARENTID));
+                                                      'itemid'     => backup::VAR_PARENTID]);
             $rating->set_source_alias('rating', 'value');
 
             if (core_tag_tag::is_enabled('mod_forum', 'forum_posts')) {
@@ -175,13 +174,13 @@ class backup_forum_activity_structure_step extends backup_activity_structure_ste
                                         JOIN {tag_instance} ti ON ti.tagid = t.id
                                        WHERE ti.itemtype = ?
                                          AND ti.component = ?
-                                         AND ti.contextid = ?', array(
+                                         AND ti.contextid = ?', [
                     backup_helper::is_sqlparam('forum_posts'),
                     backup_helper::is_sqlparam('mod_forum'),
-                    backup::VAR_CONTEXTID));
+                    backup::VAR_CONTEXTID]);
             }
 
-            $grade->set_source_table('forum_grades', array('forum' => backup::VAR_PARENTID));
+            $grade->set_source_table('forum_grades', ['forum' => backup::VAR_PARENTID]);
         }
 
         // Define id annotations

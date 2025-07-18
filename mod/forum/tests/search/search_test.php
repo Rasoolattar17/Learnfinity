@@ -40,7 +40,7 @@ require_once($CFG->dirroot . '/mod/forum/lib.php');
  * @copyright   2015 David Monllao {@link http://www.davidmonllao.com}
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class search_test extends \advanced_testcase {
+final class search_test extends \advanced_testcase {
 
     /**
      * @var string Area id
@@ -212,7 +212,7 @@ class search_test extends \advanced_testcase {
         $record->groupid = -1;
         $discussion1reply1 = self::getDataGenerator()->get_plugin_generator('mod_forum')->create_post($record);
 
-        $post1 = $DB->get_record('forum_posts', array('id' => $discussion1reply1->id));
+        $post1 = $DB->get_record('forum_posts', ['id' => $discussion1reply1->id]);
         $post1->forumid = $forum1->id;
         $post1->courseid = $forum1->course;
         $post1->groupid = -1;
@@ -397,15 +397,15 @@ class search_test extends \advanced_testcase {
         $discussion1 = self::getDataGenerator()->get_plugin_generator('mod_forum')->create_discussion($record);
 
         // Attach 2 file to the discussion post.
-        $post = $DB->get_record('forum_posts', array('discussion' => $discussion1->id));
-        $filerecord = array(
+        $post = $DB->get_record('forum_posts', ['discussion' => $discussion1->id]);
+        $filerecord = [
             'contextid' => \context_module::instance($forum1->cmid)->id,
             'component' => 'mod_forum',
             'filearea'  => 'attachment',
             'itemid'    => $post->id,
             'filepath'  => '/',
-            'filename'  => 'myfile1'
-        );
+            'filename'  => 'myfile1',
+        ];
         $file1 = $fs->create_file_from_string($filerecord, 'Some contents 1');
         $filerecord['filename'] = 'myfile2';
         $file2 = $fs->create_file_from_string($filerecord, 'Some contents 2');
@@ -516,7 +516,7 @@ class search_test extends \advanced_testcase {
         $expected = [
             \context_module::instance($forum2->cmid),
             \context_module::instance($forum3->cmid),
-            \context_module::instance($forum1->cmid)
+            \context_module::instance($forum1->cmid),
         ];
         $this->assertEquals($expected, $contexts);
     }

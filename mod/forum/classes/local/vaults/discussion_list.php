@@ -146,7 +146,7 @@ class discussion_list extends db_table_vault {
 
         $sortkeys = [
             $this->get_sort_order(self::SORTORDER_REPLIES_DESC, $includefavourites),
-            $this->get_sort_order(self::SORTORDER_REPLIES_ASC, $includefavourites)
+            $this->get_sort_order(self::SORTORDER_REPLIES_ASC, $includefavourites),
         ];
         $issortbyreplies = in_array($sortsql, $sortkeys);
 
@@ -169,7 +169,7 @@ class discussion_list extends db_table_vault {
 
         $groupsortorders = [
             $this->get_sort_order(self::SORTORDER_GROUP_DESC, $includefavourites),
-            $this->get_sort_order(self::SORTORDER_GROUP_ASC, $includefavourites)
+            $this->get_sort_order(self::SORTORDER_GROUP_ASC, $includefavourites),
         ];
         $sortbygroup = in_array($sortsql, $groupsortorders);
         if ($sortbygroup) {

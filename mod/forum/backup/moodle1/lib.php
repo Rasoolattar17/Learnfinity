@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -50,22 +49,22 @@ class moodle1_mod_forum_handler extends moodle1_mod_handler {
      * @return array of {@link convert_path} instances
      */
     public function get_paths() {
-        return array(
+        return [
             new convert_path('forum', '/MOODLE_BACKUP/COURSE/MODULES/MOD/FORUM',
-                array(
-                    'renamefields' => array(
+                [
+                    'renamefields' => [
                         'format' => 'messageformat',
-                    ),
-                    'newfields' => array(
+                    ],
+                    'newfields' => [
                         'completiondiscussions' => 0,
                         'completionreplies' => 0,
                         'completionpost' => 0,
                         'maxattachments' => 1,
                         'introformat' => 0,
-                    ),
-                )
+                    ],
+                ]
             ),
-        );
+        ];
     }
 
     /**
@@ -96,9 +95,9 @@ class moodle1_mod_forum_handler extends moodle1_mod_handler {
 
         // start writing forum.xml
         $this->open_xml_writer("activities/forum_{$this->moduleid}/forum.xml");
-        $this->xmlwriter->begin_tag('activity', array('id' => $instanceid, 'moduleid' => $this->moduleid,
-            'modulename' => 'forum', 'contextid' => $contextid));
-        $this->xmlwriter->begin_tag('forum', array('id' => $instanceid));
+        $this->xmlwriter->begin_tag('activity', ['id' => $instanceid, 'moduleid' => $this->moduleid,
+            'modulename' => 'forum', 'contextid' => $contextid]);
+        $this->xmlwriter->begin_tag('forum', ['id' => $instanceid]);
 
         foreach ($data as $field => $value) {
             if ($field <> 'id') {
@@ -126,7 +125,7 @@ class moodle1_mod_forum_handler extends moodle1_mod_handler {
         $this->xmlwriter->begin_tag('inforef');
         $this->xmlwriter->begin_tag('fileref');
         foreach ($this->fileman->get_fileids() as $fileid) {
-            $this->write_xml('file', array('id' => $fileid));
+            $this->write_xml('file', ['id' => $fileid]);
         }
         $this->xmlwriter->end_tag('fileref');
         $this->xmlwriter->end_tag('inforef');

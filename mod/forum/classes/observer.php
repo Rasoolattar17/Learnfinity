@@ -41,7 +41,7 @@ class mod_forum_observer {
         // Get user enrolment info from event.
         $cp = (object)$event->other['userenrolment'];
         if ($cp->lastenrol) {
-            if (!$forums = $DB->get_records('forum', array('course' => $cp->courseid), '', 'id')) {
+            if (!$forums = $DB->get_records('forum', ['course' => $cp->courseid], '', 'id')) {
                 return;
             }
             list($forumselect, $params) = $DB->get_in_or_equal(array_keys($forums), SQL_PARAMS_NAMED);
@@ -84,7 +84,7 @@ class mod_forum_observer {
                    AND f.forcesubscribe = :initial
                    AND m.name = 'forum'
                    AND fs.id IS NULL";
-        $params = array('courseid' => $context->instanceid, 'userid' => $userid, 'initial' => FORUM_INITIALSUBSCRIBE);
+        $params = ['courseid' => $context->instanceid, 'userid' => $userid, 'initial' => FORUM_INITIALSUBSCRIBE];
 
         $forums = $DB->get_records_sql($sql, $params);
         foreach ($forums as $forum) {

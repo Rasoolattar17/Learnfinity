@@ -26,7 +26,7 @@ use mod_forum\local\exporters\forum as forum_exporter;
  * @copyright  2019 Ryan Wyllie <ryan@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class exporters_forum_test extends \advanced_testcase {
+final class exporters_forum_test extends \advanced_testcase {
     /**
      * Test the export function returns expected values.
      */
@@ -40,7 +40,7 @@ class exporters_forum_test extends \advanced_testcase {
         $course = $datagenerator->create_course();
         $forum = $datagenerator->create_module('forum', [
             'course' => $course->id,
-            'groupmode' => VISIBLEGROUPS
+            'groupmode' => VISIBLEGROUPS,
         ]);
         $coursemodule = get_coursemodule_from_instance('forum', $forum->id);
         $context = \context_module::instance($coursemodule->id);
@@ -53,7 +53,7 @@ class exporters_forum_test extends \advanced_testcase {
             'capabilitymanager' => (\mod_forum\local\container::get_manager_factory())->get_capability_manager($forum),
             'user' => $user,
             'currentgroup' => null,
-            'vaultfactory' => \mod_forum\local\container::get_vault_factory()
+            'vaultfactory' => \mod_forum\local\container::get_vault_factory(),
         ]);
 
         $exportedforum = $exporter->export($renderer);

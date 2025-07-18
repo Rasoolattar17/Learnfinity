@@ -209,7 +209,7 @@ class discussion_list {
             'settings' => [
                 'excludetext' => true,
                 'togglemoreicon' => true,
-                'excludesubscription' => true
+                'excludesubscription' => true,
             ],
             'totaldiscussioncount' => $alldiscussionscount,
             'userid' => $user->id,
@@ -295,7 +295,7 @@ class discussion_list {
         ];
         $thresholdwarning = forum_check_throttling($forumrecord, $cm);
 
-        $formparams = array(
+        $formparams = [
             'course' => $forum->get_course_record(),
             'cm' => $cm,
             'coursecontext' => $coursecontext,
@@ -306,21 +306,21 @@ class discussion_list {
                 null, $cm),
             'thresholdwarning' => $thresholdwarning,
             'inpagereply' => true,
-            'edit' => 0
-        );
+            'edit' => 0,
+        ];
         $posturl = new \moodle_url('/mod/forum/post.php');
-        $mformpost = new \mod_forum_post_form($posturl, $formparams, 'post', '', array('id' => 'mformforum'));
+        $mformpost = new \mod_forum_post_form($posturl, $formparams, 'post', '', ['id' => 'mformforum']);
         $discussionsubscribe = \mod_forum\subscriptions::get_user_default_subscription($forumrecord, $coursecontext, $cm, null);
 
-        $params = array('reply' => 0, 'forum' => $forumrecord->id, 'edit' => 0) +
-            (isset($post->groupid) ? array('groupid' => $post->groupid) : array()) +
-            array(
+        $params = ['reply' => 0, 'forum' => $forumrecord->id, 'edit' => 0] +
+            (isset($post->groupid) ? ['groupid' => $post->groupid] : []) +
+            [
                 'userid' => $post->userid,
                 'parent' => $post->parent,
                 'discussion' => $post->discussion,
                 'course' => $forum->get_course_id(),
-                'discussionsubscribe' => $discussionsubscribe
-            );
+                'discussionsubscribe' => $discussionsubscribe,
+            ];
         $mformpost->set_data($params);
 
         return $mformpost->render();
@@ -377,7 +377,7 @@ class discussion_list {
             $notifications[] = (new notification(
                 get_string('thisforumisthrottled', 'forum', [
                     'blockafter' => $forum->get_block_after(),
-                    'blockperiod' => get_string('secondstotime' . $forum->get_block_period())
+                    'blockperiod' => get_string('secondstotime' . $forum->get_block_period()),
                 ]),
                 notification::NOTIFY_INFO
             ))->set_show_closebutton();

@@ -40,17 +40,17 @@ class post extends \core_search\base_mod {
     /**
      * @var array Internal quick static cache.
      */
-    protected $forumsdata = array();
+    protected $forumsdata = [];
 
     /**
      * @var array Internal quick static cache.
      */
-    protected $discussionsdata = array();
+    protected $discussionsdata = [];
 
     /**
      * @var array Internal quick static cache.
      */
-    protected $postsdata = array();
+    protected $postsdata = [];
 
     /**
      * Returns recordset containing required data for indexing forum posts.
@@ -84,7 +84,7 @@ class post extends \core_search\base_mod {
      * @param array    $options
      * @return \core_search\document
      */
-    public function get_document($record, $options = array()) {
+    public function get_document($record, $options = []) {
 
         try {
             $cm = $this->get_cm('forum', $record->forumid, $record->courseid);
@@ -140,10 +140,10 @@ class post extends \core_search\base_mod {
      * @return array
      */
     public function get_search_fileareas() {
-        $fileareas = array(
+        $fileareas = [
             'attachment',
-            'post'
-        );
+            'post',
+        ];
 
         return $fileareas;
     }
@@ -232,7 +232,7 @@ class post extends \core_search\base_mod {
     public function get_doc_url(\core_search\document $doc) {
         // The post is already in static cache, we fetch it in self::search_access.
         $post = $this->get_post($doc->get('itemid'));
-        return new \moodle_url('/mod/forum/discuss.php', array('d' => $post->discussion));
+        return new \moodle_url('/mod/forum/discuss.php', ['d' => $post->discussion]);
     }
 
     /**
@@ -243,7 +243,7 @@ class post extends \core_search\base_mod {
      */
     public function get_context_url(\core_search\document $doc) {
         $contextmodule = \context::instance_by_id($doc->get('contextid'));
-        return new \moodle_url('/mod/forum/view.php', array('id' => $contextmodule->instanceid));
+        return new \moodle_url('/mod/forum/view.php', ['id' => $contextmodule->instanceid]);
     }
 
     /**
@@ -276,7 +276,7 @@ class post extends \core_search\base_mod {
         global $DB;
 
         if (empty($this->forumsdata[$forumid])) {
-            $this->forumsdata[$forumid] = $DB->get_record('forum', array('id' => $forumid), '*', MUST_EXIST);
+            $this->forumsdata[$forumid] = $DB->get_record('forum', ['id' => $forumid], '*', MUST_EXIST);
         }
         return $this->forumsdata[$forumid];
     }
@@ -293,7 +293,7 @@ class post extends \core_search\base_mod {
 
         if (empty($this->discussionsdata[$discussionid])) {
             $this->discussionsdata[$discussionid] = $DB->get_record('forum_discussions',
-                array('id' => $discussionid), '*', MUST_EXIST);
+                ['id' => $discussionid], '*', MUST_EXIST);
         }
         return $this->discussionsdata[$discussionid];
     }
@@ -307,7 +307,7 @@ class post extends \core_search\base_mod {
     protected function get_contexts_to_reindex_extra_sql() {
         return [
             'JOIN {forum_discussions} fd ON fd.course = cm.course AND fd.forum = cm.instance',
-            'MAX(fd.timemodified) DESC'
+            'MAX(fd.timemodified) DESC',
         ];
     }
 

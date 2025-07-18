@@ -100,7 +100,7 @@ class discussion_summaries extends exporter {
         return [
             'summaries' => [
                 'type' => discussion_summary::read_properties_definition(),
-                'multiple' => true
+                'multiple' => true,
             ],
             'state' => [
                 'type' => [
@@ -164,7 +164,7 @@ class discussion_summaries extends exporter {
             'urlfactory' => 'mod_forum\local\factories\url',
             'user' => 'stdClass',
             'favouriteids' => 'int[]?',
-            'latestauthors' => 'mod_forum\local\entities\author[]?'
+            'latestauthors' => 'mod_forum\local\entities\author[]?',
         ];
     }
 }

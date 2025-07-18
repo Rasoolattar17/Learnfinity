@@ -79,7 +79,7 @@ class forum extends exporter {
                     'create' => ['type' => PARAM_BOOL],
                     'subscribe' => ['type' => PARAM_BOOL],
                     'grade' => ['type' => PARAM_BOOL],
-                ]
+                ],
             ],
             'urls' => [
                 'type' => [
@@ -122,7 +122,7 @@ class forum extends exporter {
             'name' => $this->forum->get_name(),
             'state' => [
                 'groupmode' => $this->forum->get_effective_group_mode(),
-                'gradingenabled' => $this->forum->is_grading_enabled()
+                'gradingenabled' => $this->forum->is_grading_enabled(),
             ],
             'userstate' => [
                 'tracked' => forum_tp_is_tracked($this->get_forum_record(), $this->related['user']),
@@ -178,7 +178,7 @@ class forum extends exporter {
             'urlfactory' => 'mod_forum\local\factories\url',
             'user' => 'stdClass',
             'currentgroup' => 'int?',
-            'vaultfactory' => 'mod_forum\local\factories\vault'
+            'vaultfactory' => 'mod_forum\local\factories\vault',
         ];
     }
 

@@ -576,11 +576,11 @@ class send_user_digests extends \core\task\adhoc_task {
     protected function send_mail() {
         // Headers to help prevent auto-responders.
         $userfrom = \core_user::get_noreply_user();
-        $userfrom->customheaders = array(
+        $userfrom->customheaders = [
             "Precedence: Bulk",
             'X-Auto-Response-Suppress: All',
             'Auto-Submitted: auto-generated',
-        );
+        ];
 
         $eventdata = new \core\message\message();
         $eventdata->courseid = SITEID;

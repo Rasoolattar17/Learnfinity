@@ -127,7 +127,7 @@ class sorter {
                 $parent,
                 array_values(array_filter($sortedreplies, function($replydata) use ($parentid) {
                     return ($this->getparentid)($replydata[0]) == $parentid;
-                }))
+                })),
             ];
         }, $parents);
     }

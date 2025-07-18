@@ -609,7 +609,7 @@ class renderer {
 
         $cmid = $forum->get_course_module_record()->id;
         $baseurl = $this->urlfactory->get_forum_view_url_from_course_module_id($cmid);
-        $notifications = array();
+        $notifications = [];
 
         if ($hasmultiplediscussions) {
             $notifications[] = (new notification(get_string('warnformorepost', 'forum')))

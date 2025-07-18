@@ -174,7 +174,7 @@ class exported_discussion_summaries {
         $sortorder = get_user_preferences('forum_discussionlistsortorder',
             $discussionlistvault::SORTORDER_LASTPOST_DESC);
 
-        $sortoptions = array(
+        $sortoptions = [
             'islastpostdesc' => $sortorder == $discussionlistvault::SORTORDER_LASTPOST_DESC,
             'islastpostasc' => $sortorder == $discussionlistvault::SORTORDER_LASTPOST_ASC,
             'isrepliesdesc' => $sortorder == $discussionlistvault::SORTORDER_REPLIES_DESC,
@@ -187,7 +187,7 @@ class exported_discussion_summaries {
             'isstarterasc' => $sortorder == $discussionlistvault::SORTORDER_STARTER_ASC,
             'isgroupdesc' => $sortorder == $discussionlistvault::SORTORDER_GROUP_DESC,
             'isgroupasc' => $sortorder == $discussionlistvault::SORTORDER_GROUP_ASC,
-        );
+        ];
 
         $exportedposts['state']['sortorder'] = $sortoptions;
 

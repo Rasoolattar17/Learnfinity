@@ -36,7 +36,7 @@ trait mod_forum_tests_generator_trait {
      * @return  array The users created
      */
     protected function helper_create_users($course, $count, $role = null) {
-        $users = array();
+        $users = [];
 
         for ($i = 0; $i < $count; $i++) {
             $user = $this->getDataGenerator()->create_user();
@@ -56,7 +56,7 @@ trait mod_forum_tests_generator_trait {
      * @param array $fields any other fields in discussion (name, message, messageformat, ...)
      * @return array An array containing the discussion object, and the post object
      */
-    protected function helper_post_to_forum($forum, $author, $fields = array()) {
+    protected function helper_post_to_forum($forum, $author, $fields = []) {
         global $DB;
         $generator = $this->getDataGenerator()->get_plugin_generator('mod_forum');
 
@@ -68,7 +68,7 @@ trait mod_forum_tests_generator_trait {
         $discussion = $generator->create_discussion($record);
 
         // Retrieve the post which was created by create_discussion.
-        $post = $DB->get_record('forum_posts', array('discussion' => $discussion->id));
+        $post = $DB->get_record('forum_posts', ['discussion' => $discussion->id]);
 
         return [$discussion, $post];
     }
@@ -83,7 +83,7 @@ trait mod_forum_tests_generator_trait {
         global $DB;
 
         // Update the post to have a created in the past.
-        $DB->set_field('forum_posts', 'created', $post->created + $factor, array('id' => $post->id));
+        $DB->set_field('forum_posts', 'created', $post->created + $factor, ['id' => $post->id]);
     }
 
     /**
@@ -96,10 +96,10 @@ trait mod_forum_tests_generator_trait {
     protected function helper_update_subscription_time($user, $discussion, $factor) {
         global $DB;
 
-        $sub = $DB->get_record('forum_discussion_subs', array('userid' => $user->id, 'discussion' => $discussion->id));
+        $sub = $DB->get_record('forum_discussion_subs', ['userid' => $user->id, 'discussion' => $discussion->id]);
 
         // Update the subscription to have a preference in the past.
-        $DB->set_field('forum_discussion_subs', 'preference', $sub->preference + $factor, array('id' => $sub->id));
+        $DB->set_field('forum_discussion_subs', 'preference', $sub->preference + $factor, ['id' => $sub->id]);
     }
 
     /**

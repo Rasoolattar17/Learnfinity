@@ -58,7 +58,7 @@ class discussion {
                 'timestart' => $discussion->get_time_start(),
                 'timeend' => $discussion->get_time_end(),
                 'pinned' => $discussion->is_pinned(),
-                'timelocked' => $discussion->get_locked()
+                'timelocked' => $discussion->get_locked(),
             ];
         }, $discussions);
     }

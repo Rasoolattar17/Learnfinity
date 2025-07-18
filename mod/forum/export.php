@@ -76,7 +76,7 @@ $pagetitle = get_string('export', 'mod_forum');
 $context = $forum->get_context();
 
 $form = new mod_forum\form\export_form($url->out(false), [
-    'forum' => $forum
+    'forum' => $forum,
 ]);
 
 if ($form->is_cancelled()) {

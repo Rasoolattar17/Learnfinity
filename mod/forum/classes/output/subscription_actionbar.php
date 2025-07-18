@@ -156,7 +156,7 @@ class subscription_actionbar implements renderable, templatable {
         $viewmanageselect = $this->create_view_manage_menu();
 
         if ($subscribeoptionselect) {
-            $data ['subscriptionoptions'] = $subscribeoptionselect->export_for_template($output);
+            $data['subscriptionoptions'] = $subscribeoptionselect->export_for_template($output);
         }
         if ($viewmanageselect) {
             $data['viewandmanageselect'] = $viewmanageselect->export_for_template($output);

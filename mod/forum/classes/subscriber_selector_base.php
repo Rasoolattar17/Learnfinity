@@ -77,7 +77,7 @@ abstract class mod_forum_subscriber_selector_base extends user_selector_base {
     protected function get_options() {
         global $CFG;
         $options = parent::get_options();
-        $options['file'] =  substr(__FILE__, strlen($CFG->dirroot.'/'));
+        $options['file'] = substr(__FILE__, strlen($CFG->dirroot.'/'));
         $options['context'] = $this->context;
         $options['currentgroup'] = $this->currentgroup;
         $options['forumid'] = $this->forumid;

@@ -543,7 +543,7 @@ class post extends db_table_vault {
         $sql = $this->generate_get_records_sql($wheresql, $orderbysql);
         $records = $this->get_db()->get_records_sql($sql, array_merge([
             'authorid' => $userid,
-            'discussionid' => $discussionid
+            'discussionid' => $discussionid,
         ], $privateparams));
 
         return $this->transform_db_records_to_entities($records);

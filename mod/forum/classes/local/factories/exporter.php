@@ -138,7 +138,7 @@ class exporter {
             'legacydatamapperfactory' => $this->legacydatamapperfactory,
             'latestpostid' => null,
             'groupsbyid' => $groupsbyid,
-            'favouriteids' => $favouriteids
+            'favouriteids' => $favouriteids,
         ]);
     }
 
@@ -195,7 +195,7 @@ class exporter {
                 'urlfactory' => $this->urlfactory,
                 'user' => $user,
                 'favouriteids' => $favourites,
-                'latestauthors' => $latestauthors
+                'latestauthors' => $latestauthors,
             ]
         );
     }
@@ -258,7 +258,7 @@ class exporter {
                 'user' => $user,
                 'context' => $forum->get_context(),
                 'readreceiptcollection' => $readreceiptcollection,
-                'includehtml' => $includehtml
+                'includehtml' => $includehtml,
             ],
             $inlineattachmentsbypostid
         );

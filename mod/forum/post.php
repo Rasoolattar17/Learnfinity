@@ -41,7 +41,7 @@ $prefilledpost = optional_param('post', '', PARAM_TEXT);
 $prefilledpostformat = optional_param('postformat', FORMAT_MOODLE, PARAM_INT);
 $prefilledprivatereply = optional_param('privatereply', false, PARAM_BOOL);
 
-$PAGE->set_url('/mod/forum/post.php', array(
+$PAGE->set_url('/mod/forum/post.php', [
     'reply' => $reply,
     'forum' => $forum,
     'edit'  => $edit,
@@ -50,9 +50,9 @@ $PAGE->set_url('/mod/forum/post.php', array(
     'name'  => $name,
     'confirm' => $confirm,
     'groupid' => $groupid,
-));
+]);
 // These page_params will be passed as hidden variables later in the form.
-$pageparams = array('reply' => $reply, 'forum' => $forum, 'edit' => $edit);
+$pageparams = ['reply' => $reply, 'forum' => $forum, 'edit' => $edit];
 
 $sitecontext = context_system::instance();
 
@@ -107,7 +107,7 @@ if (!isloggedin() or isguestuser()) {
     echo $OUTPUT->header();
     echo $OUTPUT->confirm(get_string('noguestpost', 'forum'), get_login_url(), $referer, [
         'confirmtitle' => get_string('noguestpost:title', 'forum'),
-        'continuestr' => get_string('login')
+        'continuestr' => get_string('login'),
     ]);
     echo $OUTPUT->footer();
     exit;
@@ -145,8 +145,8 @@ if (!empty($forum)) {
                 if (enrol_selfenrol_available($course->id)) {
                     $SESSION->wantsurl = qualified_me();
                     $SESSION->enrolcancel = get_local_referer(false);
-                    redirect(new moodle_url('/enrol/index.php', array('id' => $course->id,
-                        'returnurl' => '/mod/forum/view.php?f=' . $forum->id)),
+                    redirect(new moodle_url('/enrol/index.php', ['id' => $course->id,
+                        'returnurl' => '/mod/forum/view.php?f=' . $forum->id]),
                         get_string('youneedtoenrol'));
                 }
             }
@@ -218,14 +218,14 @@ if (!empty($forum)) {
             if (!is_enrolled($coursecontext)) {  // User is a guest here!
                 $SESSION->wantsurl = qualified_me();
                 $SESSION->enrolcancel = get_local_referer(false);
-                redirect(new moodle_url('/enrol/index.php', array('id' => $course->id,
-                    'returnurl' => '/mod/forum/view.php?f=' . $forum->id)),
+                redirect(new moodle_url('/enrol/index.php', ['id' => $course->id,
+                    'returnurl' => '/mod/forum/view.php?f=' . $forum->id]),
                     get_string('youneedtoenrol'));
             }
 
             // The forum has been locked. Just redirect back to the discussion page.
             if (forum_discussion_is_locked($forum, $discussion)) {
-                redirect(new moodle_url('/mod/forum/discuss.php', array('d' => $discussion->id)));
+                redirect(new moodle_url('/mod/forum/discuss.php', ['d' => $discussion->id]));
             }
         }
         throw new \moodle_exception('nopostforum', 'forum');
@@ -560,7 +560,7 @@ if (!empty($forum)) {
     $PAGE->set_secondary_active_tab('modulepage');
     $PAGE->activityheader->disable();
 
-    $prunemform = new mod_forum_prune_form(null, array('prune' => $prune, 'confirm' => $prune));
+    $prunemform = new mod_forum_prune_form(null, ['prune' => $prune, 'confirm' => $prune]);
 
     if ($prunemform->is_cancelled()) {
         redirect(forum_go_back_to($urlfactory->get_discussion_view_url_from_discussion($discussionentity)));
@@ -595,35 +595,35 @@ if (!empty($forum)) {
         forum_discussion_update_last_post($newid);
 
         // Fire events to reflect the split..
-        $params = array(
+        $params = [
             'context' => $modcontext,
             'objectid' => $discussion->id,
-            'other' => array(
+            'other' => [
                 'forumid' => $forum->id,
-            )
-        );
+            ],
+        ];
         $event = \mod_forum\event\discussion_updated::create($params);
         $event->trigger();
 
-        $params = array(
+        $params = [
             'context' => $modcontext,
             'objectid' => $newid,
-            'other' => array(
+            'other' => [
                 'forumid' => $forum->id,
-            )
-        );
+            ],
+        ];
         $event = \mod_forum\event\discussion_created::create($params);
         $event->trigger();
 
-        $params = array(
+        $params = [
             'context' => $modcontext,
             'objectid' => $post->id,
-            'other' => array(
+            'other' => [
                 'discussionid' => $newid,
                 'forumid' => $forum->id,
                 'forumtype' => $forum->type,
-            )
-        );
+            ],
+        ];
         $event = \mod_forum\event\post_updated::create($params);
         $event->add_record_snapshot('forum_discussions', $discussion);
         $event->trigger();
@@ -636,9 +636,9 @@ if (!empty($forum)) {
         );
     } else {
         // Display the prune form.
-        $course = $DB->get_record('course', array('id' => $forum->course));
+        $course = $DB->get_record('course', ['id' => $forum->course]);
         $subjectstr = format_string($post->subject, true);
-        $PAGE->navbar->add($subjectstr, new moodle_url('/mod/forum/discuss.php', array('d' => $discussion->id)));
+        $PAGE->navbar->add($subjectstr, new moodle_url('/mod/forum/discuss.php', ['d' => $discussion->id]));
         $PAGE->navbar->add(get_string("prunediscussion", "forum"));
         $PAGE->set_title(format_string($discussion->name).": ".format_string($post->subject));
         $PAGE->set_heading($course->fullname);
@@ -686,7 +686,7 @@ $mformpost = new mod_forum_post_form('post.php', [
         'thresholdwarning' => $thresholdwarning,
         'edit' => $edit,
         'canreplyprivately' => $canreplyprivately,
-    ], 'post', '', array('id' => 'mformforum'));
+    ], 'post', '', ['id' => 'mformforum']);
 
 $draftitemid = file_get_submitted_draft_itemid('attachments');
 $postid = empty($post->id) ? null : $post->id;
@@ -729,38 +729,38 @@ $discussionid = isset($discussion) ? $discussion->id : null;
 $discussionsubscribe = \mod_forum\subscriptions::get_user_default_subscription($forum, $coursecontext, $cm, $discussionid);
 
 $mformpost->set_data(
-    array(
+    [
         'attachments' => $draftitemid,
         'general' => $heading,
         'subject' => $post->subject,
-        'message' => array(
+        'message' => [
             'text' => $currenttext,
             'format' => !isset($post->messageformat) || !is_numeric($post->messageformat) ?
                 editors_get_preferred_format() : $post->messageformat,
-            'itemid' => $draftideditor
-        ),
+            'itemid' => $draftideditor,
+        ],
         'discussionsubscribe' => $discussionsubscribe,
         'mailnow' => !empty($post->mailnow),
         'userid' => $post->userid,
         'parent' => $post->parent,
         'discussion' => $post->discussion,
         'course' => $course->id,
-        'isprivatereply' => $post->isprivatereply ?? false
-    ) +
+        'isprivatereply' => $post->isprivatereply ?? false,
+    ] +
 
     $pageparams +
 
-    (isset($post->format) ? array('format' => $post->format) : array()) +
+    (isset($post->format) ? ['format' => $post->format] : []) +
 
-    (isset($discussion->timestart) ? array('timestart' => $discussion->timestart) : array()) +
+    (isset($discussion->timestart) ? ['timestart' => $discussion->timestart] : []) +
 
-    (isset($discussion->timeend) ? array('timeend' => $discussion->timeend) : array()) +
+    (isset($discussion->timeend) ? ['timeend' => $discussion->timeend] : []) +
 
-    (isset($discussion->pinned) ? array('pinned' => $discussion->pinned) : array()) +
+    (isset($discussion->pinned) ? ['pinned' => $discussion->pinned] : []) +
 
-    (isset($post->groupid) ? array('groupid' => $post->groupid) : array()) +
+    (isset($post->groupid) ? ['groupid' => $post->groupid] : []) +
 
-    (isset($discussion->id) ? array('discussion' => $discussion->id) : array())
+    (isset($discussion->id) ? ['discussion' => $discussion->id] : [])
 );
 
 // If we are being redirected via a no_submit_button press OR if the message is being prefilled.
@@ -833,7 +833,7 @@ if ($mformpost->is_cancelled()) {
             }
 
             if ($discussionentity->get_group_id() != $fromform->groupinfo) {
-                $DB->set_field('forum_discussions', 'groupid', $fromform->groupinfo, array('firstpost' => $fromform->id));
+                $DB->set_field('forum_discussions', 'groupid', $fromform->groupinfo, ['firstpost' => $fromform->id]);
             }
         }
 
@@ -907,15 +907,15 @@ if ($mformpost->is_cancelled()) {
                 $discussionurl = $urlfactory->get_view_post_url_from_post($postentity);
             }
 
-            $params = array(
+            $params = [
                 'context' => $modcontext,
                 'objectid' => $fromform->id,
-                'other' => array(
+                'other' => [
                     'discussionid' => $discussion->id,
                     'forumid' => $forum->id,
                     'forumtype' => $forum->type,
-                )
-            );
+                ],
+            ];
             $event = \mod_forum\event\post_created::create($params);
             $event->add_record_snapshot('forum_posts', $fromform);
             $event->add_record_snapshot('forum_discussions', $discussion);
@@ -943,7 +943,7 @@ if ($mformpost->is_cancelled()) {
     } else {
         // Adding a new discussion.
         // The location to redirect to after successfully posting.
-        $redirectto = new moodle_url('/mod/forum/view.php', array('f' => $fromform->forum));
+        $redirectto = new moodle_url('/mod/forum/view.php', ['f' => $fromform->forum]);
 
         $fromform->mailnow = empty($fromform->mailnow) ? 0 : 1;
 
@@ -962,8 +962,8 @@ if ($mformpost->is_cancelled()) {
             $discussion->pinned = FORUM_DISCUSSION_UNPINNED;
         }
 
-        $allowedgroups = array();
-        $groupstopostto = array();
+        $allowedgroups = [];
+        $groupstopostto = [];
 
         // If we are posting a copy to all groups the user has access to.
         if (isset($fromform->posttomygroups)) {
@@ -1003,13 +1003,13 @@ if ($mformpost->is_cancelled()) {
             $message = '';
             if ($discussion->id = forum_add_discussion($discussion, $mformpost)) {
 
-                $params = array(
+                $params = [
                     'context' => $modcontext,
                     'objectid' => $discussion->id,
-                    'other' => array(
+                    'other' => [
                         'forumid' => $forum->id,
-                    )
-                );
+                    ],
+                ];
                 $event = \mod_forum\event\discussion_created::create($params);
                 $event->add_record_snapshot('forum_discussions', $discussion);
                 $event->trigger();
@@ -1160,12 +1160,12 @@ if (!empty($CFG->enableplagiarism)) {
 }
 
 if (!empty($formheading)) {
-    echo $OUTPUT->heading($formheading, 2, array('class' => 'accesshide'));
+    echo $OUTPUT->heading($formheading, 2, ['class' => 'accesshide']);
 }
 
 if (!empty($postentity)) {
     $data = (object) [
-        'tags' => core_tag_tag::get_item_tags_array('mod_forum', 'forum_posts', $postentity->get_id())
+        'tags' => core_tag_tag::get_item_tags_array('mod_forum', 'forum_posts', $postentity->get_id()),
     ];
     $mformpost->set_data($data);
 }

@@ -74,13 +74,13 @@ class forum_post implements \renderable, \templatable {
     /**
      * Whether the user can reply to this post.
      *
-     * @var boolean $canreply
+     * @var bool $canreply
      */
     protected $canreply = false;
 
     /**
      * Whether to override forum display when displaying usernames.
-     * @var boolean $viewfullnames
+     * @var bool $viewfullnames
      */
     protected $viewfullnames = false;
 
@@ -103,9 +103,9 @@ class forum_post implements \renderable, \templatable {
      *
      * @var array $writablekeys
      */
-    protected $writablekeys = array(
+    protected $writablekeys = [
         'viewfullnames'    => true,
-    );
+    ];
 
     /** @var \stdClass user record. */
     protected $userfrom;
@@ -156,7 +156,7 @@ class forum_post implements \renderable, \templatable {
      */
     protected function export_for_template_text(\mod_forum_renderer $renderer) {
         $data = $this->export_for_template_shared($renderer);
-        return $data + array(
+        return $data + [
             'id'                            => html_entity_decode($this->post->id, ENT_COMPAT),
             'coursename'                    => html_entity_decode($this->get_coursename(), ENT_COMPAT),
             'courselink'                    => html_entity_decode($this->get_courselink(), ENT_COMPAT),
@@ -187,7 +187,7 @@ class forum_post implements \renderable, \templatable {
             'authorpicture'                 => $this->get_author_picture($renderer),
 
             'grouppicture'                  => $this->get_group_picture($renderer),
-        );
+        ];
     }
 
     /**
@@ -198,7 +198,7 @@ class forum_post implements \renderable, \templatable {
      */
     protected function export_for_template_html(\mod_forum_renderer $renderer) {
         $data = $this->export_for_template_shared($renderer);
-        return $data + array(
+        return $data + [
             'id'                            => $this->post->id,
             'coursename'                    => $this->get_coursename(),
             'courselink'                    => $this->get_courselink(),
@@ -212,7 +212,7 @@ class forum_post implements \renderable, \templatable {
             // Format some components according to the renderer.
             'message'                       => $renderer->format_message_text($this->cm, $this->post),
             'attachments'                   => $renderer->format_message_attachments($this->cm, $this->post),
-        );
+        ];
     }
 
     /**
@@ -222,7 +222,7 @@ class forum_post implements \renderable, \templatable {
      * @return stdClass Data ready for use in a mustache template
      */
     protected function export_for_template_shared(\mod_forum_renderer $renderer) {
-        return array(
+        return [
             'canreply'                      => $this->canreply,
             'permalink'                     => $this->get_permalink(),
             'firstpost'                     => $this->get_is_firstpost(),
@@ -241,7 +241,7 @@ class forum_post implements \renderable, \templatable {
             'grouppicture'                  => $this->get_group_picture($renderer),
 
             'isprivatereply'                => !empty($this->post->privatereplyto),
-        );
+        ];
     }
 
     /**
@@ -283,9 +283,9 @@ class forum_post implements \renderable, \templatable {
     public function get_courselink() {
         $link = new \moodle_url(
             // Posts are viewed on the topic.
-            '/course/view.php', array(
+            '/course/view.php', [
                 'id'    => $this->course->id,
-            )
+            ]
         );
 
         return $link->out(false);
@@ -299,9 +299,9 @@ class forum_post implements \renderable, \templatable {
     public function get_forumindexlink() {
         $link = new \moodle_url(
             // Posts are viewed on the topic.
-            '/mod/forum/index.php', array(
+            '/mod/forum/index.php', [
                 'id'    => $this->course->id,
-            )
+            ]
         );
 
         return $link->out(false);
@@ -315,9 +315,9 @@ class forum_post implements \renderable, \templatable {
     public function get_forumviewlink() {
         $link = new \moodle_url(
             // Posts are viewed on the topic.
-            '/mod/forum/view.php', array(
+            '/mod/forum/view.php', [
                 'f' => $this->forum->id,
-            )
+            ]
         );
 
         return $link->out(false);
@@ -331,10 +331,10 @@ class forum_post implements \renderable, \templatable {
     protected function _get_discussionlink() {
         return new \moodle_url(
             // Posts are viewed on the topic.
-            '/mod/forum/discuss.php', array(
+            '/mod/forum/discuss.php', [
                 // Within a discussion.
                 'd' => $this->discussion->id,
-            )
+            ]
         );
     }
 
@@ -380,10 +380,10 @@ class forum_post implements \renderable, \templatable {
      */
     public function get_authorlink() {
         $link = new \moodle_url(
-            '/user/view.php', array(
+            '/user/view.php', [
                 'id' => $this->post->userid,
                 'course' => $this->course->id,
-            )
+            ]
         );
 
         return $link->out(false);
@@ -399,9 +399,9 @@ class forum_post implements \renderable, \templatable {
             return null;
         }
         $link = new \moodle_url(
-            '/mod/forum/subscribe.php', array(
+            '/mod/forum/subscribe.php', [
                 'id' => $this->forum->id,
-            )
+            ]
         );
 
         return $link->out(false);
@@ -417,10 +417,10 @@ class forum_post implements \renderable, \templatable {
             return null;
         }
         $link = new \moodle_url(
-            '/mod/forum/subscribe.php', array(
+            '/mod/forum/subscribe.php', [
                 'id'  => $this->forum->id,
                 'd'   => $this->discussion->id,
-            )
+            ]
         );
 
         return $link->out(false);
@@ -433,9 +433,9 @@ class forum_post implements \renderable, \templatable {
      */
     public function get_replylink() {
         return new \moodle_url(
-            '/mod/forum/post.php', array(
+            '/mod/forum/post.php', [
                 'reply' => $this->post->id,
-            )
+            ]
         );
     }
 
@@ -472,9 +472,9 @@ class forum_post implements \renderable, \templatable {
      * @return string
      */
     public function get_coursefullname() {
-        return format_string($this->course->fullname, true, array(
+        return format_string($this->course->fullname, true, [
             'context' => \context_course::instance($this->course->id),
-        ));
+        ]);
     }
 
     /**
@@ -483,9 +483,9 @@ class forum_post implements \renderable, \templatable {
      * @return string
      */
     public function get_coursename() {
-        return format_string($this->course->shortname, true, array(
+        return format_string($this->course->shortname, true, [
             'context' => \context_course::instance($this->course->id),
-        ));
+        ]);
     }
 
     /**
@@ -564,7 +564,7 @@ class forum_post implements \renderable, \templatable {
      * @return string
      */
     public function get_author_picture(\renderer_base $renderer) {
-        return $renderer->user_picture($this->author, array('courseid' => $this->course->id));
+        return $renderer->user_picture($this->author, ['courseid' => $this->course->id]);
     }
 
     /**
