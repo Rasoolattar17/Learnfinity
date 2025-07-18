@@ -1,0 +1,225 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_vanta/logs
+
+    Vanta Integration logs display.
+
+    Classes required for JS:
+    * none
+
+    Data attributes required for JS:
+    * none
+
+    Context variables required for this template:
+    * useremail - Current filter for user email
+    * courseid - Current filter for course ID
+    * status - Current filter for status
+    * fromdate - Current filter for from date
+    * todate - Current filter for to date
+    * courses - Array of available courses with id and name
+    * logs - Array of log entries
+    * pagingbar - HTML for the paging bar
+    * vanta_id - The vanta ID parameter
+}}
+
+<div class="vanta-logs">
+    <form id="{{filter_form.id}}" action="{{filter_form.action}}" method="{{filter_form.method}}" class="mb-4">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label for="vanta-logs-filter-useremail">{{#str}}user_email, local_vanta{{/str}}</label>
+                    <input type="text" 
+                           class="form-control" 
+                           id="vanta-logs-filter-useremail" 
+                           name="useremail" 
+                           value="{{useremail}}" 
+                           placeholder="{{#str}}enter_email, local_vanta{{/str}}">
+                </div>
+            </div>
+            
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label for="vanta-logs-filter-courseid">{{#str}}course, local_vanta{{/str}}</label>
+                    <select class="form-control" 
+                            id="vanta-logs-filter-courseid" 
+                            name="courseid">
+                        <option value="">{{#str}}all_courses, local_vanta{{/str}}</option>
+                        {{#courses}}
+                            <option value="{{id}}" {{#selected}}selected{{/selected}}>{{name}}</option>
+                        {{/courses}}
+                    </select>
+                </div>
+            </div>
+            
+            <div class="col-md-2">
+                <div class="form-group">
+                    <label for="vanta-logs-filter-status">{{#str}}status, local_vanta{{/str}}</label>
+                    <select class="form-control" 
+                            id="vanta-logs-filter-status" 
+                            name="status">
+                        <option value="" {{#status_all}}selected{{/status_all}}>{{#str}}all_statuses, local_vanta{{/str}}</option>
+                        <option value="success" {{#status_success}}selected{{/status_success}}>
+                            {{#str}}success, local_vanta{{/str}}
+                        </option>
+                        <option value="error" {{#status_error}}selected{{/status_error}}>
+                            {{#str}}error, local_vanta{{/str}}
+                        </option>
+                        <option value="info" {{#status_info}}selected{{/status_info}}>
+                            {{#str}}info, local_vanta{{/str}}
+                        </option>
+                        <option value="skipped" {{#status_skipped}}selected{{/status_skipped}}>
+                            {{#str}}skipped, local_vanta{{/str}}
+                        </option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="col-md-2">
+                <div class="form-group">
+                    <label for="vanta-logs-filter-fromdate">{{#str}}from_date, local_vanta{{/str}}</label>
+                    <input type="date" 
+                           class="form-control{{#fromdate_error}} is-invalid{{/fromdate_error}}" 
+                           id="vanta-logs-filter-fromdate" 
+                           name="fromdate" 
+                           value="{{fromdate}}">
+                    {{#fromdate_error}}
+                        <div class="invalid-feedback">
+                            {{fromdate_error}}
+                        </div>
+                    {{/fromdate_error}}
+                </div>
+            </div>
+            
+            <div class="col-md-2">
+                <div class="form-group">
+                    <label for="vanta-logs-filter-todate">{{#str}}to_date, local_vanta{{/str}}</label>
+                    <input type="date" 
+                           class="form-control{{#todate_error}} is-invalid{{/todate_error}}" 
+                           id="vanta-logs-filter-todate" 
+                           name="todate" 
+                           value="{{todate}}">
+                    {{#todate_error}}
+                        <div class="invalid-feedback">
+                            {{todate_error}}
+                        </div>
+                    {{/todate_error}}
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-12 text-center">
+                <button type="submit" class="btn btn-primary">
+                    {{#str}}apply_filters, local_vanta{{/str}}
+                </button>
+                <button type="button" id="vanta-logs-filter-reset" class="btn btn-secondary ml-2">
+                    {{#str}}reset_filters, local_vanta{{/str}}
+                </button>
+            </div>
+        </div>
+    </form>
+
+    <div id="vanta-logs-loading" class="text-center {{^loading}}d-none{{/loading}}">
+        <div class="spinner-border text-primary" role="status">
+            <span class="sr-only">{{#str}}loading, local_vanta{{/str}}</span>
+        </div>
+    </div>
+
+    <div id="vanta-logs-content" class="{{#loading}}d-none{{/loading}}">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">{{#str}}logs, local_vanta{{/str}}</h4>
+                {{#has_logs}}
+                    <small class="text-muted">
+                        {{#str}}showing_entries, local_vanta{{/str}}: {{showing_from}} - {{showing_to}} {{#str}}of, local_vanta{{/str}} {{total_logs}}
+                    </small>
+                {{/has_logs}}
+            </div>
+            <div class="card-body">
+                {{#has_logs}}
+                    <div class="table-responsive">
+                        <table id="vanta-logs-display-table" class="table table-striped table-hover" data-no-datatables="true">
+                            <thead>
+                                <tr>
+                                    <th>{{#str}}useremail, local_vanta{{/str}}</th>
+                                    <th>{{#str}}course, local_vanta{{/str}}</th>
+                                    <th>{{#str}}syncedon, local_vanta{{/str}}</th>
+                                    <th>{{#str}}status, local_vanta{{/str}}</th>
+                                    <th>{{#str}}actions, local_vanta{{/str}}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{#logs}}
+                                    <tr>
+                                        <td>{{useremail}}</td>
+                                        <td>{{coursename}}</td>
+                                        <td data-sort="{{syncedon}}">{{syncedon_formatted}}</td>
+                                        <td>
+                                            {{#status_success}}
+                                                <span class="badge badge-success">
+                                                    <i class="fa fa-check-circle"></i> {{#str}}success, local_vanta{{/str}}
+                                                </span>
+                                            {{/status_success}}
+                                            {{#status_error}}
+                                                <span class="badge badge-danger">
+                                                    <i class="fa fa-times-circle"></i> {{#str}}error, local_vanta{{/str}}
+                                                </span>
+                                            {{/status_error}}
+                                            {{#status_info}}
+                                                <span class="badge badge-info">
+                                                    <i class="fa fa-info-circle"></i> {{#str}}info, local_vanta{{/str}}
+                                                </span>
+                                            {{/status_info}}
+                                            {{#status_skipped}}
+                                                <span class="badge badge-secondary">
+                                                    <i class="fa fa-minus-circle"></i> {{#str}}skipped, local_vanta{{/str}}
+                                                </span>
+                                            {{/status_skipped}}
+                                            {{^status_success}}{{^status_error}}{{^status_info}}{{^status_skipped}}
+                                                <span class="badge badge-light">
+                                                    <i class="fa fa-question-circle"></i> Unknown
+                                                </span>
+                                            {{/status_skipped}}{{/status_info}}{{/status_error}}{{/status_success}}
+                                        </td>
+                                        <td>
+                                            <a href="{{view_url}}" class="btn btn-sm btn-primary" title="{{#str}}view_details, local_vanta{{/str}}">
+                                                <i class="fa fa-eye"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {{/logs}}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    {{#has_pagination}}
+                        <div class="mt-3">
+                            {{{pagingbar}}}
+                        </div>
+                    {{/has_pagination}}
+                {{/has_logs}}
+                {{^has_logs}}
+                    <div class="alert alert-info text-center">
+                        <i class="fa fa-info-circle fa-2x mb-2"></i><br>
+                        {{#str}}no_logs_found, local_vanta{{/str}}
+                    </div>
+                {{/has_logs}}
+            </div>
+        </div>
+    </div>
+</div>

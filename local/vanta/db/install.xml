@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="local/vanta/db" VERSION="20240520" COMMENT="XMLDB file for Moodle local/vanta"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd">
+    <TABLES>
+        <TABLE NAME="local_vanta_api_credentials" COMMENT="Stores Vanta API credentials">
+            <FIELDS>
+                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+                <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="Name of the API"/>
+                <FIELD NAME="client_id" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="Vanta Client ID"/>
+                <FIELD NAME="client_secret" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="Vanta Client Secret"/>
+                <FIELD NAME="resource_id" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="Vanta Resource ID"/>
+                <FIELD NAME="scope" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="API Scope"/>
+                <FIELD NAME="grant_type" TYPE="char" LENGTH="100" NOTNULL="true" SEQUENCE="false" COMMENT="Grant Type"/>
+                <FIELD NAME="company_id" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Company ID"/>
+                <FIELD NAME="status" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Status: 1=active, 0=inactive"/>
+                <FIELD NAME="deleted" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Soft delete flag: 1=deleted, 0=active"/>
+                <FIELD NAME="created_by" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="User ID who created the record"/>
+                <FIELD NAME="created_on" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Timestamp when record was created"/>
+                <FIELD NAME="modified_by" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="User ID who last modified the record"/>
+                <FIELD NAME="modified_on" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Timestamp when record was last modified"/>
+            </FIELDS>
+            <KEYS>
+                <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+            </KEYS>
+            <INDEXES>
+                <INDEX NAME="company_idx" UNIQUE="false" FIELDS="company_id"/>
+                <INDEX NAME="status_idx" UNIQUE="false" FIELDS="status"/>
+                <INDEX NAME="deleted_idx" UNIQUE="false" FIELDS="deleted"/>
+            </INDEXES>
+        </TABLE>
+        <TABLE NAME="local_vanta_training_sync_rules" COMMENT="Stores Vanta training completion sync rules">
+            <FIELDS>
+                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+                <FIELD NAME="vanta_id" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="Vanta identifier for this rule"/>
+                <FIELD NAME="resource_id" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="Vanta Resource ID for training status updates"/>
+                <FIELD NAME="frameworks" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Comma-separated list of framework IDs"/>
+                <FIELD NAME="courses" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Comma-separated list of course IDs"/>
+                <FIELD NAME="completion_mode" TYPE="char" LENGTH="50" NOTNULL="true" DEFAULT="any" SEQUENCE="false" COMMENT="Completion mode: any or all"/>
+                <FIELD NAME="created_by" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="User ID who created the record"/>
+                <FIELD NAME="created_on" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Timestamp when record was created"/>
+                <FIELD NAME="modified_by" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="User ID who last modified the record"/>
+                <FIELD NAME="modified_on" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Timestamp when record was last modified"/>
+            </FIELDS>
+            <KEYS>
+                <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+            </KEYS>
+        </TABLE>
+        <TABLE NAME="local_vanta_sync_logs" COMMENT="Logs for Vanta course completion sync events">
+            <FIELDS>
+                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+                <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="User ID whose completion was synced"/>
+                <FIELD NAME="useremail" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="User's email address"/>
+                <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Course ID that was completed"/>
+                <FIELD NAME="coursename" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="Name of the completed course"/>
+                <FIELD NAME="syncedon" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Unix timestamp when sync occurred"/>
+                <FIELD NAME="request_payload" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="API request body sent to Vanta"/>
+                <FIELD NAME="response_payload" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="API response received from Vanta"/>
+                <FIELD NAME="status" TYPE="char" LENGTH="50" NOTNULL="true" SEQUENCE="false" COMMENT="Status: success or error"/>
+                <FIELD NAME="error_message" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Error message if sync failed"/>
+            </FIELDS>
+            <KEYS>
+                <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+            </KEYS>
+            <INDEXES>
+                <INDEX NAME="userid_idx" UNIQUE="false" FIELDS="userid"/>
+                <INDEX NAME="courseid_idx" UNIQUE="false" FIELDS="courseid"/>
+                <INDEX NAME="status_idx" UNIQUE="false" FIELDS="status"/>
+                <INDEX NAME="syncedon_idx" UNIQUE="false" FIELDS="syncedon"/>
+            </INDEXES>
+        </TABLE>
+        <TABLE NAME="local_vanta_sync_queue" COMMENT="Queue for Vanta sync operations when sync is locked">
+            <FIELDS>
+                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+                <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="User ID whose completion needs to be synced"/>
+                <FIELD NAME="courseid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Course ID that was completed"/>
+                <FIELD NAME="company_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Company ID for the user"/>
+                <FIELD NAME="reason" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Reason for queuing"/>
+                <FIELD NAME="status" TYPE="char" LENGTH="50" NOTNULL="true" DEFAULT="pending" SEQUENCE="false" COMMENT="Queue status: pending, completed, failed"/>
+                <FIELD NAME="queued_at" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Timestamp when queued"/>
+                <FIELD NAME="processed_at" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Timestamp when processed"/>
+                <FIELD NAME="attempts" TYPE="int" LENGTH="3" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Number of processing attempts"/>
+                <FIELD NAME="error_message" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Error message if processing failed"/>
+            </FIELDS>
+            <KEYS>
+                <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+            </KEYS>
+            <INDEXES>
+                <INDEX NAME="userid_idx" UNIQUE="false" FIELDS="userid"/>
+                <INDEX NAME="courseid_idx" UNIQUE="false" FIELDS="courseid"/>
+                <INDEX NAME="company_id_idx" UNIQUE="false" FIELDS="company_id"/>
+                <INDEX NAME="status_idx" UNIQUE="false" FIELDS="status"/>
+                <INDEX NAME="queued_at_idx" UNIQUE="false" FIELDS="queued_at"/>
+            </INDEXES>
+        </TABLE>
+        <TABLE NAME="local_vanta_regeneration_queue" COMMENT="Queue for data regeneration operations">
+            <FIELDS>
+                <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+                <FIELD NAME="company_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Company ID for data regeneration"/>
+                <FIELD NAME="reason" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Reason for regeneration"/>
+                <FIELD NAME="status" TYPE="char" LENGTH="50" NOTNULL="true" DEFAULT="pending" SEQUENCE="false" COMMENT="Regeneration status: pending, processing, completed, failed"/>
+                <FIELD NAME="queued_at" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Timestamp when queued"/>
+                <FIELD NAME="started_at" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Timestamp when processing started"/>
+                <FIELD NAME="completed_at" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Timestamp when completed"/>
+                <FIELD NAME="error_message" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Error message if regeneration failed"/>
+                <FIELD NAME="triggered_by" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="User ID who triggered the regeneration"/>
+            </FIELDS>
+            <KEYS>
+                <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+            </KEYS>
+            <INDEXES>
+                <INDEX NAME="company_id_idx" UNIQUE="false" FIELDS="company_id"/>
+                <INDEX NAME="status_idx" UNIQUE="false" FIELDS="status"/>
+                <INDEX NAME="queued_at_idx" UNIQUE="false" FIELDS="queued_at"/>
+            </INDEXES>
+        </TABLE>
+    </TABLES>
+</XMLDB> 

@@ -1,0 +1,112 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_vanta/log_details
+
+    Vanta Integration log details display.
+
+    Classes required for JS:
+    * none
+
+    Data attributes required for JS:
+    * none
+
+    Context variables required for this template:
+    * log - The log entry details
+      * id - Log entry ID
+      * useremail - User email
+      * coursename - Course name
+      * syncedon - Sync timestamp
+      * syncedon_formatted - Formatted sync date/time
+      * status - Status (success or error)
+      * status_class - CSS class for status
+      * error_message - Error message (if any)
+      * request_payload - API request payload
+      * formatted_request - Formatted request payload
+      * response_payload - API response
+      * formatted_response - Formatted response payload
+    * logs_url - URL to return to logs page
+}}
+
+<div class="local_vanta_log_details" id="local_vanta_log_details">
+    <div class="card mb-4">
+        <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h4>{{#str}}general_info, local_vanta{{/str}}</h4>
+                <a href="{{logs_url}}" class="btn btn-secondary">
+                    <i class="fa fa-arrow-left"></i> {{#str}}back_to_logs, local_vanta{{/str}}
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <table class="table table-bordered table-striped">
+                        <!--<tr>
+                            <th class="bg-light" style="width: 30%;">{{#str}}id, local_vanta{{/str}}</th>
+                            <td>{{log.id}}</td>
+                        </tr>-->
+                        <tr>
+                            <th class="bg-light">{{#str}}user, local_vanta{{/str}}</th>
+                            <td>{{log.useremail}}</td>
+                        </tr>
+                        <tr>
+                            <th class="bg-light">{{#str}}course, local_vanta{{/str}}</th>
+                            <td>{{log.coursename}}</td>
+                        </tr>
+                        <tr>
+                            <th class="bg-light">{{#str}}syncedon, local_vanta{{/str}}</th>
+                            <td>{{log.syncedon_formatted}}</td>
+                        </tr>
+                        <tr>
+                            <th class="bg-light">{{#str}}status, local_vanta{{/str}}</th>
+                            <td>
+                                <span class="badge {{log.status_class}}">
+                                    {{log.status}}
+                                </span>
+                            </td>
+                        </tr>
+                        {{#log.has_error}}
+                        <tr>
+                            <th class="bg-light">{{#str}}error_message, local_vanta{{/str}}</th>
+                            <td class="text-danger">{{log.error_message}}</td>
+                        </tr>
+                        {{/log.has_error}}
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>{{#str}}request_payload, local_vanta{{/str}}</h4>
+        </div>
+        <div class="card-body">
+            <pre class="mb-0 language-json"><code>{{log.formatted_request}}</code></pre>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>{{#str}}response_payload, local_vanta{{/str}}</h4>
+        </div>
+        <div class="card-body">
+            <pre class="mb-0 language-json"><code>{{log.formatted_response}}</code></pre>
+        </div>
+    </div>
+</div>
