@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Badge verification and display page for the Verify Badge local plugin.
+ *
  * @package   local_verify_badge
  * @author    Rasool
  * @copyright 2024, Succeed Technologies <platforms@succeedtech.com>
@@ -22,6 +24,7 @@
  */
 
 require_once(__DIR__ . '/../../config.php');
+require_login();
 defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/composer/jwtsecure.php');
 require_once($CFG->libdir . '/succeed_date_lib.php');
@@ -46,13 +49,13 @@ logUserVisit($url);
 global $DB, $CFG, $OUTPUT;
 $PAGE->requires->css(new moodle_url($CFG->wwwroot . '/local/verify_badge/style/verify_badge.css'));
 
-$courseid = $DB->get_field('course_completed_certificate', 'courseid', array('certificateid' => $certificateid));
-$badgedetails = $DB->get_record('local_verify_badge_details', array('course_id' => $courseid));
+$courseid = $DB->get_field('course_completed_certificate', 'courseid', ['certificateid' => $certificateid]);
+$badgedetails = $DB->get_record('local_verify_badge_details', ['course_id' => $courseid]);
 
-$image = $DB->get_field('blocks_social_share_addposts', 'post_image', array('course_id' => $courseid));
-$badgevalidaty = $DB->get_record('blocks_social_share_addposts', array('course_id' => $courseid));
+$image = $DB->get_field('blocks_social_share_addposts', 'post_image', ['course_id' => $courseid]);
+$badgevalidaty = $DB->get_record('blocks_social_share_addposts', ['course_id' => $courseid]);
 
-$date = $DB->get_field('course_completed_certificate', 'createdon', array('certificateid' => $certificateid));
+$date = $DB->get_field('course_completed_certificate', 'createdon', ['certificateid' => $certificateid]);
 
 $dataformat = 'F j, Y';
 
@@ -97,12 +100,12 @@ if ($badgedetails->badge_image) {
     $badgeimage = $CFG->wwwroot . '/local/verify_badge/pix/Default-Badge-Succeed.png';
 }
 
-$userid = $DB->get_field('course_completed_certificate', 'userid', array('certificateid' => $certificateid));
+$userid = $DB->get_field('course_completed_certificate', 'userid', ['certificateid' => $certificateid]);
 
 $sql = "SELECT CONCAT(u.firstname, ' ', u.lastname) AS username FROM {user} u WHERE u.id = :userid";
-$username = $DB->get_field_sql($sql, array('userid' => $userid));
+$username = $DB->get_field_sql($sql, ['userid' => $userid]);
 
-$companyid = $DB->get_field('company_users', 'companyid', array('userid' => $userid));
+$companyid = $DB->get_field('company_users', 'companyid', ['userid' => $userid]);
 $orgidrec = elearnposh::getorgdetails($companyid);
 $logo = $CFG->wwwroot . '/secure.php?file=logo/' . $orgidrec->logo;
 

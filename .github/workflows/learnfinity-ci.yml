@@ -54,6 +54,12 @@ jobs:
           ini-values: max_input_vars=5000, max_execution_time=300, memory_limit=512M
           coverage: none
 
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.17.0'
+          cache: 'npm'
+
       - name: Initialise moodle-plugin-ci
         run: |
           composer create-project -n --no-dev --prefer-dist moodlehq/moodle-plugin-ci ci ^4
@@ -96,12 +102,6 @@ jobs:
       - name: Mustache Lint
         if: ${{ !cancelled() }}
         run: moodle-plugin-ci mustache ./local/verify_badge
-
-      - name: Setup Node.js 20
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20.17.0'
-          cache: 'npm'
 
       - name: Grunt
         if: ${{ !cancelled() }}

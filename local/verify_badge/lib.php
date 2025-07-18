@@ -32,17 +32,18 @@ require_once($CFG->libdir . '/succeed_date_lib.php');
 /**
  * Adds or updates badge details in the database.
  *
- * @param string $courseid The course ID (encoded).
- * @param string $title The badge title.
- * @param string $badge_text The badge text.
- * @param string $badge_link The badge link.
- * @param string $description The badge description.
- * @param string $issuing_organization The issuing organization.
- * @param string $org_link The organization link.
- * @param string $tags The badge tags.
- * @param string $skills The badge skills.
- * @param string $extra_content Any extra content.
- * @param string|null $badge_image The badge image filename (optional).
+ * @param array $parameter Array of badge details in the following order:
+ *   [0] string $courseid (encoded),
+ *   [1] string $title,
+ *   [2] string $badge_text,
+ *   [3] string $badge_link,
+ *   [4] string $description,
+ *   [5] string $issuing_organization,
+ *   [6] string $org_link,
+ *   [7] string $tags,
+ *   [8] string $skills,
+ *   [9] string $extra_content,
+ *   [10] string|null $badge_image (optional)
  * @return int 1 on success, 0 on failure.
  */
 function local_verify_badge_add_badge_details($parameter) {
