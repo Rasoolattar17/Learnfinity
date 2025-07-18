@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * External API functions for the Verify Badge local plugin.
+ *
  * @package   local_verify_badge
  * @author    Rasool
  * @copyright 2024, Succeed Technologies <platforms@succeedtech.com>
@@ -27,15 +29,20 @@ require_once($CFG->dirroot . '/local/verify_badge/lib.php');
 
 require_login();
 
+/**
+ * External API class for Verify Badge plugin.
+ *
+ * Provides web service functions for badge verification and image deletion.
+ */
 class local_verify_badge_external extends external_api {
 
     /**
-     * This function is used to add and verify badge details
-     * @return bool $response
-     * @author Rasool.
+     * Returns the parameters for add_badge_details function.
+     *
+     * @return external_function_parameters
      */
     public static function add_badge_details_parameters() {
-        return new external_function_parameters(array(
+        return new external_function_parameters([
             'courseid' => new external_value(PARAM_RAW, 'courseid'),
             'title' => new external_value(PARAM_TEXT, 'title'),
             'badgetext' => new external_value(PARAM_TEXT, 'badgetext'),
@@ -47,33 +54,53 @@ class local_verify_badge_external extends external_api {
             'skills' => new external_value(PARAM_TEXT, 'skills'),
             'extracontent' => new external_value(PARAM_RAW, 'extracontent'),
             'badgeimage' => new external_value(PARAM_TEXT, 'badgeimage', VALUE_DEFAULT, null),
-        ));
+        ]);
     }
 
+    /**
+     * Adds badge details using the provided parameters.
+     *
+     * @return int|bool
+     */
     public static function add_badge_details() {
         return local_verify_badge_add_badge_details(func_get_args());
     }
 
+    /**
+     * Returns the return type for add_badge_details function.
+     *
+     * @return external_value
+     */
     public static function add_badge_details_returns() {
         return new external_value(PARAM_TEXT, 'response');
     }
 
     /**
-     * This function is used to delete the image.
-     * @return array $response
-     * @author Rasool
+     * Returns the parameters for delete_image function.
+     *
+     * @return external_function_parameters
      */
-
     public static function delete_image_parameters() {
-        return new external_function_parameters(array(
+        return new external_function_parameters([
             'courseid' => new external_value(PARAM_RAW, ''),
-        ));
+        ]);
     }
 
+    /**
+     * Deletes the badge image for the given course ID.
+     *
+     * @param string $courseid
+     * @return bool
+     */
     public static function delete_image($courseid) {
         return local_verify_badge_delete_image($courseid);
     }
 
+    /**
+     * Returns the return type for delete_image function.
+     *
+     * @return external_value
+     */
     public static function delete_image_returns() {
         return new external_value(PARAM_TEXT, 'deleted succeessfully');
     }

@@ -15,13 +15,20 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Upgrade script for the Verify Badge local plugin.
+ *
  * @package   local_verify_badge
  * @author    Rasool
  * @copyright 2024, Succeed Technologies <platforms@succeedtech.com>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+/**
+ * Executes database upgrades for the Verify Badge plugin.
+ *
+ * @param int $oldversion The old plugin version.
+ * @return bool True on success.
+ */
 function xmldb_local_verify_badge_upgrade($oldversion) {
     global $DB;
     $dbman = $DB->get_manager();

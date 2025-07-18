@@ -35,7 +35,7 @@
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
     </TABLE>
-    <TABLE NAME="local_verifybadge_uservisit" COMMENT="Default comment for the table, please edit me">
+    <TABLE NAME="local_verify_badge_uservisit" COMMENT="Default comment for the table, please edit me">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="page_url" TYPE="text" NOTNULL="false" SEQUENCE="false"/>

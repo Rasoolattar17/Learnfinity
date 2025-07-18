@@ -15,12 +15,19 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Install script for the Verify Badge local plugin.
+ *
  * @package   local_verify_badge
  * @author    Rasool
  * @copyright 2024, Succeed Technologies <platforms@succeedtech.com>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+/**
+ * Executes installation steps for the Verify Badge plugin.
+ *
+ * Creates required upload directories for badge images and documents.
+ */
 function xmldb_local_verify_badge_install() {
     global $CFG;
     $dir = $CFG->dataroot . '/uploads';

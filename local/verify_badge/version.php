@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Version information for the Verify Badge local plugin.
+ *
  * @package   local_verify_badge
  * @author    Rasool
  * @copyright 2024, Succeed Technologies <platforms@succeedtech.com>

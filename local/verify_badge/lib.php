@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Library functions for the Verify Badge local plugin.
+ *
  * @package   local_verify_badge
  * @author    Rasool
  * @copyright 2024, Succeed Technologies <platforms@succeedtech.com>
@@ -28,10 +30,20 @@ require_once($CFG->dirroot . '/local/classes/generic.php');
 require_once($CFG->libdir . '/succeed_date_lib.php');
 
 /**
- * Function used to add badge details.
- * @param mixed $parameters.
- * @return int $result.
- * @author Rasool.
+ * Adds or updates badge details in the database.
+ *
+ * @param string $courseid The course ID (encoded).
+ * @param string $title The badge title.
+ * @param string $badge_text The badge text.
+ * @param string $badge_link The badge link.
+ * @param string $description The badge description.
+ * @param string $issuing_organization The issuing organization.
+ * @param string $org_link The organization link.
+ * @param string $tags The badge tags.
+ * @param string $skills The badge skills.
+ * @param string $extra_content Any extra content.
+ * @param string|null $badge_image The badge image filename (optional).
+ * @return int 1 on success, 0 on failure.
  */
 function local_verify_badge_add_badge_details($parameter) {
     try {
@@ -55,13 +67,13 @@ function local_verify_badge_add_badge_details($parameter) {
         $badge->skills = $parameter[8];
         $badge->extra_content = $parameter[9];
 
-        if ($DB->record_exists('local_verify_badge_details', array('course_id' => $courseid))) {
-            $id = $DB->get_field('local_verify_badge_details', 'id', array('course_id' => $courseid));
+        if ($DB->record_exists('local_verify_badge_details', ['course_id' => $courseid])) {
+            $id = $DB->get_field('local_verify_badge_details', 'id', ['course_id' => $courseid]);
             if ($parameter[10] == null) {
                 $badgeimage = $DB->get_field(
                     'local_verify_badge_details',
                     'badge_image',
-                    array('course_id' => $courseid)
+                    ['course_id' => $courseid]
                 );
             }
 
@@ -87,10 +99,10 @@ function local_verify_badge_add_badge_details($parameter) {
 }
 
 /**
- * Function used to delete image.
- * @param mixed $courseid.
- * @return bool $result.
- * @author Rasool.
+ * Deletes the badge image for a given course.
+ *
+ * @param string $courseid The course ID (encoded).
+ * @return bool True on success, false on failure.
  */
 function local_verify_badge_delete_image($courseid) {
     try {
@@ -100,7 +112,7 @@ function local_verify_badge_delete_image($courseid) {
             $courseid = (int)jwtsecure::Decode($courseid);
         }
 
-        $select = $DB->get_field('local_verify_badge_details', 'badge_image', array('course_id' => $courseid));
+        $select = $DB->get_field('local_verify_badge_details', 'badge_image', ['course_id' => $courseid]);
         unlink($CFG->dataroot . "/uploads/verifybadge/" . $select);
         $id = $DB->get_field('local_verify_badge_details', 'id', ['course_id' => $courseid]);
 

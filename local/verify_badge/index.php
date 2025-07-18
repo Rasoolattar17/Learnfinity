@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Page for displaying and managing badge verification.
+ *
  * @package   local_verify_badge
  * @author    Rasool
  * @copyright 2024, Succeed Technologies <platforms@succeedtech.com>
@@ -37,7 +39,7 @@ $PAGE->set_context(context_system::instance());
 $PAGE->set_pagelayout('develop');
 $PAGE->set_title(get_string('verify_badge', 'local_verify_badge'));
 
-$badgedetails = $DB->get_record('local_verify_badge_details', array('course_id' => jwtsecure::decode($courseid)));
+$badgedetails = $DB->get_record('local_verify_badge_details', ['course_id' => jwtsecure::decode($courseid)]);
 $PAGE->requires->css(new moodle_url($CFG->wwwroot . '/local/verify_badge/style/index.css'));
 
 if ($badgedetails->badge_image) {
@@ -78,7 +80,7 @@ if ($badgedetails->skills) {
     $skills = $badgedetails->skills;
 }
 
-$hash = array(
+$hash = [
     'title' => $badgetitle,
     'badgetext' => $badgetext,
     'badgelink' => $badgelink,
@@ -91,15 +93,15 @@ $hash = array(
     'imageexists' => $imageexists,
     'imagepath' => $imagepath,
     'courseid' => $courseid,
-    'verifysample' => $CFG->wwwroot . '/local/verify_badge/pix/sample.png'
-);
+    'verifysample' => $CFG->wwwroot . '/local/verify_badge/pix/sample.png',
+];
 
 echo $OUTPUT->header();
 echo $OUTPUT->render(block_st_social_share_tabs(['id' => $courseid], 'verify_badge'));
 echo $OUTPUT->render_from_template('local_verify_badge/index', $hash);
-$PAGE->requires->js_call_amd('local_verify_badge/index', 'init', array(
+$PAGE->requires->js_call_amd('local_verify_badge/index', 'init', [
     'courseid' => $courseid,
     'imageexists' => $imageexists,
-));
+]);
 
 echo $OUTPUT->footer();

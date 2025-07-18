@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Web service function and service definitions for the Verify Badge local plugin.
+ *
  * @package   local_verify_badge
  * @author    Rasool
  * @copyright 2024, Succeed Technologies <platforms@succeedtech.com>
@@ -22,32 +24,32 @@
  */
 
 defined('MOODLE_INTERNAL') || die();
-$functions = array(
-    'local_verfiy_badge_add_badge_details' => array(
+$functions = [
+    'local_verfiy_badge_add_badge_details' => [
         'classname' => 'local_verify_badge_external',
         'methodname' => 'add_badge_details',
         'classpath' => 'local/verify_badge/externallib.php',
         'description' => 'This function is used to add verify badge details',
         'type' => 'write',
         'ajax' => true,
-    ),
-    'local_verify_badge_delete_image' => array(
+    ],
+    'local_verify_badge_delete_image' => [
         'classname' => 'local_verify_badge_external',
         'methodname' => 'delete_image',
         'classpath' => 'local/verify_badge/externallib.php',
         'description' => 'This function is used to delete image from verify badge details',
         'type' => 'write',
         'ajax' => true,
-    ),
-);
+    ],
+];
 
-$services = array(
-    'verify_badge Services' => array(
-        'functions' => array(
+$services = [
+    'verify_badge Services' => [
+        'functions' => [
             'local_verfiy_badge_add_badge_details',
             'local_verify_badge_delete_image',
-        ),
+        ],
         'restrictedusers' => 0,
         'enabled' => 1,
-    ),
-);
+    ],
+];

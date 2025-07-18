@@ -97,6 +97,12 @@ jobs:
         if: ${{ !cancelled() }}
         run: moodle-plugin-ci mustache ./local/verify_badge
 
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.17.0'
+          cache: 'npm'
+
       - name: Grunt
         if: ${{ !cancelled() }}
         run: moodle-plugin-ci grunt --max-lint-warnings 0 ./local/verify_badge
