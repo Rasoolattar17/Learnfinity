@@ -18,10 +18,13 @@
  * Test manager test class.
  *
  * @package    local_test_plugin
- * @copyright  2024 Your Name <your.email@example.com>
+ * @copyright  2024 Your Name <your.email@moodle.org>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @covers     \local_test_plugin\test_manager
  */
+
+namespace local_test_plugin;
+
 final class test_manager_test extends \advanced_testcase {
 
     /**
@@ -77,12 +80,12 @@ final class test_manager_test extends \advanced_testcase {
 
         $this->assertIsArray($data);
         $this->assertCount(2, $data);
-        
+
         // Check that both records exist in the data.
         $names = array_column($data, 'name');
         $this->assertContains('Record 1', $names);
         $this->assertContains('Record 2', $names);
-        
+
         // Check that both descriptions exist in the data.
         $descriptions = array_column($data, 'description');
         $this->assertContains('Description 1', $descriptions);

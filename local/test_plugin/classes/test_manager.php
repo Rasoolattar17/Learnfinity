@@ -18,7 +18,7 @@
  * Test manager class.
  *
  * @package    local_test_plugin
- * @copyright  2024 Your Name <your.email@example.com>
+ * @copyright  2024 Your Name <your.email@moodle.org>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -30,7 +30,7 @@ defined('MOODLE_INTERNAL') || die();
  * Test manager class for handling test operations.
  *
  * @package    local_test_plugin
- * @copyright  2024 Your Name <your.email@example.com>
+ * @copyright  2024 Your Name <your.email@moodle.org>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class test_manager {
