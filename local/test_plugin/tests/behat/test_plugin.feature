@@ -1,4 +1,4 @@
-@plugin @local_test_plugin
+@plugin @local @local_test_plugin
 Feature: Test Plugin functionality
   In order to test the CI/CD pipeline
   As a user
@@ -39,4 +39,4 @@ Feature: Test Plugin functionality
     And I am on "/local/test_plugin/index.php"
     Then I should see "Test Plugin"
     And I should see "Welcome to the Test Plugin!"
-    And the page should contain the css ".local-test-plugin-page" 
+    And the page should contain the css ".local-test-plugin-page"

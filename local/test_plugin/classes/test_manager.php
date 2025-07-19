@@ -36,17 +36,17 @@ defined('MOODLE_INTERNAL') || die();
 class test_manager {
 
     /** @var int The user ID */
-    private $userid;
+    private int $userid;
 
     /** @var \moodle_database The database instance */
-    private $db;
+    private \moodle_database $db;
 
     /**
      * Constructor for the test manager.
      *
      * @param int $userid The user ID
      */
-    public function __construct($userid) {
+    public function __construct(int $userid) {
         global $DB;
         $this->userid = $userid;
         $this->db = $DB;
@@ -55,9 +55,9 @@ class test_manager {
     /**
      * Get test data for the user.
      *
-     * @return array The test data
+     * @return array<int, \stdClass> The test data
      */
-    public function get_test_data() {
+    public function get_test_data(): array {
         $records = $this->db->get_records(
             'local_test_plugin_data',
             ['userid' => $this->userid],
@@ -74,7 +74,7 @@ class test_manager {
      * @param string $description The description
      * @return int|false The record ID or false on failure
      */
-    public function create_test_record($name, $description = '') {
+    public function create_test_record(string $name, string $description = ''): int|false {
         $record = new \stdClass();
         $record->userid = $this->userid;
         $record->name = $name;
@@ -93,7 +93,7 @@ class test_manager {
      * @param string $description The description
      * @return bool Success status
      */
-    public function update_test_record($id, $name, $description = '') {
+    public function update_test_record(int $id, string $name, string $description = ''): bool {
         $record = new \stdClass();
         $record->id = $id;
         $record->name = $name;
@@ -109,7 +109,7 @@ class test_manager {
      * @param int $id The record ID
      * @return bool Success status
      */
-    public function delete_test_record($id) {
+    public function delete_test_record(int $id): bool {
         return $this->db->delete_records(
             'local_test_plugin_data',
             ['id' => $id, 'userid' => $this->userid]

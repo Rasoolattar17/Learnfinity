@@ -27,19 +27,20 @@ defined('MOODLE_INTERNAL') || die();
 /**
  * Extends the global navigation tree by adding test plugin nodes if there is a capability.
  *
- * @param global_navigation $navigation An object representing the navigation tree
+ * @param \global_navigation $navigation An object representing the navigation tree
+ * @return void
  */
-function local_test_plugin_extend_navigation(global_navigation $navigation) {
+function local_test_plugin_extend_navigation(\global_navigation $navigation): void {
     global $PAGE, $USER;
 
-    if (has_capability('local/test_plugin:view', context_system::instance())) {
-        $testnode = navigation_node::create(
+    if (has_capability('local/test_plugin:view', \context_system::instance())) {
+        $testnode = \navigation_node::create(
             get_string('pluginname', 'local_test_plugin'),
-            new moodle_url('/local/test_plugin/index.php'),
-            navigation_node::TYPE_CUSTOM,
+            new \moodle_url('/local/test_plugin/index.php'),
+            \navigation_node::TYPE_CUSTOM,
             null,
             'testplugin',
-            new pix_icon('t/help', '')
+            new \pix_icon('t/help', '')
         );
         $navigation->add_node($testnode);
     }
@@ -48,16 +49,17 @@ function local_test_plugin_extend_navigation(global_navigation $navigation) {
 /**
  * Extends the settings navigation with the test plugin settings.
  *
- * @param settings_navigation $settingsnav The settings navigation object
- * @param navigation_node $testpluginnode The test plugin node in the navigation tree
+ * @param \settings_navigation $settingsnav The settings navigation object
+ * @param \navigation_node $testpluginnode The test plugin node in the navigation tree
+ * @return void
  */
-function local_test_plugin_extend_settings_navigation(settings_navigation $settingsnav, navigation_node $testpluginnode) {
+function local_test_plugin_extend_settings_navigation(\settings_navigation $settingsnav, \navigation_node $testpluginnode): void {
     global $PAGE;
 
-    if (has_capability('local/test_plugin:manage', context_system::instance())) {
+    if (has_capability('local/test_plugin:manage', \context_system::instance())) {
         $testpluginnode->add(
             get_string('settings', 'local_test_plugin'),
-            new moodle_url('/local/test_plugin/settings.php')
+            new \moodle_url('/local/test_plugin/settings.php')
         );
     }
 }
@@ -66,15 +68,15 @@ function local_test_plugin_extend_settings_navigation(settings_navigation $setti
  * Get the test data for the plugin.
  *
  * @param int $userid The user ID
- * @return array The test data
+ * @return array<string, mixed> The test data
  */
-function local_test_plugin_get_test_data($userid) {
+function local_test_plugin_get_test_data(int $userid): array {
     global $DB;
 
     $data = [
         'userid' => $userid,
         'timestamp' => time(),
-        'status' => 'active'
+        'status' => 'active',
     ];
 
     return $data;
@@ -83,13 +85,13 @@ function local_test_plugin_get_test_data($userid) {
 /**
  * Process the test form data.
  *
- * @param stdClass $data The form data
- * @return bool Success status
+ * @param \stdClass $data The form data
+ * @return int|false The record ID or false on failure
  */
-function local_test_plugin_process_form($data) {
+function local_test_plugin_process_form(\stdClass $data): int|false {
     global $DB, $USER;
 
-    $record = new stdClass();
+    $record = new \stdClass();
     $record->userid = $USER->id;
     $record->name = $data->name;
     $record->description = $data->description;
@@ -97,4 +99,4 @@ function local_test_plugin_process_form($data) {
     $record->timemodified = time();
 
     return $DB->insert_record('local_test_plugin_data', $record);
-} 
+}

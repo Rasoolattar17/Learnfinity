@@ -30,7 +30,7 @@ defined('MOODLE_INTERNAL') || die();
  * @param int $oldversion The version we are upgrading from
  * @return bool Success status
  */
-function xmldb_local_test_plugin_upgrade($oldversion) {
+function xmldb_local_test_plugin_upgrade(int $oldversion): bool {
     global $CFG, $DB;
 
     $result = true;

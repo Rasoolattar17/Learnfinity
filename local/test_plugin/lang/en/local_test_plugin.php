@@ -22,8 +22,18 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['pluginname'] = 'Test Plugin';
-$string['welcome_message'] = 'Welcome to the Test Plugin! This plugin is designed to test all CI/CD steps.';
-$string['settings'] = 'Settings';
+$string['actions'] = 'Actions';
+$string['description'] = 'Description';
 $string['manage'] = 'Manage test plugin';
-$string['view'] = 'View test plugin'; 
+$string['name'] = 'Name';
+$string['no_data_found'] = 'No data found.';
+$string['pluginname'] = 'Test Plugin';
+$string['setting_enabled'] = 'Enable plugin';
+$string['setting_enabled_desc'] = 'Enable or disable the test plugin functionality.';
+$string['settings'] = 'Settings';
+$string['settings_heading'] = 'Test Plugin Settings';
+$string['settings_heading_desc'] = 'Configure the test plugin settings.';
+$string['test_data'] = 'Test Data';
+$string['timecreated'] = 'Time Created';
+$string['view'] = 'View test plugin';
+$string['welcome_message'] = 'Welcome to the Test Plugin! This plugin is designed to test all CI/CD steps.'; 

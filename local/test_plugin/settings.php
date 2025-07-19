@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Capability definitions for the test plugin.
+ * Settings page for the test plugin.
  *
  * @package    local_test_plugin
  * @copyright  2024 Your Name <your.email@example.com>
@@ -24,19 +24,22 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$capabilities = [
-    'local/test_plugin:view' => [
-        'captype' => 'read',
-        'contextlevel' => CONTEXT_SYSTEM,
-        'archetypes' => [
-            'manager' => CAP_ALLOW,
-        ],
-    ],
-    'local/test_plugin:manage' => [
-        'captype' => 'write',
-        'contextlevel' => CONTEXT_SYSTEM,
-        'archetypes' => [
-            'manager' => CAP_ALLOW,
-        ],
-    ],
-]; 
+require_once($CFG->libdir . '/adminlib.php');
+
+$ADMIN->add('localplugins', new admin_category('testplugin', get_string('pluginname', 'local_test_plugin')));
+
+$settings = new admin_settingpage('local_test_plugin', get_string('settings', 'local_test_plugin'));
+$ADMIN->add('testplugin', $settings);
+
+if ($ADMIN->fulltree) {
+    $settings->add(new admin_setting_heading('local_test_plugin/heading',
+        get_string('settings_heading', 'local_test_plugin'),
+        get_string('settings_heading_desc', 'local_test_plugin')
+    ));
+
+    $settings->add(new admin_setting_configcheckbox('local_test_plugin/enabled',
+        get_string('setting_enabled', 'local_test_plugin'),
+        get_string('setting_enabled_desc', 'local_test_plugin'),
+        1
+    ));
+} 
