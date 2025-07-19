@@ -1,0 +1,43 @@
+name: Simple Deploy Test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  simple-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Simple SSH Test
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.SERVER_PORT || 22 }}
+          script: |
+            echo "🔍 Testing basic SSH connection..."
+            echo "Current user: $(whoami)"
+            echo "Current directory: $(pwd)"
+            echo "Server hostname: $(hostname)"
+            
+            echo ""
+            echo "🔍 Testing path access..."
+            
+            # Test SERVER_BASE_PATH
+            if [ -n "${{ secrets.SERVER_BASE_PATH }}" ]; then
+              echo "Testing SERVER_BASE_PATH: ${{ secrets.SERVER_BASE_PATH }}"
+              if [ -d "${{ secrets.SERVER_BASE_PATH }}" ]; then
+                echo "✅ SERVER_BASE_PATH exists and is accessible"
+                ls -la "${{ secrets.SERVER_BASE_PATH }}"
+              else
+                echo "❌ SERVER_BASE_PATH does not exist"
+                echo "Creating directory..."
+                mkdir -p "${{ secrets.SERVER_BASE_PATH }}"
+                echo "✅ Created SERVER_BASE_PATH"
+              fi
+            else
+              echo "❌ SERVER_BASE_PATH secret is not configured"
+            fi
+            
+            echo ""
+            echo "🎉 Basic SSH test completed!" 
