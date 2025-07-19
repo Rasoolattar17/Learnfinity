@@ -1,4 +1,4 @@
-name: Deploy Plugin
+name: Deploy Moodle (First Time) / Plugin Updates
 
 on:
   workflow_run:
@@ -17,7 +17,20 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v4
 
-      - name: Deploy to Server
+      - name: Determine deployment type
+        id: deployment-type
+        run: |
+          # Check if this is first-time deployment or plugin update
+          if [ "${{ secrets.FIRST_TIME_DEPLOYMENT }}" = "true" ]; then
+            echo "deployment_type=first_time" >> $GITHUB_OUTPUT
+            echo "🚀 First-time Moodle deployment detected"
+          else
+            echo "deployment_type=plugin_update" >> $GITHUB_OUTPUT
+            echo "🔧 Plugin update deployment detected"
+          fi
+
+      - name: First-time Moodle Deployment
+        if: steps.deployment-type.outputs.deployment_type == 'first_time'
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -25,37 +38,212 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: ${{ secrets.SERVER_PORT || 22 }}
           script: |
+            echo "🚀 Starting FIRST-TIME Moodle deployment..."
+            
+            # Navigate to server directory
+            cd ${{ secrets.SERVER_BASE_PATH }}
+            
+            # Create backup of existing Moodle (if exists)
+            if [ -d "moodle" ]; then
+              echo "📋 Creating backup of existing Moodle installation..."
+              cp -r moodle moodle.backup.$(date +%Y%m%d_%H%M%S)
+              echo "✅ Backup created successfully"
+            fi
+            
+            # Clone the complete Moodle repository
+            echo "📥 Cloning complete Moodle codebase..."
+            git clone https://github.com/${{ github.repository }}.git moodle
+            cd moodle
+            
+            # Set proper permissions for entire Moodle installation
+            echo "🔐 Setting proper permissions..."
+            find . -type f -exec chmod 644 {} \;
+            find . -type d -exec chmod 755 {} \;
+            chmod -R 755 admin/ config/ local/ blocks/ mod/ theme/
+            chown -R www-data:www-data .
+            
+            # Create moodledata directory if it doesn't exist
+            if [ ! -d "../moodledata" ]; then
+              echo "📁 Creating moodledata directory..."
+              mkdir ../moodledata
+              chmod 777 ../moodledata
+              chown www-data:www-data ../moodledata
+            fi
+            
+            # Set up Moodle configuration
+            echo "⚙️ Setting up Moodle configuration..."
+            cp config-dist.php config.php
+            
+            # Clear any existing cache
+            echo "🧹 Clearing cache..."
+            php admin/cli/purge_caches.php
+            
+            echo "🎉 First-time Moodle deployment completed!"
+            echo "📝 Next steps:"
+            echo "   1. Configure config.php with database settings"
+            echo "   2. Run Moodle installation wizard"
+            echo "   3. Set FIRST_TIME_DEPLOYMENT=false for future updates"
+
+      - name: Plugin Update Deployment
+        if: steps.deployment-type.outputs.deployment_type == 'plugin_update'
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.SERVER_PORT || 22 }}
+          script: |
+            echo "🔧 Starting PLUGIN UPDATE deployment..."
+            
             # Navigate to Moodle directory
             cd ${{ secrets.MOODLE_PATH }}
             
             # Create backup of existing plugin (if exists)
-            if [ -d "blocks/course_list" ]; then
-              cp -r blocks/course_list blocks/course_list.backup.$(date +%Y%m%d_%H%M%S)
+            if [ -d "local/test_plugin" ]; then
+              echo "📋 Creating backup of existing plugin..."
+              cp -r local/test_plugin local/test_plugin.backup.$(date +%Y%m%d_%H%M%S)
+              echo "✅ Backup created successfully"
             fi
             
             # Pull latest changes from git
+            echo "📥 Pulling latest changes from git..."
             git pull origin main
             
-            # Set proper permissions
-            chmod -R 755 blocks/course_list
-            chown -R www-data:www-data blocks/course_list
+            # Set proper permissions for plugin only
+            echo "🔐 Setting proper permissions..."
+            chmod -R 755 local/test_plugin
+            chown -R www-data:www-data local/test_plugin
             
             # Clear Moodle cache
+            echo "🧹 Clearing Moodle cache..."
             php admin/cli/purge_caches.php
             
             # Run Moodle upgrade if needed
+            echo "⬆️ Running Moodle upgrade..."
             php admin/cli/upgrade.php --non-interactive
             
-            echo "Plugin deployed successfully!"
+            # Verify plugin installation
+            echo "✅ Verifying plugin installation..."
+            if [ -f "local/test_plugin/version.php" ]; then
+              echo "✅ Plugin files are in place"
+            else
+              echo "❌ Plugin files not found"
+              exit 1
+            fi
+            
+            echo "🎉 Plugin update deployed successfully!"
 
-      - name: Notify Deployment Success
-        if: success()
+      - name: Verify First-time Deployment
+        if: steps.deployment-type.outputs.deployment_type == 'first_time'
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.SERVER_PORT || 22 }}
+          script: |
+            echo "🔍 Verifying first-time Moodle deployment..."
+            
+            cd ${{ secrets.SERVER_BASE_PATH }}/moodle
+            
+            # Check Moodle installation
+            if [ -f "version.php" ]; then
+              echo "✅ Moodle installation exists"
+            else
+              echo "❌ Moodle installation not found"
+              exit 1
+            fi
+            
+            # Check plugin directory
+            if [ -d "local/test_plugin" ]; then
+              echo "✅ Plugin directory exists"
+            else
+              echo "❌ Plugin directory not found"
+              exit 1
+            fi
+            
+            # Check plugin files
+            if [ -f "local/test_plugin/version.php" ]; then
+              echo "✅ Plugin version file exists"
+            else
+              echo "❌ Plugin version file not found"
+              exit 1
+            fi
+            
+            # Check moodledata directory
+            if [ -d "../moodledata" ]; then
+              echo "✅ moodledata directory exists"
+            else
+              echo "❌ moodledata directory not found"
+              exit 1
+            fi
+            
+            echo "🎉 First-time deployment verification completed successfully!"
+
+      - name: Verify Plugin Update
+        if: steps.deployment-type.outputs.deployment_type == 'plugin_update'
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.SERVER_PORT || 22 }}
+          script: |
+            echo "🔍 Verifying plugin update deployment..."
+            
+            cd ${{ secrets.MOODLE_PATH }}
+            
+            # Check plugin directory
+            if [ -d "local/test_plugin" ]; then
+              echo "✅ Plugin directory exists"
+            else
+              echo "❌ Plugin directory not found"
+              exit 1
+            fi
+            
+            # Check plugin files
+            if [ -f "local/test_plugin/version.php" ]; then
+              echo "✅ Plugin version file exists"
+            else
+              echo "❌ Plugin version file not found"
+              exit 1
+            fi
+            
+            # Check permissions
+            if [ -r "local/test_plugin/version.php" ]; then
+              echo "✅ Plugin files are readable"
+            else
+              echo "❌ Plugin files are not readable"
+              exit 1
+            fi
+            
+            echo "🎉 Plugin update verification completed successfully!"
+
+      - name: Notify First-time Deployment Success
+        if: success() && steps.deployment-type.outputs.deployment_type == 'first_time'
         run: |
-          echo "✅ Plugin deployed successfully to ${{ secrets.SERVER_HOST }}"
+          echo "✅ FIRST-TIME Moodle deployment completed successfully!"
+          echo "🌐 Server: ${{ secrets.SERVER_HOST }}"
+          echo "📁 Moodle Path: ${{ secrets.SERVER_BASE_PATH }}/moodle"
+          echo "📅 Deployment completed at $(date)"
+          echo "📝 Next steps:"
+          echo "   1. Configure config.php with database settings"
+          echo "   2. Run Moodle installation wizard"
+          echo "   3. Set FIRST_TIME_DEPLOYMENT=false for future updates"
+
+      - name: Notify Plugin Update Success
+        if: success() && steps.deployment-type.outputs.deployment_type == 'plugin_update'
+        run: |
+          echo "✅ Plugin update deployed successfully!"
+          echo "🌐 Server: ${{ secrets.SERVER_HOST }}"
           echo "🔗 Moodle URL: ${{ secrets.MOODLE_URL }}"
+          echo "📅 Deployment completed at $(date)"
+          echo "🎯 Plugin: local/test_plugin"
 
       - name: Notify Deployment Failure
         if: failure()
         run: |
           echo "❌ Deployment failed!"
-          echo "Check the logs for more details." 
+          echo "🔍 Check the logs for more details."
+          echo "📅 Failure occurred at $(date)"
+          echo "🔄 You may need to manually deploy or check server configuration." 
