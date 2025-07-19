@@ -131,6 +131,8 @@ jobs:
           
           nvm use 20.11.0
           node --version
+          # Set environment variables to ensure Moodle Plugin CI uses the correct Node.js version
+          export PATH="$NVM_DIR/versions/node/v20.11.0/bin:$PATH"
           moodle-plugin-ci grunt --max-lint-warnings 0 ./local/test_plugin
 
       - name: PHPUnit tests

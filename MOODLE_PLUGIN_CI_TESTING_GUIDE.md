@@ -431,13 +431,26 @@ Added a step to fix the Node.js version after Moodle installation in `.github/wo
     node --version
 ```
 
-#### Step 3: Fix Behat Feature File
-Added missing newline at the end of the Behat feature file:
+And updated the Grunt step to ensure Node.js version persistence:
 
-```bash
-# Fixed the gherkinlint warning
-Add-Content local/test_plugin/tests/behat/test_plugin.feature "`n"
+```yaml
+- name: Grunt
+  if: ${{ !cancelled() }}
+  run: |
+    # Load nvm and set correct Node.js version for this step
+    export NVM_DIR="$HOME/.nvm"
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+    
+    nvm use 20.11.0
+    node --version
+    # Set environment variables to ensure Moodle Plugin CI uses the correct Node.js version
+    export PATH="$NVM_DIR/versions/node/v20.11.0/bin:$PATH"
+    moodle-plugin-ci grunt --max-lint-warnings 0 ./local/test_plugin
 ```
+
+#### Step 3: Fix Behat Feature File
+Recreated the Behat feature file to remove multiple empty lines that were causing gherkinlint warnings.
 
 ### Why This Happens
 The Moodle Plugin CI installation process:
