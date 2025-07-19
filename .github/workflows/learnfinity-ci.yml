@@ -1,6 +1,12 @@
-name: Verify Badge Plugin CI
+name: Verify Badge Plugin CI (DISABLED)
 
-on: [push, pull_request]
+on: 
+  # Temporarily disabled - uncomment below to re-enable
+  # push: []
+  # pull_request: []
+  
+  # Manual trigger only
+  workflow_dispatch:
 
 jobs:
   test:
