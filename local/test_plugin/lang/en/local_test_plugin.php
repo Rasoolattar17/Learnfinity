@@ -36,4 +36,4 @@ $string['settings_heading_desc'] = 'Configure the test plugin settings.';
 $string['test_data'] = 'Test Data';
 $string['timecreated'] = 'Time Created';
 $string['view'] = 'View test plugin';
-$string['welcome_message'] = 'Welcome to the Test Plugin! This plugin is designed to test all CI/CD steps.'; 
+$string['welcome_message'] = 'Welcome to the Test Plugin! This plugin is designed to test all CI/CD steps.';

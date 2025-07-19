@@ -43,4 +43,4 @@ echo html_writer::div(
     'alert alert-info'
 );
 
-echo $OUTPUT->footer(); 
+echo $OUTPUT->footer();

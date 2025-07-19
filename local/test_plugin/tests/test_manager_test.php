@@ -148,4 +148,4 @@ final class test_manager_test extends \advanced_testcase {
         $data = $manager->get_test_data();
         $this->assertCount(0, $data);
     }
-} 
+}

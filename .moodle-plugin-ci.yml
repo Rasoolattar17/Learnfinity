@@ -1,0 +1,257 @@
+# Moodle Plugin CI Configuration
+# This file configures the testing environment for Moodle plugins
+
+# Moodle version to test against
+moodle:
+  version: "4.4"
+  repository: "https://github.com/moodle/moodle.git"
+  branch: "MOODLE_404_STABLE"
+
+# Database configuration
+database:
+  type: "mysqli"
+  host: "localhost"
+  name: "moodle_test"
+  user: "root"
+  pass: ""
+  prefix: "mdl_"
+
+# Web server configuration
+webserver:
+  type: "apache"
+  port: 8000
+  docroot: "htdocs"
+
+# Plugin directories to test
+plugins:
+  - "blocks/*"
+  - "mod/*"
+  - "local/*"
+  - "auth/*"
+  - "enrol/*"
+  - "filter/*"
+  - "format/*"
+  - "report/*"
+  - "repository/*"
+  - "theme/*"
+  - "tool/*"
+  - "availability/*"
+  - "assignsubmission/*"
+  - "assignfeedback/*"
+  - "atto/*"
+  - "tinymce/*"
+  - "datafield/*"
+  - "datapreset/*"
+  - "qtype/*"
+  - "qbehaviour/*"
+  - "qformat/*"
+  - "plagiarism/*"
+  - "portfolio/*"
+  - "search/*"
+  - "webservice/*"
+  - "gradeexport/*"
+  - "gradeimport/*"
+  - "gradereport/*"
+  - "gradingform/*"
+  - "mnetservice/*"
+  - "message/*"
+  - "media/*"
+  - "calendartype/*"
+  - "coursereport/*"
+  - "admin/*"
+  - "analytics/*"
+  - "backup/*"
+  - "cache/*"
+  - "cohort/*"
+  - "comment/*"
+  - "communication/*"
+  - "competency/*"
+  - "completion/*"
+  - "contentbank/*"
+  - "customfield/*"
+  - "dataformat/*"
+  - "editor/*"
+  - "files/*"
+  - "group/*"
+  - "h5p/*"
+  - "lang/*"
+  - "license/*"
+  - "log/*"
+  - "mnet/*"
+  - "moodlenet/*"
+  - "my/*"
+  - "notes/*"
+  - "payment/*"
+  - "pix/*"
+  - "privacy/*"
+  - "question/*"
+  - "rating/*"
+  - "rss/*"
+  - "tag/*"
+  - "user/*"
+  - "userpix/*"
+
+# Testing configuration
+testing:
+  # PHP versions to test against
+  php:
+    - "8.1"
+    - "8.2"
+    - "8.3"
+  
+  # Database types to test against
+  databases:
+    - "mysqli"
+    - "pgsql"
+  
+  # Web servers to test against
+  webservers:
+    - "apache"
+    - "nginx"
+
+# Code quality tools
+tools:
+  # PHP CodeSniffer
+  phpcs:
+    standard: "Moodle"
+    ignore:
+      - "*/vendor/*"
+      - "*/node_modules/*"
+      - "*/build/*"
+  
+  # PHP Mess Detector
+  phpmd:
+    rulesets:
+      - "cleancode"
+      - "codesize"
+      - "controversial"
+      - "design"
+      - "naming"
+      - "unusedcode"
+    exclude:
+      - "*/vendor/*"
+      - "*/node_modules/*"
+      - "*/build/*"
+  
+  # PHP Copy/Paste Detector
+  phpcpd:
+    min_lines: 5
+    min_tokens: 70
+    exclude:
+      - "*/vendor/*"
+      - "*/node_modules/*"
+      - "*/build/*"
+  
+  # PHP Lint
+  phplint:
+    exclude:
+      - "*/vendor/*"
+      - "*/node_modules/*"
+      - "*/build/*"
+  
+  # JavaScript Lint
+  jshint:
+    exclude:
+      - "*/vendor/*"
+      - "*/node_modules/*"
+      - "*/build/*"
+  
+  # CSS Lint
+  csslint:
+    exclude:
+      - "*/vendor/*"
+      - "*/node_modules/*"
+      - "*/build/*"
+
+# Behat testing
+behat:
+  # Behat configuration
+  config: "behat.yml"
+  
+  # Selenium configuration
+  selenium:
+    host: "localhost"
+    port: 4444
+    browser: "firefox"
+  
+  # Screenshot directory
+  screenshots: "screenshots"
+
+# PHPUnit testing
+phpunit:
+  # PHPUnit configuration
+  config: "phpunit.xml"
+  
+  # Coverage configuration
+  coverage:
+    enabled: true
+    format: "html"
+    output: "coverage"
+    exclude:
+      - "*/vendor/*"
+      - "*/node_modules/*"
+      - "*/build/*"
+
+# Parallel execution
+parallel:
+  # Number of parallel processes
+  processes: 4
+  
+  # Timeout for parallel execution (seconds)
+  timeout: 3600
+
+# Notifications
+notifications:
+  # Email notifications
+  email:
+    enabled: false
+    to: []
+    from: ""
+    subject: "Moodle Plugin CI Test Results"
+  
+  # Slack notifications
+  slack:
+    enabled: false
+    webhook: ""
+    channel: ""
+    username: "Moodle Plugin CI"
+  
+  # GitHub notifications
+  github:
+    enabled: false
+    token: ""
+    repository: ""
+    issue_number: ""
+
+# Environment variables
+env:
+  # Moodle configuration
+  MOODLE_DB_TYPE: "mysqli"
+  MOODLE_DB_HOST: "localhost"
+  MOODLE_DB_NAME: "moodle_test"
+  MOODLE_DB_USER: "root"
+  MOODLE_DB_PASS: ""
+  MOODLE_DB_PREFIX: "mdl_"
+  
+  # Web server configuration
+  MOODLE_WWWROOT: "http://localhost:8000"
+  MOODLE_ADMIN: "admin"
+  MOODLE_ADMIN_PASS: "admin"
+  
+  # Testing configuration
+  MOODLE_BEHAT_WWWROOT: "http://localhost:8000"
+  MOODLE_BEHAT_DB_TYPE: "mysqli"
+  MOODLE_BEHAT_DB_HOST: "localhost"
+  MOODLE_BEHAT_DB_NAME: "moodle_behat"
+  MOODLE_BEHAT_DB_USER: "root"
+  MOODLE_BEHAT_DB_PASS: ""
+  MOODLE_BEHAT_DB_PREFIX: "mdl_"
+  
+  # PHPUnit configuration
+  MOODLE_PHPUNIT_WWWROOT: "http://localhost:8000"
+  MOODLE_PHPUNIT_DB_TYPE: "mysqli"
+  MOODLE_PHPUNIT_DB_HOST: "localhost"
+  MOODLE_PHPUNIT_DB_NAME: "moodle_phpunit"
+  MOODLE_PHPUNIT_DB_USER: "root"
+  MOODLE_PHPUNIT_DB_PASS: ""
+  MOODLE_PHPUNIT_DB_PREFIX: "mdl_" 

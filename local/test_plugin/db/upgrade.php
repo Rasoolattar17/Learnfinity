@@ -39,4 +39,4 @@ function xmldb_local_test_plugin_upgrade(int $oldversion): bool {
     }
 
     return $result;
-} 
+}

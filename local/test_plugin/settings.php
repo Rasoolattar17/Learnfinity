@@ -42,4 +42,4 @@ if ($ADMIN->fulltree) {
         get_string('setting_enabled_desc', 'local_test_plugin'),
         1
     ));
-} 
+}
