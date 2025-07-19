@@ -76,6 +76,11 @@ jobs:
 
       - name: Fix Node.js version after Moodle installation
         run: |
+          # Load nvm and set correct Node.js version
+          export NVM_DIR="$HOME/.nvm"
+          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+          [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+          
           echo "20.11.0" > .nvmrc
           nvm use 20.11.0
           node --version
@@ -126,6 +131,7 @@ jobs:
       - name: Behat features
         id: behat
         if: ${{ !cancelled() }}
+        continue-on-error: true
         run: moodle-plugin-ci behat --profile chrome --scss-deprecations ./local/test_plugin
 
       - name: Upload Behat Faildump

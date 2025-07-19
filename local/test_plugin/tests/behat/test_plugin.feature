@@ -14,23 +14,29 @@ Feature: Test Plugin functionality
   @javascript
   Scenario: Admin can access test plugin page
     Given I log in as "admin"
-    And I am on "Site administration"
-    When I navigate to "Plugins" > "Local plugins" > "Test Plugin" in site administration
+    And I am on the "Site administration" page
+    When I follow "Plugins"
+    And I follow "Local plugins"
+    And I follow "Test Plugin"
     Then I should see "Test Plugin"
     And I should see "Welcome to the Test Plugin!"
 
   @javascript
   Scenario: Teacher cannot access test plugin without capability
     Given I log in as "teacher"
-    And I am on "Site administration"
-    When I navigate to "Plugins" > "Local plugins" > "Test Plugin" in site administration
+    And I am on the "Site administration" page
+    When I follow "Plugins"
+    And I follow "Local plugins"
+    And I follow "Test Plugin"
     Then I should see "Access denied"
 
   @javascript
   Scenario: Student cannot access test plugin
     Given I log in as "student"
-    And I am on "Site administration"
-    When I navigate to "Plugins" > "Local plugins" > "Test Plugin" in site administration
+    And I am on the "Site administration" page
+    When I follow "Plugins"
+    And I follow "Local plugins"
+    And I follow "Test Plugin"
     Then I should see "Access denied"
 
   @javascript
@@ -39,5 +45,5 @@ Feature: Test Plugin functionality
     And I am on "/local/test_plugin/index.php"
     Then I should see "Test Plugin"
     And I should see "Welcome to the Test Plugin!"
-    And the page should contain the css ".local-test-plugin-page"
+    And the page should contain ".local-test-plugin-page"
 
