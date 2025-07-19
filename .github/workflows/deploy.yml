@@ -27,20 +27,74 @@ jobs:
           echo "Commit: ${{ github.sha }}"
           echo "✅ Proceeding with deployment..."
 
-      - name: Determine deployment type
-        id: deployment-type
+      - name: Check Required Secrets
+        id: check-secrets
         run: |
-          # Check if this is first-time deployment or plugin update
+          echo "🔍 Checking required secrets..."
+          
+          # Check first-time deployment secrets
           if [ "${{ secrets.FIRST_TIME_DEPLOYMENT }}" = "true" ]; then
             echo "deployment_type=first_time" >> $GITHUB_OUTPUT
             echo "🚀 First-time Moodle deployment detected"
+            
+            if [ -z "${{ secrets.SERVER_BASE_PATH }}" ]; then
+              echo "❌ SERVER_BASE_PATH secret is missing!"
+              echo "Please configure SERVER_BASE_PATH in GitHub Secrets"
+              exit 1
+            fi
+            
+            if [ -z "${{ secrets.SERVER_HOST }}" ]; then
+              echo "❌ SERVER_HOST secret is missing!"
+              echo "Please configure SERVER_HOST in GitHub Secrets"
+              exit 1
+            fi
+            
+            if [ -z "${{ secrets.SERVER_USERNAME }}" ]; then
+              echo "❌ SERVER_USERNAME secret is missing!"
+              echo "Please configure SERVER_USERNAME in GitHub Secrets"
+              exit 1
+            fi
+            
+            if [ -z "${{ secrets.SERVER_SSH_KEY }}" ]; then
+              echo "❌ SERVER_SSH_KEY secret is missing!"
+              echo "Please configure SERVER_SSH_KEY in GitHub Secrets"
+              exit 1
+            fi
+            
+            echo "✅ All first-time deployment secrets are configured"
           else
             echo "deployment_type=plugin_update" >> $GITHUB_OUTPUT
             echo "🔧 Plugin update deployment detected"
+            
+            if [ -z "${{ secrets.MOODLE_PATH }}" ]; then
+              echo "❌ MOODLE_PATH secret is missing!"
+              echo "Please configure MOODLE_PATH in GitHub Secrets"
+              exit 1
+            fi
+            
+            if [ -z "${{ secrets.SERVER_HOST }}" ]; then
+              echo "❌ SERVER_HOST secret is missing!"
+              echo "Please configure SERVER_HOST in GitHub Secrets"
+              exit 1
+            fi
+            
+            if [ -z "${{ secrets.SERVER_USERNAME }}" ]; then
+              echo "❌ SERVER_USERNAME secret is missing!"
+              echo "Please configure SERVER_USERNAME in GitHub Secrets"
+              exit 1
+            fi
+            
+            if [ -z "${{ secrets.SERVER_SSH_KEY }}" ]; then
+              echo "❌ SERVER_SSH_KEY secret is missing!"
+              echo "Please configure SERVER_SSH_KEY in GitHub Secrets"
+              exit 1
+            fi
+            
+            echo "✅ All plugin update secrets are configured"
           fi
 
       - name: First-time Moodle Deployment
-        if: steps.deployment-type.outputs.deployment_type == 'first_time'
+        if: steps.check-secrets.outputs.deployment_type == 'first_time'
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -95,7 +149,7 @@ jobs:
             echo "   3. Set FIRST_TIME_DEPLOYMENT=false for future updates"
 
       - name: Plugin Update Deployment
-        if: steps.deployment-type.outputs.deployment_type == 'plugin_update'
+        if: steps.check-secrets.outputs.deployment_type == 'plugin_update'
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -144,7 +198,7 @@ jobs:
             echo "🎉 Plugin update deployed successfully!"
 
       - name: Verify First-time Deployment
-        if: steps.deployment-type.outputs.deployment_type == 'first_time'
+        if: steps.check-secrets.outputs.deployment_type == 'first_time'
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -191,7 +245,7 @@ jobs:
             echo "🎉 First-time deployment verification completed successfully!"
 
       - name: Verify Plugin Update
-        if: steps.deployment-type.outputs.deployment_type == 'plugin_update'
+        if: steps.check-secrets.outputs.deployment_type == 'plugin_update'
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -230,7 +284,7 @@ jobs:
             echo "🎉 Plugin update verification completed successfully!"
 
       - name: Notify First-time Deployment Success
-        if: success() && steps.deployment-type.outputs.deployment_type == 'first_time'
+        if: success() && steps.check-secrets.outputs.deployment_type == 'first_time'
         run: |
           echo "✅ FIRST-TIME Moodle deployment completed successfully!"
           echo "🌐 Server: ${{ secrets.SERVER_HOST }}"
@@ -242,7 +296,7 @@ jobs:
           echo "   3. Set FIRST_TIME_DEPLOYMENT=false for future updates"
 
       - name: Notify Plugin Update Success
-        if: success() && steps.deployment-type.outputs.deployment_type == 'plugin_update'
+        if: success() && steps.check-secrets.outputs.deployment_type == 'plugin_update'
         run: |
           echo "✅ Plugin update deployed successfully!"
           echo "🌐 Server: ${{ secrets.SERVER_HOST }}"
