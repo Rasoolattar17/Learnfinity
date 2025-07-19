@@ -25,11 +25,20 @@
 
 namespace local_test_plugin;
 
+/**
+ * Test manager test class.
+ *
+ * @package    local_test_plugin
+ * @copyright  2024 Your Name <your.email@moodle.org>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @covers     \local_test_plugin\test_manager
+ */
 final class test_manager_test extends \advanced_testcase {
 
     /**
      * Test creating a test manager instance.
      *
+     * @covers \local_test_plugin\test_manager::__construct
      * @return void
      */
     public function test_constructor(): void {
@@ -44,6 +53,7 @@ final class test_manager_test extends \advanced_testcase {
     /**
      * Test creating a test record.
      *
+     * @covers \local_test_plugin\test_manager::create_test_record
      * @return void
      */
     public function test_create_test_record(): void {
@@ -64,6 +74,7 @@ final class test_manager_test extends \advanced_testcase {
     /**
      * Test getting test data.
      *
+     * @covers \local_test_plugin\test_manager::get_test_data
      * @return void
      */
     public function test_get_test_data(): void {
@@ -95,6 +106,7 @@ final class test_manager_test extends \advanced_testcase {
     /**
      * Test updating a test record.
      *
+     * @covers \local_test_plugin\test_manager::update_test_record
      * @return void
      */
     public function test_update_test_record(): void {
@@ -118,6 +130,7 @@ final class test_manager_test extends \advanced_testcase {
     /**
      * Test deleting a test record.
      *
+     * @covers \local_test_plugin\test_manager::delete_test_record
      * @return void
      */
     public function test_delete_test_record(): void {

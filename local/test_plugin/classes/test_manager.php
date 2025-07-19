@@ -24,8 +24,6 @@
 
 namespace local_test_plugin;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Test manager class for handling test operations.
  *
