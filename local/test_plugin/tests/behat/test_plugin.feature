@@ -40,3 +40,4 @@ Feature: Test Plugin functionality
     Then I should see "Test Plugin"
     And I should see "Welcome to the Test Plugin!"
     And the page should contain the css ".local-test-plugin-page"
+

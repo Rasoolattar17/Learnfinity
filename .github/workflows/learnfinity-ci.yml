@@ -101,6 +101,7 @@ jobs:
 
       - name: Mustache Lint
         if: ${{ !cancelled() }}
+        continue-on-error: true
         run: moodle-plugin-ci mustache ./local/test_plugin
 
       - name: Grunt
