@@ -1,0 +1,18 @@
+name: Simple Deploy Test
+
+on:
+  workflow_run:
+    workflows: ["Verify Badge Plugin CI"]
+    types: [completed]
+    branches: [master]
+
+jobs:
+  simple-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Simple Test
+        run: |
+          echo "🎉 Simple deploy test triggered!"
+          echo "CI Workflow: ${{ github.event.workflow_run.name }}"
+          echo "CI Conclusion: ${{ github.event.workflow_run.conclusion }}"
+          echo "CI Branch: ${{ github.event.workflow_run.head_branch }}" 
