@@ -114,6 +114,12 @@ jobs:
               echo "✅ Backup created successfully"
             fi
             
+            # Remove existing moodle directory if it exists
+            if [ -d "moodle" ]; then
+              echo "🗑️ Removing existing moodle directory..."
+              rm -rf moodle
+            fi
+            
             # Clone the complete Moodle repository
             echo "📥 Cloning complete Moodle codebase..."
             git clone https://github.com/${{ github.repository }}.git moodle
@@ -208,6 +214,7 @@ jobs:
           script: |
             echo "🔍 Verifying first-time Moodle deployment..."
             
+            # Navigate to the moodle directory
             cd ${{ secrets.SERVER_BASE_PATH }}/moodle
             
             # Check Moodle installation
