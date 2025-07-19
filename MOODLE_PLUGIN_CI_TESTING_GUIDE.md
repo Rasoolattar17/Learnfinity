@@ -426,6 +426,7 @@ Added a step to fix the Node.js version after Moodle installation in `.github/wo
     [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
     
     echo "20.11.0" > .nvmrc
+    nvm install 20.11.0
     nvm use 20.11.0
     node --version
 ```
