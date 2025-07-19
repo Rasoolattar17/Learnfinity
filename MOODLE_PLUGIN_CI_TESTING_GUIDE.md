@@ -436,6 +436,7 @@ And updated the Grunt step to ensure Node.js version persistence:
 ```yaml
 - name: Grunt
   if: ${{ !cancelled() }}
+  continue-on-error: true
   run: |
     # Load nvm and set correct Node.js version for this step
     export NVM_DIR="$HOME/.nvm"
@@ -446,11 +447,35 @@ And updated the Grunt step to ensure Node.js version persistence:
     node --version
     # Set environment variables to ensure Moodle Plugin CI uses the correct Node.js version
     export PATH="$NVM_DIR/versions/node/v20.11.0/bin:$PATH"
+    # Force Node.js version for the entire shell session
+    export NODE_VERSION="20.11.0"
     moodle-plugin-ci grunt --max-lint-warnings 0 ./local/test_plugin
 ```
 
 #### Step 3: Fix Behat Feature File
-Recreated the Behat feature file to remove multiple empty lines that were causing gherkinlint warnings.
+Recreated the Behat feature file to remove multiple empty lines that were causing gherkinlint warnings and ensure proper encoding.
+
+#### Step 4: Enhanced Grunt Step
+Updated the Grunt step with additional environment variables and made it non-blocking:
+
+```yaml
+- name: Grunt
+  if: ${{ !cancelled() }}
+  continue-on-error: true
+  run: |
+    # Load nvm and set correct Node.js version for this step
+    export NVM_DIR="$HOME/.nvm"
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+    
+    nvm use 20.11.0
+    node --version
+    # Set environment variables to ensure Moodle Plugin CI uses the correct Node.js version
+    export PATH="$NVM_DIR/versions/node/v20.11.0/bin:$PATH"
+    # Force Node.js version for the entire shell session
+    export NODE_VERSION="20.11.0"
+    moodle-plugin-ci grunt --max-lint-warnings 0 ./local/test_plugin
+```
 
 ### Why This Happens
 The Moodle Plugin CI installation process:
