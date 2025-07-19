@@ -1,0 +1,85 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_test_plugin/test_page
+
+    Template for the test plugin page.
+
+    Classes required for JS:
+    * none
+
+    Data attributes required for JS:
+    * none
+
+    Context variables required for this template:
+    * pluginname string The plugin name
+    * welcome_message string The welcome message
+    * testdata array Array of test data objects
+    * hasdata boolean Whether there is test data
+    * canmanage boolean Whether user can manage
+}}
+
+<div class="local-test-plugin-page">
+    <h1>{{pluginname}}</h1>
+    
+    <div class="alert alert-info">
+        {{welcome_message}}
+    </div>
+
+    {{#hasdata}}
+        <div class="test-data-section">
+            <h2>{{#str}}test_data, local_test_plugin{{/str}}</h2>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>{{#str}}name, local_test_plugin{{/str}}</th>
+                        <th>{{#str}}description, local_test_plugin{{/str}}</th>
+                        <th>{{#str}}timecreated, local_test_plugin{{/str}}</th>
+                        {{#canmanage}}
+                            <th>{{#str}}actions, local_test_plugin{{/str}}</th>
+                        {{/canmanage}}
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#testdata}}
+                        <tr>
+                            <td>{{name}}</td>
+                            <td>{{description}}</td>
+                            <td>{{#userdate}}{{timecreated}}{{/userdate}}</td>
+                            {{#canmanage}}
+                                <td>
+                                    <a href="{{editurl}}" class="btn btn-sm btn-primary">
+                                        {{#str}}edit, core{{/str}}
+                                    </a>
+                                    <a href="{{deleteurl}}" class="btn btn-sm btn-danger">
+                                        {{#str}}delete, core{{/str}}
+                                    </a>
+                                </td>
+                            {{/canmanage}}
+                        </tr>
+                    {{/testdata}}
+                </tbody>
+            </table>
+        </div>
+    {{/hasdata}}
+
+    {{^hasdata}}
+        <div class="alert alert-warning">
+            {{#str}}no_data_found, local_test_plugin{{/str}}
+        </div>
+    {{/hasdata}}
+</div> 

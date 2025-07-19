@@ -1,4 +1,4 @@
-name: Web Installer Testing
+name: Web Installer Testing (DISABLED)
 
 on:
   workflow_dispatch:

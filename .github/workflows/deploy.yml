@@ -1,0 +1,61 @@
+name: Deploy Plugin
+
+on:
+  workflow_run:
+    workflows: ["Verify Badge Plugin CI"]
+    types:
+      - completed
+    branches:
+      - main
+
+jobs:
+  deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      - name: Deploy to Server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.SERVER_PORT || 22 }}
+          script: |
+            # Navigate to Moodle directory
+            cd ${{ secrets.MOODLE_PATH }}
+            
+            # Create backup of existing plugin (if exists)
+            if [ -d "blocks/course_list" ]; then
+              cp -r blocks/course_list blocks/course_list.backup.$(date +%Y%m%d_%H%M%S)
+            fi
+            
+            # Pull latest changes from git
+            git pull origin main
+            
+            # Set proper permissions
+            chmod -R 755 blocks/course_list
+            chown -R www-data:www-data blocks/course_list
+            
+            # Clear Moodle cache
+            php admin/cli/purge_caches.php
+            
+            # Run Moodle upgrade if needed
+            php admin/cli/upgrade.php --non-interactive
+            
+            echo "Plugin deployed successfully!"
+
+      - name: Notify Deployment Success
+        if: success()
+        run: |
+          echo "✅ Plugin deployed successfully to ${{ secrets.SERVER_HOST }}"
+          echo "🔗 Moodle URL: ${{ secrets.MOODLE_URL }}"
+
+      - name: Notify Deployment Failure
+        if: failure()
+        run: |
+          echo "❌ Deployment failed!"
+          echo "Check the logs for more details." 

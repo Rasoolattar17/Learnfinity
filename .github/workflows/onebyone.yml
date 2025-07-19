@@ -1,4 +1,4 @@
-name: One by One Testing
+name: One by One Testing (DISABLED)
 # Run all the individual unit tests one by one, with
 # fully independent PHPUnit executions. Useful to
 # detect issues with some tests that are using stuff
