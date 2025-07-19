@@ -123,7 +123,15 @@ jobs:
 
       - name: Grunt
         if: ${{ !cancelled() }}
-        run: moodle-plugin-ci grunt --max-lint-warnings 0 ./local/test_plugin
+        run: |
+          # Load nvm and set correct Node.js version for this step
+          export NVM_DIR="$HOME/.nvm"
+          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+          [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+          
+          nvm use 20.11.0
+          node --version
+          moodle-plugin-ci grunt --max-lint-warnings 0 ./local/test_plugin
 
       - name: PHPUnit tests
         if: ${{ !cancelled() }}
