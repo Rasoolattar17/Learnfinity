@@ -1,11 +1,12 @@
-name: Verify Badge Plugin CI (DISABLED)
+name: Learnfinity Plugin CI
 
 on: 
-  # Temporarily disabled - uncomment below to re-enable
-  # push: []
-  # pull_request: []
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
   
-  # Manual trigger only
+  # Manual trigger also available
   workflow_dispatch:
 
 jobs:
