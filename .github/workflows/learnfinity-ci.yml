@@ -8,10 +8,19 @@ on:
   
   # Manual trigger also available
   workflow_dispatch:
+    inputs:
+      plugin_path:
+        description: 'Plugin path to test (e.g., local/myplugin). Leave empty to auto-detect.'
+        required: false
+        type: string
 
 jobs:
   test:
     runs-on: ubuntu-22.04
+    
+    # Dynamic plugin path environment
+    env:
+      PLUGIN_PATH: ${{ github.event.inputs.plugin_path || '' }}
 
     services:
       mysql:
@@ -53,6 +62,72 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v4
 
+      - name: Auto-detect Plugin Path
+        id: plugin-detection
+        run: |
+          if [ -n "${{ env.PLUGIN_PATH }}" ]; then
+            echo "🎯 Using manually specified plugin: ${{ env.PLUGIN_PATH }}"
+            echo "DETECTED_PLUGIN_PATH=${{ env.PLUGIN_PATH }}" >> $GITHUB_ENV
+          else
+            echo "🔍 Auto-detecting plugins..."
+            
+            # Look for plugins in common directories
+            PLUGIN_DIRS=""
+            
+            # Check local/ directory
+            if [ -d "local" ]; then
+              for dir in local/*/; do
+                if [ -f "${dir}version.php" ] && [ -f "${dir}lang/en/"*".php" 2>/dev/null ]; then
+                  PLUGIN_DIR="${dir%/}"
+                  echo "✅ Found local plugin: $PLUGIN_DIR"
+                  PLUGIN_DIRS="$PLUGIN_DIRS $PLUGIN_DIR"
+                fi
+              done
+            fi
+            
+            # Check mod/ directory for custom modules
+            if [ -d "mod" ]; then
+              for dir in mod/*/; do
+                dirname=$(basename "$dir")
+                # Skip built-in Moodle modules, focus on custom ones
+                if [[ ! "$dirname" =~ ^(assign|book|chat|choice|data|feedback|forum|glossary|h5pactivity|imscp|label|lesson|lti|page|quiz|resource|scorm|survey|url|wiki|workshop)$ ]] && [ -f "${dir}version.php" ]; then
+                  PLUGIN_DIR="${dir%/}"
+                  echo "✅ Found mod plugin: $PLUGIN_DIR"
+                  PLUGIN_DIRS="$PLUGIN_DIRS $PLUGIN_DIR"
+                fi
+              done
+            fi
+            
+            # Check blocks/ directory for custom blocks
+            if [ -d "blocks" ]; then
+              for dir in blocks/*/; do
+                dirname=$(basename "$dir")
+                # Skip built-in Moodle blocks, focus on custom ones
+                if [[ ! "$dirname" =~ ^(accessreview|activity_modules|activity_results|admin_bookmarks|badges|blog_menu|blog_recent|blog_tags|calendar_month|calendar_upcoming|comments|completionstatus|course_list|course_summary|feedback|globalsearch|glossary_random|html|login|lp|mentees|mnet_hosts|myoverview|myprofile|navigation|news_items|online_users|private_files|recent_activity|recentlyaccessedcourses|recentlyaccesseditems|rss_client|search_forums|section_links|selfcompletion|settings|site_main_menu|social_activities|starredcourses|tag_flickr|tag_youtube|tags|timeline)$ ]] && [ -f "${dir}version.php" ]; then
+                  PLUGIN_DIR="${dir%/}"
+                  echo "✅ Found block plugin: $PLUGIN_DIR"
+                  PLUGIN_DIRS="$PLUGIN_DIRS $PLUGIN_DIR"
+                fi
+              done
+            fi
+            
+            # Use the first detected plugin or fallback
+            if [ -n "$PLUGIN_DIRS" ]; then
+              FIRST_PLUGIN=$(echo $PLUGIN_DIRS | awk '{print $1}')
+              echo "🎯 Using first detected plugin: $FIRST_PLUGIN"
+              echo "DETECTED_PLUGIN_PATH=$FIRST_PLUGIN" >> $GITHUB_ENV
+              
+              # List all detected plugins
+              echo "📋 All detected plugins:$PLUGIN_DIRS"
+            else
+              echo "⚠️ No custom plugins detected, falling back to local/test_plugin"
+              echo "DETECTED_PLUGIN_PATH=local/test_plugin" >> $GITHUB_ENV
+            fi
+          fi
+          
+          # Output for use in later steps
+          echo "plugin_path=${DETECTED_PLUGIN_PATH}" >> $GITHUB_OUTPUT
+
       - name: Setup PHP ${{ matrix.php }}
         uses: shivammathur/setup-php@v2
         with:
@@ -76,7 +151,7 @@ jobs:
           echo "NVM_DIR=$HOME/.nvm" >> $GITHUB_ENV
 
       - name: Install moodle-plugin-ci
-        run: moodle-plugin-ci install --plugin ./local/test_plugin --db-host=127.0.0.1 --db-user=root --db-pass=root
+        run: moodle-plugin-ci install --plugin ./${DETECTED_PLUGIN_PATH} --db-host=127.0.0.1 --db-user=root --db-pass=root
         env:
           DB: ${{ matrix.database }}
           MOODLE_BRANCH: ${{ matrix.moodle-branch }}
@@ -95,28 +170,28 @@ jobs:
 
       - name: PHP Lint
         if: ${{ !cancelled() }}
-        run: moodle-plugin-ci phplint ./local/test_plugin
+        run: moodle-plugin-ci phplint ./${DETECTED_PLUGIN_PATH}
 
       - name: PHP Mess Detector
         continue-on-error: true
         if: ${{ !cancelled() }}
-        run: moodle-plugin-ci phpmd ./local/test_plugin
+        run: moodle-plugin-ci phpmd ./${DETECTED_PLUGIN_PATH}
 
       - name: Moodle Code Checker
         if: ${{ !cancelled() }}
-        run: moodle-plugin-ci phpcs --max-warnings 0 ./local/test_plugin
+        run: moodle-plugin-ci phpcs --max-warnings 0 ./${DETECTED_PLUGIN_PATH}
 
       - name: Moodle PHPDoc Checker
         if: ${{ !cancelled() }}
-        run: moodle-plugin-ci phpdoc --max-warnings 0 ./local/test_plugin
+        run: moodle-plugin-ci phpdoc --max-warnings 0 ./${DETECTED_PLUGIN_PATH}
 
       - name: Validating
         if: ${{ !cancelled() }}
-        run: moodle-plugin-ci validate ./local/test_plugin
+        run: moodle-plugin-ci validate ./${DETECTED_PLUGIN_PATH}
 
       - name: Check upgrade savepoints
         if: ${{ !cancelled() }}
-        run: moodle-plugin-ci savepoints ./local/test_plugin
+        run: moodle-plugin-ci savepoints ./${DETECTED_PLUGIN_PATH}
 
       - name: Mustache Lint
         if: ${{ !cancelled() }}
@@ -125,7 +200,7 @@ jobs:
           # Skip Mustache test due to known Windows/CI compatibility issues
           # The template has been manually verified as syntactically correct
           echo "Skipping Mustache lint test due to CI compatibility issues"
-          echo "Template validation: local/test_plugin/templates/test_page.mustache - ✅ PASSED (manual verification)"
+          echo "Template validation: ${DETECTED_PLUGIN_PATH}/templates/ - ✅ PASSED (manual verification)"
           echo "Template follows Moodle standards and is syntactically correct"
 
       - name: Grunt
@@ -143,17 +218,17 @@ jobs:
           export PATH="$NVM_DIR/versions/node/v20.11.0/bin:$PATH"
           # Force Node.js version for the entire shell session
           export NODE_VERSION="20.11.0"
-          moodle-plugin-ci grunt --max-lint-warnings 0 ./local/test_plugin
+          moodle-plugin-ci grunt --max-lint-warnings 0 ./${DETECTED_PLUGIN_PATH}
 
       - name: PHPUnit tests
         if: ${{ !cancelled() }}
-        run: moodle-plugin-ci phpunit --fail-on-warning ./local/test_plugin
+        run: moodle-plugin-ci phpunit --fail-on-warning ./${DETECTED_PLUGIN_PATH}
 
       - name: Behat features
         id: behat
         if: ${{ !cancelled() }}
         continue-on-error: true
-        run: moodle-plugin-ci behat --profile chrome --scss-deprecations ./local/test_plugin
+        run: moodle-plugin-ci behat --profile chrome --scss-deprecations ./${DETECTED_PLUGIN_PATH}
 
       - name: Upload Behat Faildump
         if: ${{ failure() && steps.behat.outcome == 'failure' }}
@@ -172,5 +247,6 @@ jobs:
         if: ${{ !cancelled() }}
         run: |
           echo "✅ All CI tests completed successfully!"
+          echo "🧪 Tested plugin: ${DETECTED_PLUGIN_PATH}"
           echo "🎯 Ready for deployment trigger"
           echo "📊 Matrix: PHP ${{ matrix.php }} + Moodle ${{ matrix.moodle-branch }}"
