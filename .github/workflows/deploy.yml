@@ -129,7 +129,7 @@ jobs:
             
             # Clone the complete Moodle repository
             echo "📥 Cloning complete Moodle codebase..."
-            git clone https://github.com/${{ github.repository }}.git moodle
+            git clone -b master https://github.com/${{ github.repository }}.git moodle
             cd moodle
             
             # Check if this is a valid Moodle installation
@@ -209,7 +209,7 @@ jobs:
             
             # Pull latest changes from git
             echo "📥 Pulling latest changes from git..."
-            git pull origin main
+            git pull origin master
             
             # Set proper permissions for plugin only
             echo "🔐 Setting proper permissions..."
