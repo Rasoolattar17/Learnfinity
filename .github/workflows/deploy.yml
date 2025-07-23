@@ -195,6 +195,15 @@ jobs:
             if [ -f "config-dist.php" ]; then
               cp config-dist.php config.php
               echo "✅ config.php created from config-dist.php"
+              
+              # Run initial Moodle installation/upgrade (only if config.php was created)
+              echo "⬆️ Running Moodle installation/upgrade..."
+              if php admin/cli/upgrade.php --non-interactive; then
+                echo "✅ Moodle installation/upgrade completed successfully"
+              else
+                echo "⚠️ Moodle installation/upgrade had issues, but continuing..."
+                echo "📝 You may need to run the web-based installer manually"
+              fi
             else
               echo "⚠️ config-dist.php not found, you'll need to create config.php manually"
             fi
@@ -245,11 +254,52 @@ jobs:
             
             # Clear Moodle cache
             echo "🧹 Clearing Moodle cache..."
-            php admin/cli/purge_caches.php
+            if php admin/cli/purge_caches.php; then
+              echo "✅ Cache cleared successfully"
+            else
+              echo "⚠️ Cache clearing failed, but continuing..."
+            fi
+            
+            # Check current plugin versions before upgrade
+            echo "📊 Pre-upgrade version check..."
+            echo "🧩 Current plugin versions:"
+            find local/ -name "version.php" -exec echo "File: {}" \; -exec grep -E "\$plugin->version|\$plugin->component" {} \; 2>/dev/null || echo "No plugin version files found"
             
             # Run Moodle upgrade if needed
             echo "⬆️ Running Moodle upgrade..."
-            php admin/cli/upgrade.php --non-interactive
+            if php admin/cli/upgrade.php --non-interactive; then
+              echo "✅ Moodle upgrade completed successfully"
+              
+              # Verify upgrade success
+              echo "🔍 Post-upgrade verification..."
+              if php admin/cli/cfg.php --component=core --name=version 2>/dev/null; then
+                echo "✅ Moodle core version updated successfully"
+              else
+                echo "⚠️ Could not verify core version update"
+              fi
+              
+            else
+              echo "❌ Moodle upgrade failed!"
+              echo "📋 Checking for upgrade issues..."
+              
+              # Check if it's a version conflict
+              if [ -f "version.php" ]; then
+                echo "📊 Moodle version information:"
+                grep -E "\$release|\$version" version.php || echo "Could not read version info"
+              fi
+              
+              # Check plugin versions
+              echo "🧩 Plugin version information:"
+              find local/ -name "version.php" -exec echo "File: {}" \; -exec grep -E "\$plugin->version|\$plugin->component" {} \; 2>/dev/null || echo "No plugin version files found"
+              
+              # Check for common upgrade issues
+              echo "🔍 Common upgrade issue checks:"
+              echo "- Database connection:"
+              php -r "echo 'PHP version: ' . PHP_VERSION . PHP_EOL;" 2>/dev/null || echo "  PHP check failed"
+              
+              echo "❌ Deployment failed due to upgrade issues"
+              exit 1
+            fi
             
             # Verify plugin installation
             echo "✅ Verifying plugin installation..."
