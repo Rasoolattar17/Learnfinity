@@ -31,7 +31,7 @@ namespace local_hello;
  * @copyright  2025, Succeed Technologies <platforms@succeedtech.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-   class hello_test extends \advanced_testcase {
+final class hello_test extends \advanced_testcase {
 
     /**
      * Tests the greeting generation.
