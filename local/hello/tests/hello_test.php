@@ -18,7 +18,7 @@
  * Tests for the Hello World plugin.
  *
  * @package    local_hello
- * @copyright  2025 Your Name <your.email@example.com>
+ * @copyright  2025, Succeed Technologies <platforms@succeedtech.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -28,10 +28,10 @@ namespace local_hello;
  * Test cases for Hello World plugin functionality.
  *
  * @package    local_hello
- * @copyright  2025 Your Name <your.email@example.com>
+ * @copyright  2025, Succeed Technologies <platforms@succeedtech.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-final class hello_test extends \basic_testcase {
+   class hello_test extends \advanced_testcase {
 
     /**
      * Tests the greeting generation.
@@ -60,6 +60,7 @@ final class hello_test extends \basic_testcase {
      */
     public function test_config_functions(): void {
         global $CFG;
+        $this->resetAfterTest(true);
         require_once($CFG->dirroot . '/local/hello/lib.php');
 
         // Test setting and getting config.
