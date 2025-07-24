@@ -15,7 +15,7 @@ on:
         type: string
 
 jobs:
-  test:
+  ci_and_deploy:
     runs-on: ubuntu-22.04
     
     # Dynamic plugin path environment
@@ -59,6 +59,7 @@ jobs:
             primary: false
 
     steps:
+      # === CI/TEST STEPS ===
       - name: Check out repository code
         uses: actions/checkout@v4
 
@@ -250,3 +251,373 @@ jobs:
           echo "🧪 Tested plugin: ${DETECTED_PLUGIN_PATH}"
           echo "🎯 Ready for deployment trigger"
           echo "📊 Matrix: PHP ${{ matrix.php }} + Moodle ${{ matrix.moodle-branch }}"
+
+      # === DEPLOYMENT STEPS ===
+      - name: Debug Deployment Trigger
+        if: ${{ success() && matrix.primary == true && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') }}
+        run: |
+          echo "🚀 Deployment workflow triggered!"
+          echo "Event: ${{ github.event_name }}"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Repository: ${{ github.repository }}"
+          echo "Commit: ${{ github.sha }}"
+          echo "✅ CI tests passed - proceeding with deployment!"
+
+      - name: Check Required Secrets
+        if: ${{ success() && matrix.primary == true && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') }}
+        id: check-secrets
+        run: |
+          echo "🔍 Checking required secrets..."
+          
+          # Check first-time deployment secrets
+          if [ "${{ secrets.FIRST_TIME_DEPLOYMENT }}" = "true" ]; then
+            echo "deployment_type=first_time" >> $GITHUB_OUTPUT
+            echo "🚀 First-time Moodle deployment detected"
+            
+            if [ -z "${{ secrets.SERVER_BASE_PATH }}" ]; then
+              echo "❌ SERVER_BASE_PATH secret is missing!"
+              echo "Please configure SERVER_BASE_PATH in GitHub Secrets"
+              exit 1
+            fi
+            
+            if [ -z "${{ secrets.SERVER_HOST }}" ]; then
+              echo "❌ SERVER_HOST secret is missing!"
+              echo "Please configure SERVER_HOST in GitHub Secrets"
+              exit 1
+            fi
+            
+            if [ -z "${{ secrets.SERVER_USERNAME }}" ]; then
+              echo "❌ SERVER_USERNAME secret is missing!"
+              echo "Please configure SERVER_USERNAME in GitHub Secrets"
+              exit 1
+            fi
+            
+            if [ -z "${{ secrets.SERVER_SSH_KEY }}" ]; then
+              echo "❌ SERVER_SSH_KEY secret is missing!"
+              echo "Please configure SERVER_SSH_KEY in GitHub Secrets"
+              exit 1
+            fi
+            
+            echo "✅ All first-time deployment secrets are configured"
+          else
+            echo "deployment_type=plugin_update" >> $GITHUB_OUTPUT
+            echo "🔧 Plugin update deployment detected"
+            
+            if [ -z "${{ secrets.MOODLE_PATH }}" ]; then
+              echo "❌ MOODLE_PATH secret is missing!"
+              echo "Please configure MOODLE_PATH in GitHub Secrets"
+              exit 1
+            fi
+            
+            if [ -z "${{ secrets.SERVER_HOST }}" ]; then
+              echo "❌ SERVER_HOST secret is missing!"
+              echo "Please configure SERVER_HOST in GitHub Secrets"
+              exit 1
+            fi
+            
+            if [ -z "${{ secrets.SERVER_USERNAME }}" ]; then
+              echo "❌ SERVER_USERNAME secret is missing!"
+              echo "Please configure SERVER_USERNAME in GitHub Secrets"
+              exit 1
+            fi
+            
+            if [ -z "${{ secrets.SERVER_SSH_KEY }}" ]; then
+              echo "❌ SERVER_SSH_KEY secret is missing!"
+              echo "Please configure SERVER_SSH_KEY in GitHub Secrets"
+              exit 1
+            fi
+            
+            echo "✅ All plugin update secrets are configured"
+          fi
+
+      - name: First-time Moodle Deployment
+        if: ${{ success() && matrix.primary == true && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && steps.check-secrets.outputs.deployment_type == 'first_time' }}
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.SERVER_PORT || 22 }}
+          script: |
+            echo "🚀 Starting FIRST-TIME Moodle deployment..."
+            
+            # Check if base path exists, create if not
+            if [ ! -d "${{ secrets.SERVER_BASE_PATH }}" ]; then
+              echo "📁 Creating base directory..."
+              mkdir -p ${{ secrets.SERVER_BASE_PATH }}
+            fi
+            
+            # Navigate to server directory
+            cd ${{ secrets.SERVER_BASE_PATH }}
+            echo "📍 Current directory: $(pwd)"
+            
+            # Create backup of existing Moodle (if exists)
+            if [ -d "moodle" ]; then
+              echo "📋 Creating backup of existing Moodle installation..."
+              cp -r moodle moodle.backup.$(date +%Y%m%d_%H%M%S)
+              echo "✅ Backup created successfully"
+            fi
+            
+            # Remove existing moodle directory if it exists
+            if [ -d "moodle" ]; then
+              echo "🗑️ Removing existing moodle directory..."
+              rm -rf moodle
+            fi
+            
+            # Clone the complete Moodle repository
+            echo "📥 Cloning complete Moodle codebase..."
+            git clone -b master https://github.com/${{ github.repository }}.git moodle
+            cd moodle
+            
+            # Check if this is a valid Moodle installation
+            if [ ! -f "version.php" ]; then
+              echo "❌ This doesn't appear to be a valid Moodle installation"
+              echo "📁 Current directory contents:"
+              ls -la
+              exit 1
+            fi
+            
+            # Set proper permissions for entire Moodle installation
+            echo "🔐 Setting proper permissions..."
+            find . -type f -exec chmod 644 {} \; 2>/dev/null || echo "⚠️ Some files couldn't be chmod'd"
+            find . -type d -exec chmod 755 {} \; 2>/dev/null || echo "⚠️ Some directories couldn't be chmod'd"
+            
+            # Set specific permissions for critical directories (if they exist)
+            for dir in admin config local blocks mod theme; do
+              if [ -d "$dir" ]; then
+                chmod -R 755 "$dir" 2>/dev/null || echo "⚠️ Couldn't set permissions for $dir"
+              fi
+            done
+            
+            # Try to set ownership (may fail if not root)
+            chown -R www-data:www-data . 2>/dev/null || echo "⚠️ Couldn't change ownership (not root user)"
+            
+            # Create moodledata directory if it doesn't exist
+            if [ ! -d "../moodledata" ]; then
+              echo "📁 Creating moodledata directory..."
+              mkdir ../moodledata
+              chmod 777 ../moodledata
+              chown www-data:www-data ../moodledata 2>/dev/null || echo "⚠️ Couldn't change moodledata ownership"
+            fi
+            
+            # Run Moodle CLI installation
+            echo "⚙️ Running Moodle CLI installation..."
+            php admin/cli/install.php --lang=en --wwwroot=http://${{ secrets.SERVER_HOST }} --dbhost=localhost --dataroot=/var/www/moodledata --dbname=moodle --dbuser=root --dbpass= --prefix=st_  --adminuser=succeed --adminemail=admin@succeedtech.com  --adminpass=Succeed@123 --fullname=moodle --shortname=moodle --chmod=0777 --dbport=3306 --non-interactive --agree-license
+            
+            # Clear any existing cache (if PHP is available)
+            echo "🧹 Clearing cache..."
+            if command -v php >/dev/null 2>&1; then
+              php admin/cli/purge_caches.php 2>/dev/null || echo "⚠️ Couldn't purge caches (PHP CLI not available or no admin/cli directory)"
+            else
+              echo "⚠️ PHP not found, skipping cache purge"
+            fi
+            
+            echo "🎉 First-time Moodle deployment completed!"
+            echo "📝 Next steps:"
+            echo "   1. Set FIRST_TIME_DEPLOYMENT=false for future updates"
+
+      - name: Plugin Update Deployment
+        if: ${{ success() && matrix.primary == true && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && steps.check-secrets.outputs.deployment_type == 'plugin_update' }}
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.SERVER_PORT || 22 }}
+          script: |
+            echo "🔧 Starting PLUGIN UPDATE deployment..."
+            
+            # Navigate to Moodle directory
+            cd ${{ secrets.MOODLE_PATH }}
+            
+            # Create backup of existing plugin (if exists)
+            if [ -d "${DETECTED_PLUGIN_PATH}" ]; then
+              echo "📋 Creating backup of existing plugin..."
+              cp -r ${DETECTED_PLUGIN_PATH} ${DETECTED_PLUGIN_PATH}.backup.$(date +%Y%m%d_%H%M%S)
+              echo "✅ Backup created successfully"
+            fi
+            
+            # Pull latest changes from git
+            echo "📥 Pulling latest changes from git..."
+            git pull origin master
+            
+            # Set proper permissions for plugin only
+            echo "🔐 Setting proper permissions..."
+            chmod -R 755 ${DETECTED_PLUGIN_PATH}
+            chown -R www-data:www-data ${DETECTED_PLUGIN_PATH}
+            
+            # Clear Moodle cache
+            echo "🧹 Clearing Moodle cache..."
+            if php admin/cli/purge_caches.php; then
+              echo "✅ Cache cleared successfully"
+            else
+              echo "⚠️ Cache clearing failed, but continuing..."
+            fi
+            
+            # Check current plugin versions before upgrade
+            echo "📊 Pre-upgrade version check..."
+            echo "🧩 Current plugin versions:"
+            find local/ -name "version.php" -exec echo "File: {}" \; -exec grep -E "\$plugin->version|\$plugin->component" {} \; 2>/dev/null || echo "No plugin version files found"
+            
+            # Run Moodle upgrade if needed
+            echo "⬆️ Running Moodle upgrade..."
+            if php admin/cli/upgrade.php --non-interactive; then
+              echo "✅ Moodle upgrade completed successfully"
+              
+              # Verify upgrade success
+              echo "🔍 Post-upgrade verification..."
+              if php admin/cli/cfg.php --component=core --name=version 2>/dev/null; then
+                echo "✅ Moodle core version updated successfully"
+              else
+                echo "⚠️ Could not verify core version update"
+              fi
+              
+            else
+              echo "❌ Moodle upgrade failed!"
+              echo "📋 Checking for upgrade issues..."
+              
+              # Check if it's a version conflict
+              if [ -f "version.php" ]; then
+                echo "📊 Moodle version information:"
+                grep -E "\$release|\$version" version.php || echo "Could not read version info"
+              fi
+              
+              # Check plugin versions
+              echo "🧩 Plugin version information:"
+              find local/ -name "version.php" -exec echo "File: {}" \; -exec grep -E "\$plugin->version|\$plugin->component" {} \; 2>/dev/null || echo "No plugin version files found"
+              
+              # Check for common upgrade issues
+              echo "🔍 Common upgrade issue checks:"
+              echo "- Database connection:"
+              php -r "echo 'PHP version: ' . PHP_VERSION . PHP_EOL;" 2>/dev/null || echo "  PHP check failed"
+              
+              echo "❌ Deployment failed due to upgrade issues"
+              exit 1
+            fi
+            
+            # Verify plugin installation
+            echo "✅ Verifying plugin installation..."
+            if [ -f "${DETECTED_PLUGIN_PATH}/version.php" ]; then
+              echo "✅ Plugin files are in place"
+            else
+              echo "❌ Plugin files not found"
+              exit 1
+            fi
+            
+            echo "🎉 Plugin update deployed successfully!"
+
+      - name: Verify First-time Deployment
+        if: ${{ success() && matrix.primary == true && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && steps.check-secrets.outputs.deployment_type == 'first_time' }}
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.SERVER_PORT || 22 }}
+          script: |
+            echo "🔍 Verifying first-time Moodle deployment..."
+            
+            # Navigate to the moodle directory
+            cd ${{ secrets.SERVER_BASE_PATH }}/moodle
+            
+            # Check Moodle installation
+            if [ -f "version.php" ]; then
+              echo "✅ Moodle installation exists"
+            else
+              echo "❌ Moodle installation not found"
+              echo "📁 Current directory contents:"
+              ls -la
+              exit 1
+            fi
+            
+            # Check plugin directory (optional for first-time deployment)
+            if [ -d "${DETECTED_PLUGIN_PATH}" ]; then
+              echo "✅ Plugin directory exists"
+            else
+              echo "⚠️ Plugin directory not found (this is normal for first-time deployment)"
+            fi
+            
+            # Check plugin files (optional for first-time deployment)
+            if [ -f "${DETECTED_PLUGIN_PATH}/version.php" ]; then
+              echo "✅ Plugin version file exists"
+            else
+              echo "⚠️ Plugin version file not found (this is normal for first-time deployment)"
+            fi
+            
+            # Check moodledata directory
+            if [ -d "../moodledata" ]; then
+              echo "✅ moodledata directory exists"
+            else
+              echo "❌ moodledata directory not found"
+              exit 1
+            fi
+            
+            echo "🎉 First-time deployment verification completed successfully!"
+
+      - name: Verify Plugin Update
+        if: ${{ success() && matrix.primary == true && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && steps.check-secrets.outputs.deployment_type == 'plugin_update' }}
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.SERVER_PORT || 22 }}
+          script: |
+            echo "🔍 Verifying plugin update deployment..."
+            
+            cd ${{ secrets.MOODLE_PATH }}
+            
+            # Check plugin directory
+            if [ -d "${DETECTED_PLUGIN_PATH}" ]; then
+              echo "✅ Plugin directory exists"
+            else
+              echo "❌ Plugin directory not found"
+              exit 1
+            fi
+            
+            # Check plugin files
+            if [ -f "${DETECTED_PLUGIN_PATH}/version.php" ]; then
+              echo "✅ Plugin version file exists"
+            else
+              echo "❌ Plugin version file not found"
+              exit 1
+            fi
+            
+            # Check permissions
+            if [ -r "${DETECTED_PLUGIN_PATH}/version.php" ]; then
+              echo "✅ Plugin files are readable"
+            else
+              echo "❌ Plugin files are not readable"
+              exit 1
+            fi
+            
+            echo "🎉 Plugin update verification completed successfully!"
+
+      - name: Notify First-time Deployment Success
+        if: ${{ success() && matrix.primary == true && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && steps.check-secrets.outputs.deployment_type == 'first_time' }}
+        run: |
+          echo "✅ FIRST-TIME Moodle deployment completed successfully!"
+          echo "🌐 Server: ${{ secrets.SERVER_HOST }}"
+          echo "📁 Moodle Path: ${{ secrets.SERVER_BASE_PATH }}/moodle"
+          echo "📅 Deployment completed at $(date)"
+          echo "📝 Next steps:"
+          echo "   1. Configure config.php with database settings"
+          echo "   2. Run Moodle installation wizard"
+          echo "   3. Set FIRST_TIME_DEPLOYMENT=false for future updates"
+
+      - name: Notify Plugin Update Success
+        if: ${{ success() && matrix.primary == true && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && steps.check-secrets.outputs.deployment_type == 'plugin_update' }}
+        run: |
+          echo "✅ Plugin update deployed successfully!"
+          echo "🌐 Server: ${{ secrets.SERVER_HOST }}"
+          echo "🔗 Moodle URL: ${{ secrets.MOODLE_URL }}"
+          echo "📅 Deployment completed at $(date)"
+          echo "🎯 Plugin: ${DETECTED_PLUGIN_PATH}"
+
+      - name: Notify Deployment Failure
+        if: ${{ failure() && matrix.primary == true && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') }}
+        run: |
+          echo "❌ Deployment failed!"
+          echo "🔍 Check the logs for more details."
+          echo "📅 Failure occurred at $(date)"
+          echo "🔄 You may need to manually deploy or check server configuration." 
