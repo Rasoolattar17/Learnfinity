@@ -190,23 +190,9 @@ jobs:
               chown www-data:www-data ../moodledata 2>/dev/null || echo "⚠️ Couldn't change moodledata ownership"
             fi
             
-            # Set up Moodle configuration
-            echo "⚙️ Setting up Moodle configuration..."
-            if [ -f "config-dist.php" ]; then
-              cp config-dist.php config.php
-              echo "✅ config.php created from config-dist.php"
-              
-              # Run initial Moodle installation/upgrade (only if config.php was created)
-              echo "⬆️ Running Moodle installation/upgrade..."
-              if php admin/cli/upgrade.php --non-interactive; then
-                echo "✅ Moodle installation/upgrade completed successfully"
-              else
-                echo "⚠️ Moodle installation/upgrade had issues, but continuing..."
-                echo "📝 You may need to run the web-based installer manually"
-              fi
-            else
-              echo "⚠️ config-dist.php not found, you'll need to create config.php manually"
-            fi
+            # Run Moodle CLI installation
+            echo "⚙️ Running Moodle CLI installation..."
+            php admin/cli/install.php --lang=en --wwwroot=http://${{ secrets.SERVER_HOST }} --dbhost=localhost --dataroot=/var/www/moodledata --dbname=moodle --dbuser=root --dbpass= --prefix=st_  --adminuser=succeed --adminemail=admin@succeedtech.com  --adminpass=Succeed@123 --fullname=moodle --shortname=moodle --chmod=0777 --dbport=3306 --non-interactive --agree-license
             
             # Clear any existing cache (if PHP is available)
             echo "🧹 Clearing cache..."
@@ -218,9 +204,7 @@ jobs:
             
             echo "🎉 First-time Moodle deployment completed!"
             echo "📝 Next steps:"
-            echo "   1. Configure config.php with database settings"
-            echo "   2. Run Moodle installation wizard"
-            echo "   3. Set FIRST_TIME_DEPLOYMENT=false for future updates"
+            echo "   1. Set FIRST_TIME_DEPLOYMENT=false for future updates"
 
       - name: Plugin Update Deployment
         if: steps.check-secrets.outputs.deployment_type == 'plugin_update'
