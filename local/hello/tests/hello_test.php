@@ -34,7 +34,9 @@ namespace local_hello;
 final class hello_test extends \basic_testcase {
 
     /**
-     * Test the greeting generation function.
+     * Tests the greeting generation.
+     *
+     * @covers \local_hello\local_hello_generate_greeting
      */
     public function test_generate_greeting(): void {
         global $CFG;
@@ -52,7 +54,9 @@ final class hello_test extends \basic_testcase {
     }
 
     /**
-     * Test configuration functions.
+     * Tests the greeting generation.
+     *
+     * @covers \local_hello\local_hello_set_config
      */
     public function test_config_functions(): void {
         global $CFG;
@@ -67,7 +71,9 @@ final class hello_test extends \basic_testcase {
     }
 
     /**
-     * Test language strings are properly defined.
+     * Tests the greeting generation.
+     *
+     * @covers \local_hello\get_string
      */
     public function test_language_strings(): void {
         $this->assertNotEmpty(get_string('pluginname', 'local_hello'));
