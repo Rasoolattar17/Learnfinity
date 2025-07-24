@@ -44,4 +44,4 @@ echo html_writer::tag('div', get_string('welcome', 'local_hello'), ['class' => '
 echo html_writer::tag('h2', $greeting);
 echo html_writer::tag('p', get_string('description', 'local_hello'));
 
-echo $OUTPUT->footer(); 
+echo $OUTPUT->footer();

@@ -55,4 +55,4 @@ function local_hello_get_config() {
  */
 function local_hello_set_config($name, $value) {
     return set_config($name, $value, 'local_hello');
-} 
+}

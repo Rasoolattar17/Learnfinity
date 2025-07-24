@@ -24,12 +24,12 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$string['pluginname'] = 'Hello World Plugin';
-$string['hello'] = 'Hello';
-$string['world'] = 'World';
-$string['greeting'] = 'Hello, {$a}!';
-$string['welcome'] = 'Welcome to the Hello World plugin!';
 $string['description'] = 'This is a simple demonstration plugin that shows a greeting message.';
-$string['settings'] = 'Hello Plugin Settings';
 $string['displayname'] = 'Display Name';
-$string['displayname_desc'] = 'Enter the name to display in the greeting.'; 
+$string['displayname_desc'] = 'Enter the name to display in the greeting.';
+$string['greeting'] = 'Hello, {$a}!';
+$string['hello'] = 'Hello';
+$string['pluginname'] = 'Hello World Plugin';
+$string['settings'] = 'Hello Plugin Settings';
+$string['welcome'] = 'Welcome to the Hello World plugin!';
+$string['world'] = 'World';

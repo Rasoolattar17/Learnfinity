@@ -31,12 +31,12 @@ namespace local_hello;
  * @copyright  2025 Your Name <your.email@example.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class hello_test extends \basic_testcase {
+final class hello_test extends \basic_testcase {
 
     /**
      * Test the greeting generation function.
      */
-    public function test_generate_greeting() {
+    public function test_generate_greeting(): void {
         global $CFG;
         require_once($CFG->dirroot . '/local/hello/lib.php');
 
@@ -54,7 +54,7 @@ class hello_test extends \basic_testcase {
     /**
      * Test configuration functions.
      */
-    public function test_config_functions() {
+    public function test_config_functions(): void {
         global $CFG;
         require_once($CFG->dirroot . '/local/hello/lib.php');
 
@@ -69,11 +69,11 @@ class hello_test extends \basic_testcase {
     /**
      * Test language strings are properly defined.
      */
-    public function test_language_strings() {
+    public function test_language_strings(): void {
         $this->assertNotEmpty(get_string('pluginname', 'local_hello'));
         $this->assertNotEmpty(get_string('hello', 'local_hello'));
         $this->assertNotEmpty(get_string('world', 'local_hello'));
         $this->assertNotEmpty(get_string('greeting', 'local_hello'));
         $this->assertNotEmpty(get_string('welcome', 'local_hello'));
     }
-} 
+}
