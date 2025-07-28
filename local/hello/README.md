@@ -1,4 +1,4 @@
-# Hello World Plugin (local_hello)
+# Hello World Plugin (local_hello) - v1.0.1
 
 A simple demonstration plugin for Moodle that showcases proper plugin development standards and CI/CD testing.
 
@@ -17,6 +17,7 @@ This local plugin provides a basic "Hello World" functionality that demonstrates
 - **Admin Settings**: Configurable display name through Moodle admin interface
 - **Language Support**: Proper language string implementation
 - **Test Coverage**: Comprehensive PHPUnit tests for CI/CD
+- **CI/CD Testing**: Enhanced functionality for automated deployment testing
 
 ## Installation
 
@@ -43,7 +44,8 @@ local/hello/
 │   └── en/
 │       └── local_hello.php  # English language strings
 └── tests/
-    └── hello_test.php       # PHPUnit test cases
+    ├── hello_test.php       # PHPUnit test cases
+    └── cicd_test.php        # CI/CD specific test cases
 ```
 
 ## Testing
@@ -53,7 +55,23 @@ This plugin includes comprehensive PHPUnit tests that are automatically run by t
 ```bash
 # Run tests manually
 vendor/bin/phpunit local/hello/tests/hello_test.php
+vendor/bin/phpunit local/hello/tests/cicd_test.php
 ```
+
+## Recent Updates (v1.0.1)
+
+- ✅ Added CI/CD test functionality
+- ✅ Updated greeting messages with version information
+- ✅ Added new language strings for CI/CD testing
+- ✅ Enhanced plugin description
+- ✅ Added test cases for CI/CD functionality
+
+### CI/CD Testing Features
+
+1. **Version Update**: Plugin version bumped to 1.0.1
+2. **New Language Strings**: Added CI/CD test messages
+3. **Enhanced UI**: Updated welcome messages with version info
+4. **Test Coverage**: Added PHPUnit tests for CI/CD functionality
 
 ## Development
 

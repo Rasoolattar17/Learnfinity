@@ -36,6 +36,15 @@ function local_hello_generate_greeting($name = '') {
 }
 
 /**
+ * Get CI/CD test status.
+ *
+ * @return string The CI/CD test status message
+ */
+function local_hello_get_cicd_status() {
+    return get_string('ci_cd_test', 'local_hello');
+}
+
+/**
  * Get the plugin's configuration settings.
  *
  * @return stdClass The configuration object

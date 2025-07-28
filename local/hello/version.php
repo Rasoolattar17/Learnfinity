@@ -25,7 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_hello';
-$plugin->version = 2025012100; // YYYYMMDDHH format.
+$plugin->version = 2025012101; // YYYYMMDDHH format.
 $plugin->requires = 2022112800; // Moodle 4.1.0 or higher.
 $plugin->maturity = MATURITY_STABLE;
-$plugin->release = '1.0.0';
+$plugin->release = '1.0.1';

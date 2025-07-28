@@ -24,12 +24,13 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$string['description'] = 'This is a simple demonstration plugin that shows a greeting message.';
+$string['ci_cd_test'] = 'CI/CD Test Successful!';
+$string['description'] = 'This is a simple demonstration plugin that shows a greeting message. Updated with CI/CD testing!';
 $string['displayname'] = 'Display Name';
 $string['displayname_desc'] = 'Enter the name to display in the greeting.';
-$string['greeting'] = 'Hello, {$a}!';
+$string['greeting'] = 'Hello, {$a}! Welcome to the updated plugin!';
 $string['hello'] = 'Hello';
 $string['pluginname'] = 'Hello World Plugin';
 $string['settings'] = 'Hello Plugin Settings';
-$string['welcome'] = 'Welcome to the Hello World plugin!';
+$string['welcome'] = 'Welcome to the Hello World plugin! (v1.0.1)';
 $string['world'] = 'World';

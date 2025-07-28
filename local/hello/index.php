@@ -43,5 +43,6 @@ $greeting = get_string('greeting', 'local_hello', $username);
 echo html_writer::tag('div', get_string('welcome', 'local_hello'), ['class' => 'alert alert-success']);
 echo html_writer::tag('h2', $greeting);
 echo html_writer::tag('p', get_string('description', 'local_hello'));
+echo html_writer::tag('div', get_string('ci_cd_test', 'local_hello'), ['class' => 'alert alert-info']);
 
 echo $OUTPUT->footer();
