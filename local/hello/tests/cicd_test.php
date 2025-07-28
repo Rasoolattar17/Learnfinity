@@ -22,6 +22,9 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace local_hello;
+
+
 /**
  * Test class for CI/CD functionality.
  *
@@ -29,7 +32,7 @@
  * @copyright  2025, Succeed Technologies <platforms@succeedtech.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-final class cicd_test extends advanced_testcase {
+final class cicd_test extends \advanced_testcase {
 
     /**
      * Test that the CI/CD status function works correctly.
