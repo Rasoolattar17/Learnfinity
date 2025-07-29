@@ -303,9 +303,9 @@ jobs:
             echo "deployment_type=plugin_update" >> $GITHUB_OUTPUT
             echo "🔧 Plugin update deployment detected"
             
-            if [ -z "${{ secrets.MOODLE_PATH }}" ]; then
-              echo "❌ MOODLE_PATH secret is missing!"
-              echo "Please configure MOODLE_PATH in GitHub Secrets"
+            if [ -z "${{ secrets.SERVER_BASE_PATH }}" ]; then
+              echo "❌ SERVER_BASE_PATH secret is missing!"
+              echo "Please configure SERVER_BASE_PATH in GitHub Secrets"
               exit 1
             fi
             
@@ -428,7 +428,7 @@ jobs:
             echo "🔧 Starting PLUGIN UPDATE deployment..."
             
             # Navigate to Moodle directory
-            cd ${{ secrets.MOODLE_PATH }}
+            cd ${{ secrets.SERVER_BASE_PATH }}
             
             # Create backup of existing plugin (if exists)
             if [ -d "${DETECTED_PLUGIN_PATH}" ]; then
@@ -565,7 +565,7 @@ jobs:
           script: |
             echo "🔍 Verifying plugin update deployment..."
             
-            cd ${{ secrets.MOODLE_PATH }}
+            cd ${{ secrets.SERVER_BASE_PATH }}
             
             # Check plugin directory
             if [ -d "${DETECTED_PLUGIN_PATH}" ]; then
