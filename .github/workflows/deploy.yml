@@ -215,15 +215,28 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: ${{ secrets.SERVER_PORT || 22 }}
           script: |
+            # Set the plugin path from the CI environment
+            DETECTED_PLUGIN_PATH="${{ env.DETECTED_PLUGIN_PATH }}"
+            
             echo "🔧 Starting PLUGIN UPDATE deployment..."
+            echo "🎯 Plugin path: ${DETECTED_PLUGIN_PATH}"
             
             # Navigate to Moodle directory
             cd ${{ secrets.MOODLE_PATH }}
+            echo "📍 Current directory: $(pwd)"
+            
+            # Check if this is a git repository
+            if [ ! -d ".git" ]; then
+              echo "❌ Not a git repository. Cannot pull latest changes."
+              echo "📁 Current directory contents:"
+              ls -la
+              exit 1
+            fi
             
             # Create backup of existing plugin (if exists)
-            if [ -d "local/test_plugin" ]; then
+            if [ -d "${DETECTED_PLUGIN_PATH}" ]; then
               echo "📋 Creating backup of existing plugin..."
-              cp -r local/test_plugin local/test_plugin.backup.$(date +%Y%m%d_%H%M%S)
+              cp -r ${DETECTED_PLUGIN_PATH} ${DETECTED_PLUGIN_PATH}.backup.$(date +%Y%m%d_%H%M%S)
               echo "✅ Backup created successfully"
             fi
             
@@ -233,15 +246,27 @@ jobs:
             
             # Set proper permissions for plugin only
             echo "🔐 Setting proper permissions..."
-            chmod -R 755 local/test_plugin
-            chown -R www-data:www-data local/test_plugin
+            if [ -d "${DETECTED_PLUGIN_PATH}" ]; then
+              chmod -R 755 ${DETECTED_PLUGIN_PATH}
+              chown -R www-data:www-data ${DETECTED_PLUGIN_PATH}
+              echo "✅ Permissions set for ${DETECTED_PLUGIN_PATH}"
+            else
+              echo "❌ Plugin directory ${DETECTED_PLUGIN_PATH} not found!"
+              echo "📁 Available local plugins:"
+              ls -la local/ 2>/dev/null || echo "No local plugins found"
+              exit 1
+            fi
             
             # Clear Moodle cache
             echo "🧹 Clearing Moodle cache..."
-            if php admin/cli/purge_caches.php; then
-              echo "✅ Cache cleared successfully"
+            if [ -f "admin/cli/purge_caches.php" ]; then
+              if php admin/cli/purge_caches.php; then
+                echo "✅ Cache cleared successfully"
+              else
+                echo "⚠️ Cache clearing failed, but continuing..."
+              fi
             else
-              echo "⚠️ Cache clearing failed, but continuing..."
+              echo "⚠️ Cache clearing script not found, but continuing..."
             fi
             
             # Check current plugin versions before upgrade
@@ -251,46 +276,54 @@ jobs:
             
             # Run Moodle upgrade if needed
             echo "⬆️ Running Moodle upgrade..."
-            if php admin/cli/upgrade.php --non-interactive; then
-              echo "✅ Moodle upgrade completed successfully"
-              
-              # Verify upgrade success
-              echo "🔍 Post-upgrade verification..."
-              if php admin/cli/cfg.php --component=core --name=version 2>/dev/null; then
-                echo "✅ Moodle core version updated successfully"
+            if [ -f "admin/cli/upgrade.php" ]; then
+              if php admin/cli/upgrade.php --non-interactive; then
+                echo "✅ Moodle upgrade completed successfully"
+                
+                # Verify upgrade success
+                echo "🔍 Post-upgrade verification..."
+                if php admin/cli/cfg.php --component=core --name=version 2>/dev/null; then
+                  echo "✅ Moodle core version updated successfully"
+                else
+                  echo "⚠️ Could not verify core version update"
+                fi
+                
               else
-                echo "⚠️ Could not verify core version update"
+                echo "❌ Moodle upgrade failed!"
+                echo "📋 Checking for upgrade issues..."
+                
+                # Check if it's a version conflict
+                if [ -f "version.php" ]; then
+                  echo "📊 Moodle version information:"
+                  grep -E "\$release|\$version" version.php || echo "Could not read version info"
+                fi
+                
+                # Check plugin versions
+                echo "🧩 Plugin version information:"
+                find local/ -name "version.php" -exec echo "File: {}" \; -exec grep -E "\$plugin->version|\$plugin->component" {} \; 2>/dev/null || echo "No plugin version files found"
+                
+                # Check for common upgrade issues
+                echo "🔍 Common upgrade issue checks:"
+                echo "- Database connection:"
+                php -r "echo 'PHP version: ' . PHP_VERSION . PHP_EOL;" 2>/dev/null || echo "  PHP check failed"
+                
+                echo "❌ Deployment failed due to upgrade issues"
+                exit 1
               fi
-              
             else
-              echo "❌ Moodle upgrade failed!"
-              echo "📋 Checking for upgrade issues..."
-              
-              # Check if it's a version conflict
-              if [ -f "version.php" ]; then
-                echo "📊 Moodle version information:"
-                grep -E "\$release|\$version" version.php || echo "Could not read version info"
-              fi
-              
-              # Check plugin versions
-              echo "🧩 Plugin version information:"
-              find local/ -name "version.php" -exec echo "File: {}" \; -exec grep -E "\$plugin->version|\$plugin->component" {} \; 2>/dev/null || echo "No plugin version files found"
-              
-              # Check for common upgrade issues
-              echo "🔍 Common upgrade issue checks:"
-              echo "- Database connection:"
-              php -r "echo 'PHP version: ' . PHP_VERSION . PHP_EOL;" 2>/dev/null || echo "  PHP check failed"
-              
-              echo "❌ Deployment failed due to upgrade issues"
-              exit 1
+              echo "⚠️ Upgrade script not found, skipping upgrade..."
             fi
             
             # Verify plugin installation
             echo "✅ Verifying plugin installation..."
-            if [ -f "local/test_plugin/version.php" ]; then
+            if [ -f "${DETECTED_PLUGIN_PATH}/version.php" ]; then
               echo "✅ Plugin files are in place"
+              echo "📊 Plugin version info:"
+              grep -E "\$plugin->version|\$plugin->component" ${DETECTED_PLUGIN_PATH}/version.php 2>/dev/null || echo "Could not read plugin version"
             else
-              echo "❌ Plugin files not found"
+              echo "❌ Plugin files not found at ${DETECTED_PLUGIN_PATH}"
+              echo "📁 Available files in plugin directory:"
+              ls -la ${DETECTED_PLUGIN_PATH} 2>/dev/null || echo "Plugin directory not accessible"
               exit 1
             fi
             
