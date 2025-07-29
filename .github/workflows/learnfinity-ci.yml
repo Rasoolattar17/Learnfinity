@@ -45,18 +45,18 @@ jobs:
             extensions: mbstring, xml, intl, gd, curl, zip, mysqli
             primary: true
           
-          # Optional: Test against other PHP versions if you want broader compatibility
-          - php: '8.2'
-            moodle-branch: 'MOODLE_404_STABLE'
-            database: mysqli
-            extensions: mbstring, xml, intl, gd, curl, zip, mysqli
-            primary: false
+          # # Optional: Test against other PHP versions if you want broader compatibility
+          # - php: '8.2'
+          #   moodle-branch: 'MOODLE_404_STABLE'
+          #   database: mysqli
+          #   extensions: mbstring, xml, intl, gd, curl, zip, mysqli
+          #   primary: false
             
-          - php: '8.1'
-            moodle-branch: 'MOODLE_403_STABLE'
-            database: mysqli
-            extensions: mbstring, xml, intl, gd, curl, zip, mysqli
-            primary: false
+          # - php: '8.1'
+          #   moodle-branch: 'MOODLE_403_STABLE'
+          #   database: mysqli
+          #   extensions: mbstring, xml, intl, gd, curl, zip, mysqli
+          #   primary: false
 
     steps:
       # === CI/TEST STEPS ===

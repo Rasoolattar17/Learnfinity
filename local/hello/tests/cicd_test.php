@@ -24,7 +24,6 @@
 
 namespace local_hello;
 
-
 /**
  * Test class for CI/CD functionality.
  *
@@ -41,14 +40,16 @@ final class cicd_test extends \advanced_testcase {
      * @covers ::get_string
      */
     public function test_cicd_status(): void {
+        global $CFG;
         $this->resetAfterTest();
+        require_once($CFG->dirroot . '/local/hello/lib.php');
 
         // Test the CI/CD status function.
-        $status = \local_hello_get_cicd_status();
+        $status = local_hello_get_cicd_status();
         $this->assertEquals('CI/CD Test Successful!', $status);
 
         // Test that the string exists in language file.
-        $this->assertEquals('CI/CD Test Successful!', \get_string('ci_cd_test', 'local_hello'));
+        $this->assertEquals('CI/CD Test Successful!', get_string('ci_cd_test', 'local_hello'));
     }
 
     /**
@@ -58,15 +59,17 @@ final class cicd_test extends \advanced_testcase {
      * @covers ::get_string
      */
     public function test_updated_greeting(): void {
+        global $CFG;
         $this->resetAfterTest();
+        require_once($CFG->dirroot . '/local/hello/lib.php');
 
         // Test greeting with a name.
-        $greeting = \local_hello_generate_greeting('Test User');
+        $greeting = local_hello_generate_greeting('Test User');
         $this->assertStringContainsString('Test User', $greeting);
         $this->assertStringContainsString('Welcome to the updated plugin!', $greeting);
 
         // Test greeting without a name (should use 'World').
-        $greeting = \local_hello_generate_greeting('');
+        $greeting = local_hello_generate_greeting('');
         $this->assertStringContainsString('World', $greeting);
     }
 }
