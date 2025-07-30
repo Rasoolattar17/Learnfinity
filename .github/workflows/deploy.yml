@@ -90,19 +90,34 @@ jobs:
         run: |
           echo "🔍 Detecting changed plugins for deployment..."
           
-          # Get list of changed files
+          # Get list of changed files with proper error handling
           if [ "${{ github.event_name }}" = "workflow_run" ]; then
             # For workflow_run (triggered by CI), check the triggering commit
             echo "📋 Checking changes in CI-triggered deployment..."
-            CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD)
+            if git rev-parse --verify HEAD~1 >/dev/null 2>&1; then
+              CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD 2>/dev/null || echo "")
+            else
+              echo "⚠️ Insufficient commit history, checking all files..."
+              CHANGED_FILES=$(git ls-files 2>/dev/null || echo "")
+            fi
           elif [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             # For manual triggers, check recent commits
             echo "📋 Checking changes in manual deployment..."
-            CHANGED_FILES=$(git diff --name-only HEAD~3 HEAD)
+            if git rev-parse --verify HEAD~3 >/dev/null 2>&1; then
+              CHANGED_FILES=$(git diff --name-only HEAD~3 HEAD 2>/dev/null || echo "")
+            else
+              echo "⚠️ Insufficient commit history, checking all files..."
+              CHANGED_FILES=$(git ls-files 2>/dev/null || echo "")
+            fi
           else
             # For emergency pushes, check the current commit
             echo "📋 Checking changes in emergency deployment..."
-            CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD)
+            if git rev-parse --verify HEAD~1 >/dev/null 2>&1; then
+              CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD 2>/dev/null || echo "")
+            else
+              echo "⚠️ Insufficient commit history, checking all files..."
+              CHANGED_FILES=$(git ls-files 2>/dev/null || echo "")
+            fi
           fi
           
           echo "📄 Changed files:"

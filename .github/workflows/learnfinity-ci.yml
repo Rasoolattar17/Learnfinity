@@ -32,15 +32,25 @@ jobs:
           else
             echo "🔍 Detecting changed plugins..."
             
-            # Get list of changed files
+            # Get list of changed files with proper error handling
             if [ "${{ github.event_name }}" = "pull_request" ]; then
               # For pull requests, compare with base branch
               echo "📋 Checking changes in pull request..."
-              CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD)
+              if git rev-parse --verify origin/${{ github.base_ref }} >/dev/null 2>&1; then
+                CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD 2>/dev/null || echo "")
+              else
+                echo "⚠️ Base branch not found, checking all files..."
+                CHANGED_FILES=$(git ls-files 2>/dev/null || echo "")
+              fi
             else
-              # For pushes, check last commit
+              # For pushes, check last commit or all files if insufficient history
               echo "📋 Checking changes in last commit..."
-              CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD)
+              if git rev-parse --verify HEAD~1 >/dev/null 2>&1; then
+                CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD 2>/dev/null || echo "")
+              else
+                echo "⚠️ Insufficient commit history, checking all files..."
+                CHANGED_FILES=$(git ls-files 2>/dev/null || echo "")
+              fi
             fi
             
             echo "📄 Changed files:"
