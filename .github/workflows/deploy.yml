@@ -90,51 +90,131 @@ jobs:
         run: |
           echo "🔍 Detecting changed plugins for deployment..."
           
-          # Get list of all plugins in the repository
-          ALL_PLUGINS=""
+          # Get list of changed files
+          if [ "${{ github.event_name }}" = "workflow_run" ]; then
+            # For workflow_run (triggered by CI), check the triggering commit
+            echo "📋 Checking changes in CI-triggered deployment..."
+            CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD)
+          elif [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            # For manual triggers, check recent commits
+            echo "📋 Checking changes in manual deployment..."
+            CHANGED_FILES=$(git diff --name-only HEAD~3 HEAD)
+          else
+            # For emergency pushes, check the current commit
+            echo "📋 Checking changes in emergency deployment..."
+            CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD)
+          fi
           
-          # Check local/ directory
+          echo "📄 Changed files:"
+          echo "$CHANGED_FILES"
+          
+          # Get list of plugins that were changed
+          PLUGINS_TO_DEPLOY=""
+          
+          # Check if any local plugins were changed
           if [ -d "local" ]; then
             for dir in local/*/; do
               if [ -f "${dir}version.php" ] && [ -f "${dir}lang/en/"*".php" 2>/dev/null ]; then
                 PLUGIN_DIR="${dir%/}"
-                echo "✅ Found local plugin: $PLUGIN_DIR"
-                ALL_PLUGINS="$ALL_PLUGINS $PLUGIN_DIR"
+                PLUGIN_NAME=$(basename "$PLUGIN_DIR")
+                
+                # Check if any files in this plugin were changed
+                if echo "$CHANGED_FILES" | grep -q "^local/$PLUGIN_NAME/"; then
+                  echo "✅ Found changed local plugin: $PLUGIN_DIR"
+                  PLUGINS_TO_DEPLOY="$PLUGINS_TO_DEPLOY $PLUGIN_DIR"
+                else
+                  echo "⏭️ Skipping unchanged local plugin: $PLUGIN_DIR"
+                fi
               fi
             done
           fi
           
-          # Check mod/ directory for custom modules
+          # Check if any mod plugins were changed
           if [ -d "mod" ]; then
             for dir in mod/*/; do
               dirname=$(basename "$dir")
               # Skip built-in Moodle modules, focus on custom ones
               if [[ ! "$dirname" =~ ^(assign|book|chat|choice|data|feedback|forum|glossary|h5pactivity|imscp|label|lesson|lti|page|quiz|resource|scorm|survey|url|wiki|workshop)$ ]] && [ -f "${dir}version.php" ]; then
                 PLUGIN_DIR="${dir%/}"
-                echo "✅ Found mod plugin: $PLUGIN_DIR"
-                ALL_PLUGINS="$ALL_PLUGINS $PLUGIN_DIR"
+                PLUGIN_NAME=$(basename "$PLUGIN_DIR")
+                
+                # Check if any files in this plugin were changed
+                if echo "$CHANGED_FILES" | grep -q "^mod/$PLUGIN_NAME/"; then
+                  echo "✅ Found changed mod plugin: $PLUGIN_DIR"
+                  PLUGINS_TO_DEPLOY="$PLUGINS_TO_DEPLOY $PLUGIN_DIR"
+                else
+                  echo "⏭️ Skipping unchanged mod plugin: $PLUGIN_DIR"
+                fi
               fi
             done
           fi
           
-          # Check blocks/ directory for custom blocks
+          # Check if any block plugins were changed
           if [ -d "blocks" ]; then
             for dir in blocks/*/; do
               dirname=$(basename "$dir")
               # Skip built-in Moodle blocks, focus on custom ones
               if [[ ! "$dirname" =~ ^(accessreview|activity_modules|activity_results|admin_bookmarks|badges|blog_menu|blog_recent|blog_tags|calendar_month|calendar_upcoming|comments|completionstatus|course_list|course_summary|feedback|globalsearch|glossary_random|html|login|lp|mentees|mnet_hosts|myoverview|myprofile|navigation|news_items|online_users|private_files|recent_activity|recentlyaccessedcourses|recentlyaccesseditems|rss_client|search_forums|section_links|selfcompletion|settings|site_main_menu|social_activities|starredcourses|tag_flickr|tag_youtube|tags|timeline)$ ]] && [ -f "${dir}version.php" ]; then
                 PLUGIN_DIR="${dir%/}"
-                echo "✅ Found block plugin: $PLUGIN_DIR"
-                ALL_PLUGINS="$ALL_PLUGINS $PLUGIN_DIR"
+                PLUGIN_NAME=$(basename "$PLUGIN_DIR")
+                
+                # Check if any files in this plugin were changed
+                if echo "$CHANGED_FILES" | grep -q "^blocks/$PLUGIN_NAME/"; then
+                  echo "✅ Found changed block plugin: $PLUGIN_DIR"
+                  PLUGINS_TO_DEPLOY="$PLUGINS_TO_DEPLOY $PLUGIN_DIR"
+                else
+                  echo "⏭️ Skipping unchanged block plugin: $PLUGIN_DIR"
+                fi
               fi
             done
           fi
           
-          # Store all plugins for deployment
-          if [ -n "$ALL_PLUGINS" ]; then
-            echo "📋 All plugins to deploy:$ALL_PLUGINS"
-            echo "PLUGINS_TO_DEPLOY=$ALL_PLUGINS" >> $GITHUB_ENV
-            echo "plugins_to_deploy=$ALL_PLUGINS" >> $GITHUB_OUTPUT
+          # Fallback if no plugins detected or if it's a manual trigger
+          if [ -z "$PLUGINS_TO_DEPLOY" ]; then
+            if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+              echo "⚠️ No changed plugins detected in manual trigger, deploying all plugins..."
+              # For manual triggers, deploy all plugins
+              PLUGINS_TO_DEPLOY=""
+              if [ -d "local" ]; then
+                for dir in local/*/; do
+                  if [ -f "${dir}version.php" ] && [ -f "${dir}lang/en/"*".php" 2>/dev/null ]; then
+                    PLUGIN_DIR="${dir%/}"
+                    echo "✅ Found local plugin: $PLUGIN_DIR"
+                    PLUGINS_TO_DEPLOY="$PLUGINS_TO_DEPLOY $PLUGIN_DIR"
+                  fi
+                done
+              fi
+              if [ -d "mod" ]; then
+                for dir in mod/*/; do
+                  dirname=$(basename "$dir")
+                  if [[ ! "$dirname" =~ ^(assign|book|chat|choice|data|feedback|forum|glossary|h5pactivity|imscp|label|lesson|lti|page|quiz|resource|scorm|survey|url|wiki|workshop)$ ]] && [ -f "${dir}version.php" ]; then
+                    PLUGIN_DIR="${dir%/}"
+                    echo "✅ Found mod plugin: $PLUGIN_DIR"
+                    PLUGINS_TO_DEPLOY="$PLUGINS_TO_DEPLOY $PLUGIN_DIR"
+                  fi
+                done
+              fi
+              if [ -d "blocks" ]; then
+                for dir in blocks/*/; do
+                  dirname=$(basename "$dir")
+                  if [[ ! "$dirname" =~ ^(accessreview|activity_modules|activity_results|admin_bookmarks|badges|blog_menu|blog_recent|blog_tags|calendar_month|calendar_upcoming|comments|completionstatus|course_list|course_summary|feedback|globalsearch|glossary_random|html|login|lp|mentees|mnet_hosts|myoverview|myprofile|navigation|news_items|online_users|private_files|recent_activity|recentlyaccessedcourses|recentlyaccesseditems|rss_client|search_forums|section_links|selfcompletion|settings|site_main_menu|social_activities|starredcourses|tag_flickr|tag_youtube|tags|timeline)$ ]] && [ -f "${dir}version.php" ]; then
+                    PLUGIN_DIR="${dir%/}"
+                    echo "✅ Found block plugin: $PLUGIN_DIR"
+                    PLUGINS_TO_DEPLOY="$PLUGINS_TO_DEPLOY $PLUGIN_DIR"
+                  fi
+                done
+              fi
+            else
+              echo "⚠️ No changed plugins detected, falling back to local/test_plugin"
+              PLUGINS_TO_DEPLOY="local/test_plugin"
+            fi
+          fi
+          
+          # Store plugins for deployment
+          if [ -n "$PLUGINS_TO_DEPLOY" ]; then
+            echo "📋 Changed plugins to deploy: $PLUGINS_TO_DEPLOY"
+            echo "PLUGINS_TO_DEPLOY=$PLUGINS_TO_DEPLOY" >> $GITHUB_ENV
+            echo "plugins_to_deploy=$PLUGINS_TO_DEPLOY" >> $GITHUB_OUTPUT
           else
             echo "⚠️ No plugins detected, falling back to local/test_plugin"
             echo "PLUGINS_TO_DEPLOY=local/test_plugin" >> $GITHUB_ENV

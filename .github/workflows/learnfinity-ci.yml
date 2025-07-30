@@ -23,59 +23,129 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v4
 
-      - name: Auto-detect All Plugins
+      - name: Auto-detect Changed Plugins
         id: plugin-detection
         run: |
           if [ -n "${{ github.event.inputs.plugin_path }}" ]; then
             echo "🎯 Using manually specified plugin: ${{ github.event.inputs.plugin_path }}"
             PLUGIN_LIST="${{ github.event.inputs.plugin_path }}"
           else
-            echo "🔍 Auto-detecting all plugins..."
+            echo "🔍 Detecting changed plugins..."
             
-            # Look for plugins in common directories
+            # Get list of changed files
+            if [ "${{ github.event_name }}" = "pull_request" ]; then
+              # For pull requests, compare with base branch
+              echo "📋 Checking changes in pull request..."
+              CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD)
+            else
+              # For pushes, check last commit
+              echo "📋 Checking changes in last commit..."
+              CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD)
+            fi
+            
+            echo "📄 Changed files:"
+            echo "$CHANGED_FILES"
+            
+            # Initialize plugin list
             PLUGIN_LIST=""
             
-            # Check local/ directory
+            # Check if any local plugins were changed
             if [ -d "local" ]; then
               for dir in local/*/; do
                 if [ -f "${dir}version.php" ] && [ -f "${dir}lang/en/"*".php" 2>/dev/null ]; then
                   PLUGIN_DIR="${dir%/}"
-                  echo "✅ Found local plugin: $PLUGIN_DIR"
-                  PLUGIN_LIST="$PLUGIN_LIST $PLUGIN_DIR"
+                  PLUGIN_NAME=$(basename "$PLUGIN_DIR")
+                  
+                  # Check if any files in this plugin were changed
+                  if echo "$CHANGED_FILES" | grep -q "^local/$PLUGIN_NAME/"; then
+                    echo "✅ Found changed local plugin: $PLUGIN_DIR"
+                    PLUGIN_LIST="$PLUGIN_LIST $PLUGIN_DIR"
+                  else
+                    echo "⏭️ Skipping unchanged local plugin: $PLUGIN_DIR"
+                  fi
                 fi
               done
             fi
             
-            # Check mod/ directory for custom modules
+            # Check if any mod plugins were changed
             if [ -d "mod" ]; then
               for dir in mod/*/; do
                 dirname=$(basename "$dir")
                 # Skip built-in Moodle modules, focus on custom ones
                 if [[ ! "$dirname" =~ ^(assign|book|chat|choice|data|feedback|forum|glossary|h5pactivity|imscp|label|lesson|lti|page|quiz|resource|scorm|survey|url|wiki|workshop)$ ]] && [ -f "${dir}version.php" ]; then
                   PLUGIN_DIR="${dir%/}"
-                  echo "✅ Found mod plugin: $PLUGIN_DIR"
-                  PLUGIN_LIST="$PLUGIN_LIST $PLUGIN_DIR"
+                  PLUGIN_NAME=$(basename "$PLUGIN_DIR")
+                  
+                  # Check if any files in this plugin were changed
+                  if echo "$CHANGED_FILES" | grep -q "^mod/$PLUGIN_NAME/"; then
+                    echo "✅ Found changed mod plugin: $PLUGIN_DIR"
+                    PLUGIN_LIST="$PLUGIN_LIST $PLUGIN_DIR"
+                  else
+                    echo "⏭️ Skipping unchanged mod plugin: $PLUGIN_DIR"
+                  fi
                 fi
               done
             fi
             
-            # Check blocks/ directory for custom blocks
+            # Check if any block plugins were changed
             if [ -d "blocks" ]; then
               for dir in blocks/*/; do
                 dirname=$(basename "$dir")
                 # Skip built-in Moodle blocks, focus on custom ones
                 if [[ ! "$dirname" =~ ^(accessreview|activity_modules|activity_results|admin_bookmarks|badges|blog_menu|blog_recent|blog_tags|calendar_month|calendar_upcoming|comments|completionstatus|course_list|course_summary|feedback|globalsearch|glossary_random|html|login|lp|mentees|mnet_hosts|myoverview|myprofile|navigation|news_items|online_users|private_files|recent_activity|recentlyaccessedcourses|recentlyaccesseditems|rss_client|search_forums|section_links|selfcompletion|settings|site_main_menu|social_activities|starredcourses|tag_flickr|tag_youtube|tags|timeline)$ ]] && [ -f "${dir}version.php" ]; then
                   PLUGIN_DIR="${dir%/}"
-                  echo "✅ Found block plugin: $PLUGIN_DIR"
-                  PLUGIN_LIST="$PLUGIN_LIST $PLUGIN_DIR"
+                  PLUGIN_NAME=$(basename "$PLUGIN_DIR")
+                  
+                  # Check if any files in this plugin were changed
+                  if echo "$CHANGED_FILES" | grep -q "^blocks/$PLUGIN_NAME/"; then
+                    echo "✅ Found changed block plugin: $PLUGIN_DIR"
+                    PLUGIN_LIST="$PLUGIN_LIST $PLUGIN_DIR"
+                  else
+                    echo "⏭️ Skipping unchanged block plugin: $PLUGIN_DIR"
+                  fi
                 fi
               done
             fi
             
-            # Fallback if no plugins detected
+            # Fallback if no plugins detected or if it's a manual trigger
             if [ -z "$PLUGIN_LIST" ]; then
-              echo "⚠️ No custom plugins detected, falling back to local/test_plugin"
-              PLUGIN_LIST="local/test_plugin"
+              if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+                echo "⚠️ No changed plugins detected in manual trigger, testing all plugins..."
+                # For manual triggers, test all plugins
+                PLUGIN_LIST=""
+                if [ -d "local" ]; then
+                  for dir in local/*/; do
+                    if [ -f "${dir}version.php" ] && [ -f "${dir}lang/en/"*".php" 2>/dev/null ]; then
+                      PLUGIN_DIR="${dir%/}"
+                      echo "✅ Found local plugin: $PLUGIN_DIR"
+                      PLUGIN_LIST="$PLUGIN_LIST $PLUGIN_DIR"
+                    fi
+                  done
+                fi
+                if [ -d "mod" ]; then
+                  for dir in mod/*/; do
+                    dirname=$(basename "$dir")
+                    if [[ ! "$dirname" =~ ^(assign|book|chat|choice|data|feedback|forum|glossary|h5pactivity|imscp|label|lesson|lti|page|quiz|resource|scorm|survey|url|wiki|workshop)$ ]] && [ -f "${dir}version.php" ]; then
+                      PLUGIN_DIR="${dir%/}"
+                      echo "✅ Found mod plugin: $PLUGIN_DIR"
+                      PLUGIN_LIST="$PLUGIN_LIST $PLUGIN_DIR"
+                    fi
+                  done
+                fi
+                if [ -d "blocks" ]; then
+                  for dir in blocks/*/; do
+                    dirname=$(basename "$dir")
+                    if [[ ! "$dirname" =~ ^(accessreview|activity_modules|activity_results|admin_bookmarks|badges|blog_menu|blog_recent|blog_tags|calendar_month|calendar_upcoming|comments|completionstatus|course_list|course_summary|feedback|globalsearch|glossary_random|html|login|lp|mentees|mnet_hosts|myoverview|myprofile|navigation|news_items|online_users|private_files|recent_activity|recentlyaccessedcourses|recentlyaccesseditems|rss_client|search_forums|section_links|selfcompletion|settings|site_main_menu|social_activities|starredcourses|tag_flickr|tag_youtube|tags|timeline)$ ]] && [ -f "${dir}version.php" ]; then
+                      PLUGIN_DIR="${dir%/}"
+                      echo "✅ Found block plugin: $PLUGIN_DIR"
+                      PLUGIN_LIST="$PLUGIN_LIST $PLUGIN_DIR"
+                    fi
+                  done
+                fi
+              else
+                echo "⚠️ No changed plugins detected, falling back to local/test_plugin"
+                PLUGIN_LIST="local/test_plugin"
+              fi
             fi
           fi
           
@@ -92,7 +162,7 @@ jobs:
           done
           PLUGIN_ARRAY="$PLUGIN_ARRAY]"
           
-          echo "📋 All plugins to test: $PLUGIN_LIST"
+          echo "📋 Changed plugins to test: $PLUGIN_LIST"
           echo "🔧 Plugin matrix: $PLUGIN_ARRAY"
           echo "plugin_matrix=$PLUGIN_ARRAY" >> $GITHUB_OUTPUT
 
