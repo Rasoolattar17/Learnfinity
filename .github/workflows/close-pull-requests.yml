@@ -1,4 +1,4 @@
-name: 'Close Pull Requests (DISABLED)'
+name: 'Close Pull Requests'
 
 on:
   pull_request_target:
