@@ -28,6 +28,7 @@ require_once($CFG->libdir . '/adminlib.php');
 require_login();
 
 $context = context_system::instance();
+
 require_capability('moodle/site:config', $context);
 
 $PAGE->set_url('/local/hello/index.php');
@@ -39,11 +40,6 @@ echo $OUTPUT->header();
 
 $username = fullname($USER);
 $greeting = get_string('greeting', 'local_hello', $username);
-
-echo $OUTPUT->heading(get_string('pluginname', 'local_hello'));
-echo $OUTPUT->heading(get_string('pluginname', 'local_hello'));
-
-
 
 
 echo html_writer::tag('div', get_string('welcome', 'local_hello'), ['class' => 'alert alert-success']);
