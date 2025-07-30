@@ -97,8 +97,8 @@ jobs:
             if git rev-parse --verify HEAD~1 >/dev/null 2>&1; then
               CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD 2>/dev/null || echo "")
             else
-              echo "⚠️ Insufficient commit history, checking all files..."
-              CHANGED_FILES=$(git ls-files 2>/dev/null || echo "")
+              echo "⚠️ Insufficient commit history, using conservative approach..."
+              CHANGED_FILES=""
             fi
           elif [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             # For manual triggers, check recent commits
@@ -106,8 +106,8 @@ jobs:
             if git rev-parse --verify HEAD~3 >/dev/null 2>&1; then
               CHANGED_FILES=$(git diff --name-only HEAD~3 HEAD 2>/dev/null || echo "")
             else
-              echo "⚠️ Insufficient commit history, checking all files..."
-              CHANGED_FILES=$(git ls-files 2>/dev/null || echo "")
+              echo "⚠️ Insufficient commit history, using conservative approach..."
+              CHANGED_FILES=""
             fi
           else
             # For emergency pushes, check the current commit
@@ -115,8 +115,8 @@ jobs:
             if git rev-parse --verify HEAD~1 >/dev/null 2>&1; then
               CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD 2>/dev/null || echo "")
             else
-              echo "⚠️ Insufficient commit history, checking all files..."
-              CHANGED_FILES=$(git ls-files 2>/dev/null || echo "")
+              echo "⚠️ Insufficient commit history, using conservative approach..."
+              CHANGED_FILES=""
             fi
           fi
           
