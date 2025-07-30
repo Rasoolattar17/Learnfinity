@@ -117,7 +117,7 @@ jobs:
               done
             fi
             
-            # Fallback if no plugins detected or if it's a manual trigger
+            # Smart fallback logic
             if [ -z "$PLUGIN_LIST" ]; then
               if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
                 echo "⚠️ No changed plugins detected in manual trigger, testing all plugins..."
@@ -153,8 +153,86 @@ jobs:
                   done
                 fi
               else
-                echo "⚠️ No changed plugins detected, falling back to local/test_plugin"
-                PLUGIN_LIST="local/test_plugin"
+                # For automatic triggers with insufficient history, be more conservative
+                echo "⚠️ No changed plugins detected and insufficient commit history"
+                echo "🔍 Checking if this is a new repository or first commit..."
+                
+                # Check if this looks like a new repository (few files, recent commits)
+                COMMIT_COUNT=$(git rev-list --count HEAD 2>/dev/null || echo "0")
+                FILE_COUNT=$(git ls-files | wc -l 2>/dev/null || echo "0")
+                
+                echo "📊 Repository stats: $COMMIT_COUNT commits, $FILE_COUNT files"
+                
+                if [ "$COMMIT_COUNT" -le 1 ] && [ "$FILE_COUNT" -lt 100 ]; then
+                  echo "🎯 This appears to be a new repository, testing only the first plugin found..."
+                  # For new repositories, just test the first plugin found
+                  if [ -d "local" ]; then
+                    for dir in local/*/; do
+                      if [ -f "${dir}version.php" ] && [ -f "${dir}lang/en/"*".php" 2>/dev/null ]; then
+                        PLUGIN_DIR="${dir%/}"
+                        echo "✅ Testing first plugin in new repository: $PLUGIN_DIR"
+                        PLUGIN_LIST="$PLUGIN_DIR"
+                        break
+                      fi
+                    done
+                  fi
+                  
+                  if [ -z "$PLUGIN_LIST" ] && [ -d "mod" ]; then
+                    for dir in mod/*/; do
+                      dirname=$(basename "$dir")
+                      if [[ ! "$dirname" =~ ^(assign|book|chat|choice|data|feedback|forum|glossary|h5pactivity|imscp|label|lesson|lti|page|quiz|resource|scorm|survey|url|wiki|workshop)$ ]] && [ -f "${dir}version.php" ]; then
+                        PLUGIN_DIR="${dir%/}"
+                        echo "✅ Testing first plugin in new repository: $PLUGIN_DIR"
+                        PLUGIN_LIST="$PLUGIN_DIR"
+                        break
+                      fi
+                    done
+                  fi
+                  
+                  if [ -z "$PLUGIN_LIST" ] && [ -d "blocks" ]; then
+                    for dir in blocks/*/; do
+                      dirname=$(basename "$dir")
+                      if [[ ! "$dirname" =~ ^(accessreview|activity_modules|activity_results|admin_bookmarks|badges|blog_menu|blog_recent|blog_tags|calendar_month|calendar_upcoming|comments|completionstatus|course_list|course_summary|feedback|globalsearch|glossary_random|html|login|lp|mentees|mnet_hosts|myoverview|myprofile|navigation|news_items|online_users|private_files|recent_activity|recentlyaccessedcourses|recentlyaccesseditems|rss_client|search_forums|section_links|selfcompletion|settings|site_main_menu|social_activities|starredcourses|tag_flickr|tag_youtube|tags|timeline)$ ]] && [ -f "${dir}version.php" ]; then
+                        PLUGIN_DIR="${dir%/}"
+                        echo "✅ Testing first plugin in new repository: $PLUGIN_DIR"
+                        PLUGIN_LIST="$PLUGIN_DIR"
+                        break
+                      fi
+                    done
+                  fi
+                else
+                  echo "⚠️ This appears to be an existing repository with insufficient history"
+                  echo "🔍 Checking for recent file modifications..."
+                  
+                  # Check for recently modified files (last 24 hours)
+                  RECENT_FILES=$(find . -type f -mtime -1 -name "*.php" 2>/dev/null | grep -E "(local|mod|blocks)/" | head -10 || echo "")
+                  
+                  if [ -n "$RECENT_FILES" ]; then
+                    echo "📄 Recently modified files:"
+                    echo "$RECENT_FILES"
+                    
+                    # Extract plugin names from recently modified files
+                    for file in $RECENT_FILES; do
+                      if [[ "$file" =~ ^\./(local|mod|blocks)/([^/]+)/ ]]; then
+                        PLUGIN_TYPE="${BASH_REMATCH[1]}"
+                        PLUGIN_NAME="${BASH_REMATCH[2]}"
+                        PLUGIN_DIR="$PLUGIN_TYPE/$PLUGIN_NAME"
+                        
+                        # Check if this plugin is already in the list
+                        if [[ ! " $PLUGIN_LIST " =~ " $PLUGIN_DIR " ]]; then
+                          echo "✅ Found recently modified plugin: $PLUGIN_DIR"
+                          PLUGIN_LIST="$PLUGIN_LIST $PLUGIN_DIR"
+                        fi
+                      fi
+                    done
+                  fi
+                fi
+                
+                # Final fallback
+                if [ -z "$PLUGIN_LIST" ]; then
+                  echo "⚠️ No plugins detected, falling back to local/test_plugin"
+                  PLUGIN_LIST="local/test_plugin"
+                fi
               fi
             fi
           fi
