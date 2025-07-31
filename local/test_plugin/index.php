@@ -51,4 +51,16 @@ echo html_writer::div(
     'alert alert-info'
 );
 
+echo $OUTPUT->heading(get_string('pluginname', 'local_test_plugin'));
+
+echo html_writer::div(
+    get_string('welcome_message', 'local_test_plugin'),
+    'alert alert-info'
+);
+
+echo $OUTPUT->heading(get_string('pluginname', 'local_test_plugin'));
+
+
+
+
 echo $OUTPUT->footer();
