@@ -168,9 +168,26 @@ jobs:
             
             # Pull latest changes from git
             echo "📥 Pulling latest changes from git..."
+            echo "🔍 Current branch: $(git branch --show-current)"
+            echo "🔍 Available branches:"
+            git branch -a
+            
             # Configure git to use merge strategy for divergent branches
             git config pull.rebase false
-            git pull origin master
+            
+            # Pull from the correct branch (master or the deployment branch)
+            DEPLOYMENT_BRANCH="${{ github.ref_name }}"
+            if [ "$DEPLOYMENT_BRANCH" = "refs/heads/master" ] || [ "$DEPLOYMENT_BRANCH" = "master" ]; then
+              echo "📥 Pulling from master branch..."
+              git pull origin master
+            else
+              echo "📥 Pulling from hotfix/new_updates branch..."
+              git pull origin hotfix/new_updates
+            fi
+            
+            # Show what plugins are available after git pull
+            echo "📁 Available plugins after git pull:"
+            ls -la local/ 2>/dev/null || echo "No local plugins found"
             
             # Deploy each plugin
             if [ -z "$PLUGINS_TO_DEPLOY" ]; then
@@ -184,26 +201,25 @@ jobs:
               for plugin_path in $PLUGINS_TO_DEPLOY; do
               echo "🎯 Deploying plugin: $plugin_path"
               
-              # Create backup of existing plugin (if exists)
-              if [ -d "$plugin_path" ]; then
-                echo "📋 Creating backup of existing plugin..."
-                cp -r $plugin_path ${plugin_path}.backup.$(date +%Y%m%d_%H%M%S)
-                echo "✅ Backup created successfully for $plugin_path"
-              fi
-              
-              # Set proper permissions for plugin
-              echo "🔐 Setting proper permissions for $plugin_path..."
-              if [ -d "$plugin_path" ]; then
-                chmod -R 755 $plugin_path
-                chown -R www-data:www-data $plugin_path
-                echo "✅ Permissions set for $plugin_path"
-              else
-                echo "❌ Plugin directory $plugin_path not found!"
+              # Check if plugin exists after git pull
+              if [ ! -d "$plugin_path" ]; then
+                echo "❌ Plugin directory $plugin_path not found after git pull!"
                 echo "📁 Available local plugins:"
                 ls -la local/ 2>/dev/null || echo "No local plugins found"
                 echo "⚠️ Continuing with other plugins..."
                 continue
               fi
+              
+              # Create backup of existing plugin (if exists)
+              echo "📋 Creating backup of existing plugin..."
+              cp -r $plugin_path ${plugin_path}.backup.$(date +%Y%m%d_%H%M%S)
+              echo "✅ Backup created successfully for $plugin_path"
+              
+              # Set proper permissions for plugin
+              echo "🔐 Setting proper permissions for $plugin_path..."
+              chmod -R 755 $plugin_path
+              chown -R www-data:www-data $plugin_path
+              echo "✅ Permissions set for $plugin_path"
               
               # Verify plugin installation
               echo "✅ Verifying plugin installation for $plugin_path..."
