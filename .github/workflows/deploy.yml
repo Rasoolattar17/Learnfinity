@@ -135,8 +135,8 @@ jobs:
           username: ${{ secrets.SERVER_USERNAME }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: ${{ secrets.SERVER_PORT || 22 }}
-          timeout: 300
-          command_timeout: 300
+          timeout: 300s
+          command_timeout: 300s
           script: |
             # Get the list of plugins to deploy
             PLUGINS_TO_DEPLOY="${{ env.PLUGINS_TO_DEPLOY }}"
@@ -363,6 +363,8 @@ jobs:
           username: ${{ secrets.SERVER_USERNAME }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: ${{ secrets.SERVER_PORT || 22 }}
+          timeout: 300s
+          command_timeout: 300s
           script: |
             echo "🔍 Verifying multi-plugin deployment..."
             
