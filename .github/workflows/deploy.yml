@@ -179,10 +179,15 @@ jobs:
             # Configure git to use merge strategy for divergent branches
             git config pull.rebase false
             
-            # Fix git permissions first
-            echo "🔧 Fixing git repository permissions..."
+            # Fix git permissions and ownership issues
+            echo "🔧 Fixing git repository permissions and ownership..."
             sudo chown -R www-data:www-data .git/ 2>/dev/null || echo "⚠️ Could not change git ownership"
             sudo chmod -R 755 .git/ 2>/dev/null || echo "⚠️ Could not change git permissions"
+            
+            # Add safe directory to git config to fix dubious ownership
+            echo "🔧 Adding safe directory to git config..."
+            git config --global --add safe.directory $(pwd) 2>/dev/null || echo "⚠️ Could not add safe directory"
+            git config --global --add safe.directory ${{ secrets.SERVER_BASE_PATH }}/moodle 2>/dev/null || echo "⚠️ Could not add safe directory with full path"
             
             # Fetch all branches first
             echo "📥 Fetching all branches..."
