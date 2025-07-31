@@ -104,7 +104,7 @@ jobs:
           # Check if any local plugins were changed
           if [ -d "local" ]; then
             for dir in local/*/; do
-              if [ -f "${dir}version.php" ] && [ -f "${dir}lang/en/"*".php" 2>/dev/null ]; then
+              if [ -f "${dir}version.php" ]; then
                 PLUGIN_DIR="${dir%/}"
                 PLUGIN_NAME=$(basename "$PLUGIN_DIR")
                 
@@ -167,7 +167,7 @@ jobs:
               PLUGINS_TO_DEPLOY=""
               if [ -d "local" ]; then
                 for dir in local/*/; do
-                  if [ -f "${dir}version.php" ] && [ -f "${dir}lang/en/"*".php" 2>/dev/null ]; then
+                  if [ -f "${dir}version.php" ]; then
                     PLUGIN_DIR="${dir%/}"
                     echo "✅ Found local plugin: $PLUGIN_DIR"
                     PLUGINS_TO_DEPLOY="$PLUGINS_TO_DEPLOY $PLUGIN_DIR"
@@ -210,7 +210,7 @@ jobs:
                 # For new repositories, just deploy the first plugin found
                 if [ -d "local" ]; then
                   for dir in local/*/; do
-                    if [ -f "${dir}version.php" ] && [ -f "${dir}lang/en/"*".php" 2>/dev/null ]; then
+                    if [ -f "${dir}version.php" ]; then
                       PLUGIN_DIR="${dir%/}"
                       echo "✅ Deploying first plugin in new repository: $PLUGIN_DIR"
                       PLUGINS_TO_DEPLOY="$PLUGIN_DIR"
