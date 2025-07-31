@@ -305,7 +305,19 @@ jobs:
             
             # Navigate to Moodle directory
             cd ${{ secrets.SERVER_BASE_PATH }}
-            echo "📍 Current directory: $(pwd)"
+            echo "📍 Base directory: $(pwd)"
+            
+            # Check if moodle subdirectory exists
+            if [ ! -d "moodle" ]; then
+              echo "❌ Moodle directory not found in base path"
+              echo "📁 Current directory contents:"
+              ls -la
+              exit 1
+            fi
+            
+            # Navigate to the moodle subdirectory
+            cd moodle
+            echo "📍 Moodle directory: $(pwd)"
             
             # Check if this is a git repository
             if [ ! -d ".git" ]; then
@@ -430,7 +442,7 @@ jobs:
           script: |
             echo "🔍 Verifying multi-plugin deployment..."
             
-            cd ${{ secrets.SERVER_BASE_PATH }}
+            cd ${{ secrets.SERVER_BASE_PATH }}/moodle
             
             # Get the list of plugins that were deployed
             PLUGINS_TO_VERIFY="${{ steps.plugin-detection.outputs.plugins_to_deploy }}"
