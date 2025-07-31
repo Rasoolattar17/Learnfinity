@@ -69,240 +69,63 @@ jobs:
           
           echo "✅ All plugin update secrets are configured"
 
-      - name: Auto-detect Changed Plugins
+      - name: Deploy All Plugins
         id: plugin-detection
         run: |
-          echo "🔍 Detecting changed plugins for deployment..."
+          echo "🚀 Deploying ALL plugins without git detection..."
           
-          # Get list of changed files with proper error handling
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            # For manual triggers, check recent commits
-            echo "📋 Checking changes in manual deployment..."
-            if git rev-parse --verify HEAD~3 >/dev/null 2>&1; then
-              CHANGED_FILES=$(git diff --name-only HEAD~3 HEAD 2>/dev/null || echo "")
-            else
-              echo "⚠️ Insufficient commit history, using conservative approach..."
-              CHANGED_FILES=""
-            fi
-          else
-            # For push events, check the current commit
-            echo "📋 Checking changes in push deployment..."
-            if git rev-parse --verify HEAD~1 >/dev/null 2>&1; then
-              CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD 2>/dev/null || echo "")
-            else
-              echo "⚠️ Insufficient commit history, using conservative approach..."
-              CHANGED_FILES=""
-            fi
-          fi
-          
-          echo "📄 Changed files:"
-          echo "$CHANGED_FILES"
-          
-          # Get list of plugins that were changed
+          # Deploy all plugins found in the repository
           PLUGINS_TO_DEPLOY=""
           
-          # Check if any local plugins were changed
+          # Add all local plugins
           if [ -d "local" ]; then
+            echo "📁 Scanning local plugins..."
             for dir in local/*/; do
               if [ -f "${dir}version.php" ]; then
                 PLUGIN_DIR="${dir%/}"
-                PLUGIN_NAME=$(basename "$PLUGIN_DIR")
-                
-                # Check if any files in this plugin were changed
-                if echo "$CHANGED_FILES" | grep -q "^local/$PLUGIN_NAME/"; then
-                  echo "✅ Found changed local plugin: $PLUGIN_DIR"
-                  PLUGINS_TO_DEPLOY="$PLUGINS_TO_DEPLOY $PLUGIN_DIR"
-                else
-                  echo "⏭️ Skipping unchanged local plugin: $PLUGIN_DIR"
-                fi
+                echo "✅ Found local plugin: $PLUGIN_DIR"
+                PLUGINS_TO_DEPLOY="$PLUGINS_TO_DEPLOY $PLUGIN_DIR"
               fi
             done
           fi
           
-          # Check if any mod plugins were changed
+          # Add all custom mod plugins
           if [ -d "mod" ]; then
+            echo "📁 Scanning mod plugins..."
             for dir in mod/*/; do
               dirname=$(basename "$dir")
               # Skip built-in Moodle modules, focus on custom ones
               if [[ ! "$dirname" =~ ^(assign|book|chat|choice|data|feedback|forum|glossary|h5pactivity|imscp|label|lesson|lti|page|quiz|resource|scorm|survey|url|wiki|workshop)$ ]] && [ -f "${dir}version.php" ]; then
                 PLUGIN_DIR="${dir%/}"
-                PLUGIN_NAME=$(basename "$PLUGIN_DIR")
-                
-                # Check if any files in this plugin were changed
-                if echo "$CHANGED_FILES" | grep -q "^mod/$PLUGIN_NAME/"; then
-                  echo "✅ Found changed mod plugin: $PLUGIN_DIR"
-                  PLUGINS_TO_DEPLOY="$PLUGINS_TO_DEPLOY $PLUGIN_DIR"
-                else
-                  echo "⏭️ Skipping unchanged mod plugin: $PLUGIN_DIR"
-                fi
+                echo "✅ Found mod plugin: $PLUGIN_DIR"
+                PLUGINS_TO_DEPLOY="$PLUGINS_TO_DEPLOY $PLUGIN_DIR"
               fi
             done
           fi
           
-          # Check if any block plugins were changed
+          # Add all custom block plugins
           if [ -d "blocks" ]; then
+            echo "📁 Scanning block plugins..."
             for dir in blocks/*/; do
               dirname=$(basename "$dir")
               # Skip built-in Moodle blocks, focus on custom ones
               if [[ ! "$dirname" =~ ^(accessreview|activity_modules|activity_results|admin_bookmarks|badges|blog_menu|blog_recent|blog_tags|calendar_month|calendar_upcoming|comments|completionstatus|course_list|course_summary|feedback|globalsearch|glossary_random|html|login|lp|mentees|mnet_hosts|myoverview|myprofile|navigation|news_items|online_users|private_files|recent_activity|recentlyaccessedcourses|recentlyaccesseditems|rss_client|search_forums|section_links|selfcompletion|settings|site_main_menu|social_activities|starredcourses|tag_flickr|tag_youtube|tags|timeline)$ ]] && [ -f "${dir}version.php" ]; then
                 PLUGIN_DIR="${dir%/}"
-                PLUGIN_NAME=$(basename "$PLUGIN_DIR")
-                
-                # Check if any files in this plugin were changed
-                if echo "$CHANGED_FILES" | grep -q "^blocks/$PLUGIN_NAME/"; then
-                  echo "✅ Found changed block plugin: $PLUGIN_DIR"
-                  PLUGINS_TO_DEPLOY="$PLUGINS_TO_DEPLOY $PLUGIN_DIR"
-                else
-                  echo "⏭️ Skipping unchanged block plugin: $PLUGIN_DIR"
-                fi
+                echo "✅ Found block plugin: $PLUGIN_DIR"
+                PLUGINS_TO_DEPLOY="$PLUGINS_TO_DEPLOY $PLUGIN_DIR"
               fi
             done
           fi
           
-          # Fallback if no plugins detected or if it's a manual trigger
-          if [ -z "$PLUGINS_TO_DEPLOY" ]; then
-            if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-              echo "⚠️ No changed plugins detected in manual trigger, deploying all plugins..."
-              # For manual triggers, deploy all plugins
-              PLUGINS_TO_DEPLOY=""
-              if [ -d "local" ]; then
-                for dir in local/*/; do
-                  if [ -f "${dir}version.php" ]; then
-                    PLUGIN_DIR="${dir%/}"
-                    echo "✅ Found local plugin: $PLUGIN_DIR"
-                    PLUGINS_TO_DEPLOY="$PLUGINS_TO_DEPLOY $PLUGIN_DIR"
-                  fi
-                done
-              fi
-              if [ -d "mod" ]; then
-                for dir in mod/*/; do
-                  dirname=$(basename "$dir")
-                  if [[ ! "$dirname" =~ ^(assign|book|chat|choice|data|feedback|forum|glossary|h5pactivity|imscp|label|lesson|lti|page|quiz|resource|scorm|survey|url|wiki|workshop)$ ]] && [ -f "${dir}version.php" ]; then
-                    PLUGIN_DIR="${dir%/}"
-                    echo "✅ Found mod plugin: $PLUGIN_DIR"
-                    PLUGINS_TO_DEPLOY="$PLUGINS_TO_DEPLOY $PLUGIN_DIR"
-                  fi
-                done
-              fi
-              if [ -d "blocks" ]; then
-                for dir in blocks/*/; do
-                  dirname=$(basename "$dir")
-                  if [[ ! "$dirname" =~ ^(accessreview|activity_modules|activity_results|admin_bookmarks|badges|blog_menu|blog_recent|blog_tags|calendar_month|calendar_upcoming|comments|completionstatus|course_list|course_summary|feedback|globalsearch|glossary_random|html|login|lp|mentees|mnet_hosts|myoverview|myprofile|navigation|news_items|online_users|private_files|recent_activity|recentlyaccessedcourses|recentlyaccesseditems|rss_client|search_forums|section_links|selfcompletion|settings|site_main_menu|social_activities|starredcourses|tag_flickr|tag_youtube|tags|timeline)$ ]] && [ -f "${dir}version.php" ]; then
-                    PLUGIN_DIR="${dir%/}"
-                    echo "✅ Found block plugin: $PLUGIN_DIR"
-                    PLUGINS_TO_DEPLOY="$PLUGINS_TO_DEPLOY $PLUGIN_DIR"
-                  fi
-                done
-              fi
-            else
-              # For automatic triggers with insufficient history, be more conservative
-              echo "⚠️ No changed plugins detected and insufficient commit history"
-              echo "🔍 Checking if this is a new repository or first commit..."
-              
-              # Check if this looks like a new repository (few files, recent commits)
-              COMMIT_COUNT=$(git rev-list --count HEAD 2>/dev/null || echo "0")
-              FILE_COUNT=$(git ls-files | wc -l 2>/dev/null || echo "0")
-              
-              echo "📊 Repository stats: $COMMIT_COUNT commits, $FILE_COUNT files"
-              
-              if [ "$COMMIT_COUNT" -le 1 ] && [ "$FILE_COUNT" -lt 100 ]; then
-                echo "🎯 This appears to be a new repository, deploying only the first plugin found..."
-                # For new repositories, just deploy the first plugin found
-                if [ -d "local" ]; then
-                  for dir in local/*/; do
-                    if [ -f "${dir}version.php" ]; then
-                      PLUGIN_DIR="${dir%/}"
-                      echo "✅ Deploying first plugin in new repository: $PLUGIN_DIR"
-                      PLUGINS_TO_DEPLOY="$PLUGIN_DIR"
-                      break
-                    fi
-                  done
-                fi
-                
-                if [ -z "$PLUGINS_TO_DEPLOY" ] && [ -d "mod" ]; then
-                  for dir in mod/*/; do
-                    dirname=$(basename "$dir")
-                    if [[ ! "$dirname" =~ ^(assign|book|chat|choice|data|feedback|forum|glossary|h5pactivity|imscp|label|lesson|lti|page|quiz|resource|scorm|survey|url|wiki|workshop)$ ]] && [ -f "${dir}version.php" ]; then
-                      PLUGIN_DIR="${dir%/}"
-                      echo "✅ Deploying first plugin in new repository: $PLUGIN_DIR"
-                      PLUGINS_TO_DEPLOY="$PLUGIN_DIR"
-                      break
-                    fi
-                  done
-                fi
-                
-                if [ -z "$PLUGINS_TO_DEPLOY" ] && [ -d "blocks" ]; then
-                  for dir in blocks/*/; do
-                    dirname=$(basename "$dir")
-                    if [[ ! "$dirname" =~ ^(accessreview|activity_modules|activity_results|admin_bookmarks|badges|blog_menu|blog_recent|blog_tags|calendar_month|calendar_upcoming|comments|completionstatus|course_list|course_summary|feedback|globalsearch|glossary_random|html|login|lp|mentees|mnet_hosts|myoverview|myprofile|navigation|news_items|online_users|private_files|recent_activity|recentlyaccessedcourses|recentlyaccesseditems|rss_client|search_forums|section_links|selfcompletion|settings|site_main_menu|social_activities|starredcourses|tag_flickr|tag_youtube|tags|timeline)$ ]] && [ -f "${dir}version.php" ]; then
-                      PLUGIN_DIR="${dir%/}"
-                      echo "✅ Deploying first plugin in new repository: $PLUGIN_DIR"
-                      PLUGINS_TO_DEPLOY="$PLUGIN_DIR"
-                      break
-                    fi
-                  done
-                fi
-              else
-                echo "⚠️ This appears to be an existing repository with insufficient history"
-                echo "🔍 Checking for recent file modifications..."
-                
-                # Check for recently modified files (last 24 hours)
-                RECENT_FILES=$(find . -type f -mtime -1 -name "*.php" 2>/dev/null | grep -E "(local|mod|blocks)/" | head -10 || echo "")
-                
-                if [ -n "$RECENT_FILES" ]; then
-                  echo "📄 Recently modified files:"
-                  echo "$RECENT_FILES"
-                  
-                  # Extract plugin names from recently modified files
-                  for file in $RECENT_FILES; do
-                    if [[ "$file" =~ ^\./(local|mod|blocks)/([^/]+)/ ]]; then
-                      PLUGIN_TYPE="${BASH_REMATCH[1]}"
-                      PLUGIN_NAME="${BASH_REMATCH[2]}"
-                      PLUGIN_DIR="$PLUGIN_TYPE/$PLUGIN_NAME"
-                      
-                      # Check if this plugin is already in the list
-                      if [[ ! " $PLUGINS_TO_DEPLOY " =~ " $PLUGIN_DIR " ]]; then
-                        echo "✅ Found recently modified plugin: $PLUGIN_DIR"
-                        PLUGINS_TO_DEPLOY="$PLUGINS_TO_DEPLOY $PLUGIN_DIR"
-                      fi
-                    fi
-                  done
-                fi
-              fi
-              
-              # Final fallback
-              if [ -z "$PLUGINS_TO_DEPLOY" ]; then
-                echo "⚠️ No plugins detected, checking for existing plugins..."
-                # Check what plugins actually exist
-                if [ -d "local" ]; then
-                  for dir in local/*/; do
-                    if [ -f "${dir}version.php" ]; then
-                      PLUGIN_DIR="${dir%/}"
-                      echo "✅ Found existing plugin: $PLUGIN_DIR"
-                      PLUGINS_TO_DEPLOY="$PLUGIN_DIR"
-                      break
-                    fi
-                  done
-                fi
-                
-                # If still no plugins found, use a generic fallback
-                if [ -z "$PLUGINS_TO_DEPLOY" ]; then
-                  echo "⚠️ No plugins found, skipping deployment"
-                  PLUGINS_TO_DEPLOY=""
-                fi
-              fi
-            fi
-          fi
-          
           # Store plugins for deployment
           if [ -n "$PLUGINS_TO_DEPLOY" ]; then
-            echo "📋 Changed plugins to deploy: $PLUGINS_TO_DEPLOY"
+            echo "📋 All plugins to deploy: $PLUGINS_TO_DEPLOY"
             echo "PLUGINS_TO_DEPLOY=$PLUGINS_TO_DEPLOY" >> $GITHUB_ENV
             echo "plugins_to_deploy=$PLUGINS_TO_DEPLOY" >> $GITHUB_OUTPUT
           else
-            echo "⚠️ No plugins detected, falling back to local/test_plugin"
-            echo "PLUGINS_TO_DEPLOY=local/test_plugin" >> $GITHUB_ENV
-            echo "plugins_to_deploy=local/test_plugin" >> $GITHUB_OUTPUT
+            echo "⚠️ No plugins found in repository"
+            echo "PLUGINS_TO_DEPLOY=" >> $GITHUB_ENV
+            echo "plugins_to_deploy=" >> $GITHUB_OUTPUT
           fi
 
       - name: Plugin Update Deployment
@@ -351,7 +174,12 @@ jobs:
             
             # Deploy each plugin
             if [ -z "$PLUGINS_TO_DEPLOY" ]; then
-              echo "⚠️ No plugins to deploy, skipping plugin deployment"
+              echo "⚠️ No plugins to deploy, checking if plugins exist..."
+              echo "📁 Available directories:"
+              ls -la
+              echo "📁 Local directory contents:"
+              ls -la local/ 2>/dev/null || echo "No local directory found"
+              echo "⚠️ Skipping plugin deployment"
             else
               for plugin_path in $PLUGINS_TO_DEPLOY; do
               echo "🎯 Deploying plugin: $plugin_path"
@@ -484,7 +312,12 @@ jobs:
             echo "📋 Verifying plugins: $PLUGINS_TO_VERIFY"
             
             # Verify each plugin
-            for plugin_path in $PLUGINS_TO_VERIFY; do
+            if [ -z "$PLUGINS_TO_VERIFY" ]; then
+              echo "⚠️ No plugins to verify"
+              echo "📁 Checking what plugins exist on server:"
+              ls -la local/ 2>/dev/null || echo "No local plugins found on server"
+            else
+              for plugin_path in $PLUGINS_TO_VERIFY; do
               echo "🔍 Verifying plugin: $plugin_path"
               
               # Check plugin directory
@@ -511,6 +344,7 @@ jobs:
                 exit 1
               fi
             done
+            fi
             
             echo "🎉 Multi-plugin verification completed successfully!"
 
