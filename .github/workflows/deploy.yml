@@ -43,9 +43,9 @@ jobs:
         run: |
           echo "🔍 Checking required secrets..."
           
-          if [ -z "${{ secrets.MOODLE_PATH }}" ]; then
-            echo "❌ MOODLE_PATH secret is missing!"
-            echo "Please configure MOODLE_PATH in GitHub Secrets"
+          if [ -z "${{ secrets.SERVER_BASE_PATH }}" ]; then
+            echo "❌ SERVER_BASE_PATH secret is missing!"
+            echo "Please configure SERVER_BASE_PATH in GitHub Secrets"
             exit 1
           fi
           
@@ -304,7 +304,7 @@ jobs:
             echo "📋 Plugins to deploy: $PLUGINS_TO_DEPLOY"
             
             # Navigate to Moodle directory
-            cd ${{ secrets.MOODLE_PATH }}
+            cd ${{ secrets.SERVER_BASE_PATH }}
             echo "📍 Current directory: $(pwd)"
             
             # Check if this is a git repository
@@ -430,7 +430,7 @@ jobs:
           script: |
             echo "🔍 Verifying multi-plugin deployment..."
             
-            cd ${{ secrets.MOODLE_PATH }}
+            cd ${{ secrets.SERVER_BASE_PATH }}
             
             # Get the list of plugins that were deployed
             PLUGINS_TO_VERIFY="${{ steps.plugin-detection.outputs.plugins_to_deploy }}"
