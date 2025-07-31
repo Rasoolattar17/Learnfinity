@@ -135,6 +135,8 @@ jobs:
           username: ${{ secrets.SERVER_USERNAME }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: ${{ secrets.SERVER_PORT || 22 }}
+          timeout: 300
+          command_timeout: 300
           script: |
             # Get the list of plugins to deploy
             PLUGINS_TO_DEPLOY="${{ env.PLUGINS_TO_DEPLOY }}"
@@ -143,6 +145,7 @@ jobs:
             echo "📋 Plugins to deploy: $PLUGINS_TO_DEPLOY"
             
             # Navigate to Moodle directory
+            echo "🔍 Attempting to navigate to: ${{ secrets.SERVER_BASE_PATH }}"
             cd ${{ secrets.SERVER_BASE_PATH }}
             echo "📍 Base directory: $(pwd)"
             
@@ -151,6 +154,7 @@ jobs:
               echo "❌ Moodle directory not found in base path"
               echo "📁 Current directory contents:"
               ls -la
+              echo "❌ Deployment failed: Moodle directory not found"
               exit 1
             fi
             
@@ -177,7 +181,10 @@ jobs:
             
             # Fetch all branches first
             echo "📥 Fetching all branches..."
-            git fetch --all
+            if ! git fetch --all; then
+              echo "❌ Failed to fetch branches"
+              exit 1
+            fi
             
             # Pull from the correct branch (master or the deployment branch)
             DEPLOYMENT_BRANCH="${{ github.ref_name }}"
@@ -185,10 +192,16 @@ jobs:
             
             if [ "$DEPLOYMENT_BRANCH" = "refs/heads/master" ] || [ "$DEPLOYMENT_BRANCH" = "master" ]; then
               echo "📥 Pulling from master branch..."
-              git pull origin master
+              if ! git pull origin master; then
+                echo "❌ Failed to pull from master branch"
+                exit 1
+              fi
             else
               echo "📥 Pulling from hotfix/new_updates branch..."
-              git pull origin hotfix/new_updates
+              if ! git pull origin hotfix/new_updates; then
+                echo "❌ Failed to pull from hotfix/new_updates branch"
+                exit 1
+              fi
             fi
             
             # Show git status after pull
@@ -210,6 +223,17 @@ jobs:
             # Show what plugins are available after git pull
             echo "📁 Available plugins after git pull:"
             ls -la local/ 2>/dev/null || echo "No local plugins found"
+            
+            # Verify swap_list plugin specifically
+            echo "🔍 Checking for swap_list plugin specifically:"
+            if [ -d "local/swap_list" ]; then
+              echo "✅ swap_list plugin found!"
+              ls -la local/swap_list/
+            else
+              echo "❌ swap_list plugin not found!"
+              echo "📁 Available local plugins:"
+              ls -la local/ 2>/dev/null || echo "No local plugins found"
+            fi
             
             # Deploy each plugin
             if [ -z "$PLUGINS_TO_DEPLOY" ]; then
