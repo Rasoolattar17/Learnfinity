@@ -179,11 +179,20 @@ jobs:
             # Configure git to use merge strategy for divergent branches
             git config pull.rebase false
             
+            # Fix git permissions first
+            echo "🔧 Fixing git repository permissions..."
+            sudo chown -R www-data:www-data .git/ 2>/dev/null || echo "⚠️ Could not change git ownership"
+            sudo chmod -R 755 .git/ 2>/dev/null || echo "⚠️ Could not change git permissions"
+            
             # Fetch all branches first
             echo "📥 Fetching all branches..."
             if ! git fetch --all; then
-              echo "❌ Failed to fetch branches"
-              exit 1
+              echo "❌ Failed to fetch branches, trying alternative approach..."
+              # Try fetching just the master branch
+              if ! git fetch origin master; then
+                echo "❌ Failed to fetch master branch"
+                exit 1
+              fi
             fi
             
             # Pull from the correct branch (master or the deployment branch)
@@ -193,14 +202,22 @@ jobs:
             if [ "$DEPLOYMENT_BRANCH" = "refs/heads/master" ] || [ "$DEPLOYMENT_BRANCH" = "master" ]; then
               echo "📥 Pulling from master branch..."
               if ! git pull origin master; then
-                echo "❌ Failed to pull from master branch"
-                exit 1
+                echo "❌ Failed to pull from master branch, trying reset approach..."
+                # Try hard reset to origin/master
+                if ! git reset --hard origin/master; then
+                  echo "❌ Failed to reset to master branch"
+                  exit 1
+                fi
               fi
             else
               echo "📥 Pulling from hotfix/new_updates branch..."
               if ! git pull origin hotfix/new_updates; then
-                echo "❌ Failed to pull from hotfix/new_updates branch"
-                exit 1
+                echo "❌ Failed to pull from hotfix/new_updates branch, trying reset approach..."
+                # Try hard reset to origin/hotfix/new_updates
+                if ! git reset --hard origin/hotfix/new_updates; then
+                  echo "❌ Failed to reset to hotfix/new_updates branch"
+                  exit 1
+                fi
               fi
             fi
             
