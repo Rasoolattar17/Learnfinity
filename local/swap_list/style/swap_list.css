@@ -1,0 +1,16 @@
+#local_swap_list .swap-list-list-item.selected .list-item-check {
+    display: inline;
+}
+
+#local_swap_list .swap-list-list-item.swapped {
+    background-color: #ffde7a;
+}
+
+#local_swap_list .list-group {
+    height: 300px !important;
+    overflow-y: scroll !important;
+}
+
+#local_swap_list .list-group-item-dark {
+    background-color: #c6c8ca !important;
+}

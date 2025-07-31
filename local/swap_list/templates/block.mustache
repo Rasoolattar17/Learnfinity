@@ -1,0 +1,80 @@
+{{!
+This file is part of Moodle - http://moodle.org/
+
+Moodle is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Moodle is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Moodle. If not, see <http://www.gnu.org/licenses />.
+}}
+{{!
+@template local/swap_list
+
+The purpose of this template is to provide basic opening page
+of enrollment management which will contain a page title, and
+course info followed by either organization selector or user category selector
+}}
+{{!
+This file is part of Moodle - http://moodle.org/
+
+Moodle is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Moodle is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Moodle. If not, see <http://www.gnu.org/licenses />.
+}}
+{{!
+@template local_swap_list/block
+}}
+
+<div class="{{main-class}} rounded border">
+    <div class="row">
+        <div class="col-12">
+            <div
+                class="succeed-grey-lighter-bg-color p-3">
+                <div class="box-title">
+                    {{heading}}
+                </div>
+                <div class="row align-items-center">
+                    <div class="col-12 col-md-6">
+                        <label for="{{select-all-id}}"
+                            class="m-0">
+                            <input id="{{select-all-id}}"
+                                type="checkbox"
+                                title="{{#str}}select_all, local_swap_list{{/str}}"
+                                class="select-all align-middle" aria-label="Select all" />
+                            {{#str}}select_all, local_swap_list{{/str}} (<span
+                                class="selected-count">0</span>)
+                        </label>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <input type="text"
+                            class="form-control form-control-sm {{search-class}}"
+                            placeholder="{{#str}}search{{/str}}" aria-label="Search" />
+                    </div>
+                </div>
+            </div>
+            <div class="row form-group">
+                <div class="col-12">
+                    <div class="list-group list-group-flush {{list-class}}">
+                        {{> local_swap_list/list_items}}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
