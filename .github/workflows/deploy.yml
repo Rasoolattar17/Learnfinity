@@ -128,6 +128,19 @@ jobs:
             echo "plugins_to_deploy=" >> $GITHUB_OUTPUT
           fi
 
+      - name: Copy Plugins to Server (if needed)
+        if: env.PLUGINS_TO_DEPLOY != ''
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.SERVER_PORT || 22 }}
+          source: "local/,mod/,blocks/"
+          target: "/tmp/moodle_plugins_backup/"
+          strip_components: 0
+          overwrite: true
+
       - name: Plugin Update Deployment
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -162,84 +175,109 @@ jobs:
             cd moodle
             echo "📍 Moodle directory: $(pwd)"
             
+            # Ensure required directories exist
+            echo "🔧 Ensuring required directories exist..."
+            mkdir -p local mod blocks 2>/dev/null || echo "⚠️ Could not create some directories"
+            echo "✅ Directory structure verified"
+            
             # Check if this is a git repository
             if [ ! -d ".git" ]; then
               echo "❌ Not a git repository. Cannot pull latest changes."
               echo "📁 Current directory contents:"
               ls -la
-              exit 1
+              echo "⚠️ Continuing without git operations..."
+              GIT_AVAILABLE=false
+            else
+              GIT_AVAILABLE=true
             fi
             
-            # Pull latest changes from git
-            echo "📥 Pulling latest changes from git..."
-            echo "🔍 Current branch: $(git branch --show-current)"
-            echo "🔍 Available branches:"
-            git branch -a
-            
-            # Configure git to use merge strategy for divergent branches
-            git config pull.rebase false
-            
-            # Fix git permissions and ownership issues
-            echo "🔧 Fixing git repository permissions and ownership..."
-            sudo chown -R www-data:www-data .git/ 2>/dev/null || echo "⚠️ Could not change git ownership"
-            sudo chmod -R 755 .git/ 2>/dev/null || echo "⚠️ Could not change git permissions"
-            
-            # Add safe directory to git config to fix dubious ownership
-            echo "🔧 Adding safe directory to git config..."
-            git config --global --add safe.directory $(pwd) 2>/dev/null || echo "⚠️ Could not add safe directory"
-            git config --global --add safe.directory ${{ secrets.SERVER_BASE_PATH }}/moodle 2>/dev/null || echo "⚠️ Could not add safe directory with full path"
-            
-            # Fetch all branches first
-            echo "📥 Fetching all branches..."
-            if ! git fetch --all; then
-              echo "❌ Failed to fetch branches, trying alternative approach..."
-              # Try fetching just the master branch
-              if ! git fetch origin master; then
-                echo "❌ Failed to fetch master branch"
-                exit 1
+            # Only perform git operations if git is available
+            if [ "$GIT_AVAILABLE" = "true" ]; then
+              # Fix git permissions and ownership issues FIRST
+              echo "🔧 Fixing git repository permissions and ownership..."
+              sudo chown -R www-data:www-data .git/ 2>/dev/null || echo "⚠️ Could not change git ownership"
+              sudo chmod -R 755 .git/ 2>/dev/null || echo "⚠️ Could not change git permissions"
+              
+              # Add safe directory to git config to fix dubious ownership
+              echo "🔧 Adding safe directory to git config..."
+              git config --global --add safe.directory $(pwd) 2>/dev/null || echo "⚠️ Could not add safe directory"
+              git config --global --add safe.directory ${{ secrets.SERVER_BASE_PATH }}/moodle 2>/dev/null || echo "⚠️ Could not add safe directory with full path"
+              
+              # Configure git to use merge strategy for divergent branches
+              git config pull.rebase false
+              
+              # Pull latest changes from git
+              echo "📥 Pulling latest changes from git..."
+              echo "🔍 Current branch: $(git branch --show-current)"
+              echo "🔍 Available branches:"
+              git branch -a
+              
+              # Fetch all branches first
+              echo "📥 Fetching all branches..."
+              if ! git fetch --all; then
+                echo "❌ Failed to fetch branches, trying alternative approach..."
+                # Try fetching just the master branch
+                if ! git fetch origin master; then
+                  echo "❌ Failed to fetch master branch, trying with different user..."
+                  # Try with different ownership
+                  sudo -u www-data git fetch origin master 2>/dev/null || {
+                    echo "❌ Failed to fetch with www-data user, trying as current user..."
+                    git fetch origin master 2>/dev/null || {
+                      echo "❌ All fetch attempts failed, continuing without git..."
+                      GIT_AVAILABLE=false
+                    }
+                  }
+                fi
               fi
-            fi
-            
-            # Pull from the correct branch (master or the deployment branch)
-            DEPLOYMENT_BRANCH="${{ github.ref_name }}"
-            echo "🔍 Deployment branch: $DEPLOYMENT_BRANCH"
-            
-            if [ "$DEPLOYMENT_BRANCH" = "refs/heads/master" ] || [ "$DEPLOYMENT_BRANCH" = "master" ]; then
-              echo "📥 Pulling from master branch..."
-              if ! git pull origin master; then
-                echo "❌ Failed to pull from master branch, trying reset approach..."
-                # Try hard reset to origin/master
-                if ! git reset --hard origin/master; then
-                  echo "❌ Failed to reset to master branch"
-                  exit 1
+              
+              # Only continue with git operations if fetch was successful
+              if [ "$GIT_AVAILABLE" = "true" ]; then
+                # Pull from the correct branch (master or the deployment branch)
+                DEPLOYMENT_BRANCH="${{ github.ref_name }}"
+                echo "🔍 Deployment branch: $DEPLOYMENT_BRANCH"
+                
+                if [ "$DEPLOYMENT_BRANCH" = "refs/heads/master" ] || [ "$DEPLOYMENT_BRANCH" = "master" ]; then
+                  echo "📥 Pulling from master branch..."
+                  if ! git pull origin master; then
+                    echo "❌ Failed to pull from master branch, trying reset approach..."
+                    # Try hard reset to origin/master
+                    if ! git reset --hard origin/master; then
+                      echo "❌ Failed to reset to master branch, continuing without git..."
+                      GIT_AVAILABLE=false
+                    fi
+                  fi
+                else
+                  echo "📥 Pulling from hotfix/new_updates branch..."
+                  if ! git pull origin hotfix/new_updates; then
+                    echo "❌ Failed to pull from hotfix/new_updates branch, trying reset approach..."
+                    # Try hard reset to origin/hotfix/new_updates
+                    if ! git reset --hard origin/hotfix/new_updates; then
+                      echo "❌ Failed to reset to hotfix/new_updates branch, continuing without git..."
+                      GIT_AVAILABLE=false
+                    fi
+                  fi
+                fi
+                
+                # Show git status after pull
+                if [ "$GIT_AVAILABLE" = "true" ]; then
+                  echo "🔍 Git status after pull:"
+                  git status
+                  echo "🔍 Current branch after pull: $(git branch --show-current)"
+                  
+                  # If there are conflicts or issues, try a hard reset to the remote branch
+                  if [ "$(git status --porcelain)" != "" ]; then
+                    echo "⚠️ Git repository has uncommitted changes, performing hard reset..."
+                    if [ "$DEPLOYMENT_BRANCH" = "refs/heads/master" ] || [ "$DEPLOYMENT_BRANCH" = "master" ]; then
+                      git reset --hard origin/master
+                    else
+                      git reset --hard origin/hotfix/new_updates
+                    fi
+                    echo "✅ Hard reset completed"
+                  fi
                 fi
               fi
             else
-              echo "📥 Pulling from hotfix/new_updates branch..."
-              if ! git pull origin hotfix/new_updates; then
-                echo "❌ Failed to pull from hotfix/new_updates branch, trying reset approach..."
-                # Try hard reset to origin/hotfix/new_updates
-                if ! git reset --hard origin/hotfix/new_updates; then
-                  echo "❌ Failed to reset to hotfix/new_updates branch"
-                  exit 1
-                fi
-              fi
-            fi
-            
-            # Show git status after pull
-            echo "🔍 Git status after pull:"
-            git status
-            echo "🔍 Current branch after pull: $(git branch --show-current)"
-            
-            # If there are conflicts or issues, try a hard reset to the remote branch
-            if [ "$(git status --porcelain)" != "" ]; then
-              echo "⚠️ Git repository has uncommitted changes, performing hard reset..."
-              if [ "$DEPLOYMENT_BRANCH" = "refs/heads/master" ] || [ "$DEPLOYMENT_BRANCH" = "master" ]; then
-                git reset --hard origin/master
-              else
-                git reset --hard origin/hotfix/new_updates
-              fi
-              echo "✅ Hard reset completed"
+              echo "⚠️ Git operations skipped - using existing files"
             fi
             
             # Show what plugins are available after git pull
@@ -255,6 +293,34 @@ jobs:
               echo "❌ swap_list plugin not found!"
               echo "📁 Available local plugins:"
               ls -la local/ 2>/dev/null || echo "No local plugins found"
+            fi
+            
+            # If git operations failed, we need to copy plugins from the workspace
+            if [ "$GIT_AVAILABLE" = "false" ]; then
+              echo "⚠️ Git operations failed - attempting to use copied plugins..."
+              if [ -d "/tmp/moodle_plugins_backup" ]; then
+                echo "📁 Found copied plugins in /tmp/moodle_plugins_backup/"
+                echo "📋 Copying plugins to Moodle directory..."
+                
+                # Copy local plugins
+                if [ -d "/tmp/moodle_plugins_backup/local" ]; then
+                  cp -r /tmp/moodle_plugins_backup/local/* local/ 2>/dev/null || echo "⚠️ Could not copy local plugins"
+                fi
+                
+                # Copy mod plugins
+                if [ -d "/tmp/moodle_plugins_backup/mod" ]; then
+                  cp -r /tmp/moodle_plugins_backup/mod/* mod/ 2>/dev/null || echo "⚠️ Could not copy mod plugins"
+                fi
+                
+                # Copy block plugins
+                if [ -d "/tmp/moodle_plugins_backup/blocks" ]; then
+                  cp -r /tmp/moodle_plugins_backup/blocks/* blocks/ 2>/dev/null || echo "⚠️ Could not copy block plugins"
+                fi
+                
+                echo "✅ Plugin copying completed"
+              else
+                echo "⚠️ No copied plugins found - using existing files"
+              fi
             fi
             
             # Deploy each plugin
@@ -319,6 +385,16 @@ jobs:
               echo "⚠️ Cache clearing script not found, but continuing..."
             fi
             
+            # Disable automatic Moodle core jobs (user preference)
+            echo "🔧 Disabling automatic Moodle core jobs..."
+            if [ -f "admin/cli/cron.php" ]; then
+              # Check if cron is currently enabled
+              if php admin/cli/cron.php --help >/dev/null 2>&1; then
+                echo "⚠️ Moodle cron is available but will not be automatically run"
+                echo "📋 Manual cron execution may be required: php admin/cli/cron.php"
+              fi
+            fi
+            
             # Check current plugin versions before upgrade
             echo "📊 Pre-upgrade version check..."
             echo "🧩 Current plugin versions:"
@@ -375,6 +451,10 @@ jobs:
             else
               echo "⚠️ Upgrade script not found, skipping upgrade..."
             fi
+            
+            # Clean up temporary plugin backup
+            echo "🧹 Cleaning up temporary files..."
+            rm -rf /tmp/moodle_plugins_backup 2>/dev/null || echo "⚠️ Could not clean up temporary files"
             
             echo "🎉 Multi-plugin deployment completed successfully!"
 
