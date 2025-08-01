@@ -50,11 +50,28 @@ jobs:
             echo "$CHANGED_FILES"
 
             # Extract plugin folders from changed files
-            PLUGIN_LIST=$(echo "$CHANGED_FILES" | grep -E '^(mod|local|blocks)/[^/]+/' | cut -d/ -f1,2 | sort -u)
+            # Only consider directories that contain a version.php file (required for Moodle plugins)
+            PLUGIN_LIST=""
+            for plugin_path in $(echo "$CHANGED_FILES" | grep -E '^(mod|local|blocks)/[^/]+/' | cut -d/ -f1,2 | sort -u); do
+              if [ -f "$plugin_path/version.php" ]; then
+                echo "✅ Valid plugin detected: $plugin_path"
+                PLUGIN_LIST="$PLUGIN_LIST $plugin_path"
+              else
+                echo "⚠️ Skipping invalid plugin path: $plugin_path (no version.php found)"
+              fi
+            done
+            # Remove leading space
+            PLUGIN_LIST=$(echo "$PLUGIN_LIST" | sed 's/^ *//')
 
             if [ -z "$PLUGIN_LIST" ]; then
-              echo "⚠️ No plugins detected. Defaulting to local/test_plugin."
-              PLUGIN_LIST="local/test_plugin"
+              echo "⚠️ No plugin changes detected in this commit/PR."
+              echo "🔍 This could mean:"
+              echo "   - No plugin files were modified"
+              echo "   - Changes are in non-plugin directories"
+              echo "   - This is a documentation or configuration change"
+              echo "✅ Skipping plugin testing - no plugins to test"
+              echo "plugin_matrix=[]" >> $GITHUB_OUTPUT
+              exit 0
             fi
           fi
 
@@ -74,9 +91,28 @@ jobs:
           echo "📋 Plugins to test: $PLUGIN_LIST"
           echo "🔧 Plugin matrix: $PLUGIN_ARRAY"
           echo "plugin_matrix=$PLUGIN_ARRAY" >> $GITHUB_OUTPUT
+
+  no-plugins-to-test:
+    needs: detect-plugins
+    runs-on: ubuntu-latest
+    if: needs.detect-plugins.outputs.plugin-matrix == '[]'
+    steps:
+      - name: No Plugins to Test
+        run: |
+          echo "✅ No plugin changes detected in this commit/PR"
+          echo "🔍 This workflow only tests plugins that have been modified"
+          echo "📋 If you want to test a specific plugin, you can:"
+          echo "   1. Make changes to plugin files"
+          echo "   2. Use the manual workflow trigger with a specific plugin path"
+          echo "   3. Create a PR with plugin modifications"
+          echo ""
+          echo "🎯 Current commit/PR does not contain plugin changes"
+          echo "✅ CI workflow completed successfully - no testing needed"
+
   ci_and_test:
     needs: detect-plugins
     runs-on: ubuntu-22.04
+    if: needs.detect-plugins.outputs.plugin-matrix != '[]'
     
     strategy:
       fail-fast: false
