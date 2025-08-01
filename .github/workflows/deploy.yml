@@ -21,6 +21,8 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 2  # Fetch at least 2 commits for comparison
 
       - name: Debug Workflow Trigger
         run: |
@@ -29,6 +31,12 @@ jobs:
           echo "Branch: ${{ github.ref_name }}"
           echo "Repository: ${{ github.repository }}"
           echo "Commit: ${{ github.sha }}"
+          echo "Before: ${{ github.event.before }}"
+          echo "After: ${{ github.event.after }}"
+          
+          echo "🔍 Git repository status:"
+          git log --oneline -3 2>/dev/null || echo "Limited git history"
+          git branch -a 2>/dev/null || echo "No branches info"
           
           if [ "${{ github.event_name }}" = "push" ]; then
             echo "📤 Push to master triggered deployment"
@@ -81,9 +89,41 @@ jobs:
           # Get changed files (similar to CI workflow)
           if [ "${{ github.event_name }}" = "push" ]; then
             echo "📋 Checking changes in the push to master..."
-            # For push events, compare with the previous commit
-            CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD)
-            echo "📊 Git diff command: git diff --name-only HEAD~1 HEAD"
+            echo "🔍 Current HEAD: $(git rev-parse HEAD)"
+            echo "🔍 Available commits: $(git log --oneline -5 2>/dev/null || echo 'Limited history')"
+            
+            # Try different methods to get changed files
+            if git rev-parse --verify HEAD~1 >/dev/null 2>&1; then
+              echo "✅ Using HEAD~1 comparison"
+              CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD)
+              echo "📊 Git diff command: git diff --name-only HEAD~1 HEAD"
+            elif [ -n "${{ github.event.before }}" ] && [ "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ]; then
+              echo "✅ Using GitHub event before/after comparison"
+              CHANGED_FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }})
+              echo "📊 Git diff command: git diff --name-only ${{ github.event.before }} ${{ github.event.after }}"
+            else
+              echo "⚠️ Cannot determine previous commit, using recent changes"
+              # Fallback: get files modified in the last commit
+              CHANGED_FILES=$(git diff-tree --no-commit-id --name-only -r HEAD 2>/dev/null || echo "")
+              if [ -z "$CHANGED_FILES" ]; then
+                echo "⚠️ No git history available - this might be the first commit or a shallow clone"
+                echo "🔧 As a safety measure, we'll check for all plugin files that exist"
+                # List all plugin files as "changed" for safety
+                CHANGED_FILES=""
+                if [ -d "local" ]; then
+                  CHANGED_FILES="$CHANGED_FILES $(find local -name "*.php" 2>/dev/null | head -20)"
+                fi
+                if [ -d "mod" ]; then
+                  CHANGED_FILES="$CHANGED_FILES $(find mod -name "*.php" 2>/dev/null | head -10)"
+                fi
+                if [ -d "blocks" ]; then
+                  CHANGED_FILES="$CHANGED_FILES $(find blocks -name "*.php" 2>/dev/null | head -10)"
+                fi
+                # Convert to newline-separated format
+                CHANGED_FILES=$(echo "$CHANGED_FILES" | tr ' ' '\n' | grep -v '^$')
+              fi
+              echo "📊 Git diff command (fallback): git diff-tree --no-commit-id --name-only -r HEAD"
+            fi
           else
             echo "📋 Manual deployment triggered - deploying all plugins"
             # For manual deployment, deploy all valid plugins
