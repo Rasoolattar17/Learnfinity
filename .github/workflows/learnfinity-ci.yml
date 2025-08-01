@@ -22,25 +22,73 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0  # required for accurate git diff
+          
+      - name: Get changed files (alternative method)
+        if: github.event_name == 'pull_request'
+        id: changed-files
+        uses: tj-actions/changed-files@v44
+        with:
+          files: |
+            local/**
+            mod/**
+            blocks/**
 
       - name: Fetch base branch (for pull_request)
         if: github.event_name == 'pull_request'
-        run: git fetch origin ${{ github.event.pull_request.base.ref }}
+        run: |
+          echo "🔍 Fetching base branch: ${{ github.event.pull_request.base.ref }}"
+          git fetch origin ${{ github.event.pull_request.base.ref }}
+          echo "🔍 Available branches after fetch:"
+          git branch -r
       
       - name: Auto-detect Changed Plugins
         id: plugin-detection
         run: |
+          # This step detects which plugins have been modified in the current PR/commit
+          # It only considers valid Moodle plugins that:
+          # 1. Are in mod/, local/, or blocks/ directories
+          # 2. Have a version.php file with $plugin->component defined
+          # 3. Actually exist as directories in the repository
           if [ -n "${{ github.event.inputs.plugin_path }}" ]; then
             echo "🎯 Using manually specified plugin: ${{ github.event.inputs.plugin_path }}"
             PLUGIN_LIST="${{ github.event.inputs.plugin_path }}"
           else
             echo "🔍 Detecting changed plugins..."
+            echo "🔍 Current branch: $(git branch --show-current)"
+            echo "🔍 Current HEAD: $(git rev-parse HEAD)"
 
             if [ "${{ github.event_name }}" = "pull_request" ]; then
               echo "📋 Checking changes between PR base and head..."
-              BASE_SHA="${{ github.event.pull_request.base.sha }}"
-              HEAD_SHA="${{ github.event.pull_request.head.sha }}"
-              CHANGED_FILES=$(git diff --name-only "$BASE_SHA" "$HEAD_SHA")
+              echo "🔍 PR base ref: ${{ github.event.pull_request.base.ref }}"
+              echo "🔍 PR head ref: ${{ github.event.pull_request.head.ref }}"
+              
+              # Try to use the changed-files action output first (more reliable)
+              if [ -n "${{ steps.changed-files.outputs.all_changed_files }}" ]; then
+                echo "✅ Using GitHub changed-files action results"
+                CHANGED_FILES="${{ steps.changed-files.outputs.all_changed_files }}"
+                # Convert space-separated to newline-separated
+                CHANGED_FILES=$(echo "$CHANGED_FILES" | tr ' ' '\n')
+                echo "📊 Method: GitHub changed-files action"
+              else
+                echo "🔄 Falling back to git diff method"
+                # Use origin/base_branch..HEAD to get the diff
+                BASE_BRANCH="${{ github.event.pull_request.base.ref }}"
+                echo "🔍 Comparing against origin/$BASE_BRANCH"
+                
+                # Get the merge base to find the common ancestor
+                if MERGE_BASE=$(git merge-base origin/$BASE_BRANCH HEAD 2>/dev/null); then
+                  echo "🔍 Merge base: $MERGE_BASE"
+                  
+                  # Get files changed in this PR compared to the merge base
+                  CHANGED_FILES=$(git diff --name-only $MERGE_BASE..HEAD)
+                  echo "📊 Git diff command: git diff --name-only $MERGE_BASE..HEAD"
+                else
+                  echo "⚠️ Could not find merge base, using direct branch comparison"
+                  # Fallback: compare directly with the base branch
+                  CHANGED_FILES=$(git diff --name-only origin/$BASE_BRANCH..HEAD)
+                  echo "📊 Git diff command (fallback): git diff --name-only origin/$BASE_BRANCH..HEAD"
+                fi
+              fi
             else
               echo "📋 Checking changes in last commit (push)..."
               CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD)
@@ -48,13 +96,74 @@ jobs:
 
             echo "📄 Changed files:"
             echo "$CHANGED_FILES"
+            
+            # Count the number of changed files
+            CHANGED_COUNT=$(echo "$CHANGED_FILES" | wc -l)
+            echo "📊 Total changed files: $CHANGED_COUNT"
+            
+            # Safety check: if too many files changed, it might be a merge or rebase issue
+            if [ "$CHANGED_COUNT" -gt 100 ]; then
+              echo "⚠️ Warning: Large number of changed files detected ($CHANGED_COUNT)"
+              echo "🔍 This might indicate a merge/rebase issue or full repository sync"
+              echo "📋 First 20 changed files:"
+              echo "$CHANGED_FILES" | head -20
+              echo "..."
+            fi
 
             # Extract plugin folders from changed files
-            PLUGIN_LIST=$(echo "$CHANGED_FILES" | grep -E '^(mod|local|blocks)/[^/]+/' | cut -d/ -f1,2 | sort -u)
+            # Only consider directories that contain a version.php file (required for Moodle plugins)
+            PLUGIN_LIST=""
+            echo "🔍 Analyzing changed files for plugin directories..."
+            
+            # Get potential plugin paths from changed files
+            POTENTIAL_PLUGINS=$(echo "$CHANGED_FILES" | grep -E '^(mod|local|blocks)/[^/]+/' | cut -d/ -f1,2 | sort -u)
+            
+            if [ -z "$POTENTIAL_PLUGINS" ]; then
+              echo "📋 No potential plugin directories found in changed files"
+            else
+              echo "📋 Potential plugin directories from changed files:"
+              echo "$POTENTIAL_PLUGINS"
+              
+              for plugin_path in $POTENTIAL_PLUGINS; do
+                echo "🔍 Checking plugin directory: $plugin_path"
+                
+                # Check if directory exists
+                if [ ! -d "$plugin_path" ]; then
+                  echo "⚠️ Directory does not exist: $plugin_path"
+                  continue
+                fi
+                
+                # Check if version.php exists
+                if [ ! -f "$plugin_path/version.php" ]; then
+                  echo "⚠️ No version.php found in: $plugin_path"
+                  continue
+                fi
+                
+                # Additional validation: check if version.php contains plugin component
+                if ! grep -q '\$plugin->component' "$plugin_path/version.php" 2>/dev/null; then
+                  echo "⚠️ version.php missing \$plugin->component in: $plugin_path"
+                  continue
+                fi
+                
+                echo "✅ Valid plugin detected: $plugin_path"
+                PLUGIN_LIST="$PLUGIN_LIST $plugin_path"
+              done
+            fi
+            
+            # Remove leading space
+            PLUGIN_LIST=$(echo "$PLUGIN_LIST" | sed 's/^ *//')
 
             if [ -z "$PLUGIN_LIST" ]; then
-              echo "⚠️ No plugins detected. Defaulting to local/test_plugin."
-              PLUGIN_LIST="local/test_plugin"
+              echo "⚠️ No valid plugin changes detected in this commit/PR."
+              echo "🔍 This could mean:"
+              echo "   - No plugin files were modified"
+              echo "   - Changes are in non-plugin directories (documentation, configuration, etc.)"
+              echo "   - Changed files are in plugin directories that don't exist or are invalid"
+              echo "   - Plugin directories are missing required files (version.php with \$plugin->component)"
+              echo ""
+              echo "✅ Skipping plugin testing - no valid plugins to test"
+              echo "plugin_matrix=[]" >> $GITHUB_OUTPUT
+              exit 0
             fi
           fi
 
@@ -74,9 +183,28 @@ jobs:
           echo "📋 Plugins to test: $PLUGIN_LIST"
           echo "🔧 Plugin matrix: $PLUGIN_ARRAY"
           echo "plugin_matrix=$PLUGIN_ARRAY" >> $GITHUB_OUTPUT
+
+  no-plugins-to-test:
+    needs: detect-plugins
+    runs-on: ubuntu-latest
+    if: needs.detect-plugins.outputs.plugin-matrix == '[]'
+    steps:
+      - name: No Plugins to Test
+        run: |
+          echo "✅ No plugin changes detected in this commit/PR"
+          echo "🔍 This workflow only tests plugins that have been modified"
+          echo "📋 If you want to test a specific plugin, you can:"
+          echo "   1. Make changes to plugin files"
+          echo "   2. Use the manual workflow trigger with a specific plugin path"
+          echo "   3. Create a PR with plugin modifications"
+          echo ""
+          echo "🎯 Current commit/PR does not contain plugin changes"
+          echo "✅ CI workflow completed successfully - no testing needed"
+
   ci_and_test:
     needs: detect-plugins
     runs-on: ubuntu-22.04
+    if: needs.detect-plugins.outputs.plugin-matrix != '[]'
     
     strategy:
       fail-fast: false
