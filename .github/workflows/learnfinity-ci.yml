@@ -30,6 +30,11 @@ jobs:
       - name: Auto-detect Changed Plugins
         id: plugin-detection
         run: |
+          # This step detects which plugins have been modified in the current PR/commit
+          # It only considers valid Moodle plugins that:
+          # 1. Are in mod/, local/, or blocks/ directories
+          # 2. Have a version.php file with $plugin->component defined
+          # 3. Actually exist as directories in the repository
           if [ -n "${{ github.event.inputs.plugin_path }}" ]; then
             echo "🎯 Using manually specified plugin: ${{ github.event.inputs.plugin_path }}"
             PLUGIN_LIST="${{ github.event.inputs.plugin_path }}"
@@ -52,24 +57,55 @@ jobs:
             # Extract plugin folders from changed files
             # Only consider directories that contain a version.php file (required for Moodle plugins)
             PLUGIN_LIST=""
-            for plugin_path in $(echo "$CHANGED_FILES" | grep -E '^(mod|local|blocks)/[^/]+/' | cut -d/ -f1,2 | sort -u); do
-              if [ -f "$plugin_path/version.php" ]; then
+            echo "🔍 Analyzing changed files for plugin directories..."
+            
+            # Get potential plugin paths from changed files
+            POTENTIAL_PLUGINS=$(echo "$CHANGED_FILES" | grep -E '^(mod|local|blocks)/[^/]+/' | cut -d/ -f1,2 | sort -u)
+            
+            if [ -z "$POTENTIAL_PLUGINS" ]; then
+              echo "📋 No potential plugin directories found in changed files"
+            else
+              echo "📋 Potential plugin directories from changed files:"
+              echo "$POTENTIAL_PLUGINS"
+              
+              for plugin_path in $POTENTIAL_PLUGINS; do
+                echo "🔍 Checking plugin directory: $plugin_path"
+                
+                # Check if directory exists
+                if [ ! -d "$plugin_path" ]; then
+                  echo "⚠️ Directory does not exist: $plugin_path"
+                  continue
+                fi
+                
+                # Check if version.php exists
+                if [ ! -f "$plugin_path/version.php" ]; then
+                  echo "⚠️ No version.php found in: $plugin_path"
+                  continue
+                fi
+                
+                # Additional validation: check if version.php contains plugin component
+                if ! grep -q '\$plugin->component' "$plugin_path/version.php" 2>/dev/null; then
+                  echo "⚠️ version.php missing \$plugin->component in: $plugin_path"
+                  continue
+                fi
+                
                 echo "✅ Valid plugin detected: $plugin_path"
                 PLUGIN_LIST="$PLUGIN_LIST $plugin_path"
-              else
-                echo "⚠️ Skipping invalid plugin path: $plugin_path (no version.php found)"
-              fi
-            done
+              done
+            fi
+            
             # Remove leading space
             PLUGIN_LIST=$(echo "$PLUGIN_LIST" | sed 's/^ *//')
 
             if [ -z "$PLUGIN_LIST" ]; then
-              echo "⚠️ No plugin changes detected in this commit/PR."
+              echo "⚠️ No valid plugin changes detected in this commit/PR."
               echo "🔍 This could mean:"
               echo "   - No plugin files were modified"
-              echo "   - Changes are in non-plugin directories"
-              echo "   - This is a documentation or configuration change"
-              echo "✅ Skipping plugin testing - no plugins to test"
+              echo "   - Changes are in non-plugin directories (documentation, configuration, etc.)"
+              echo "   - Changed files are in plugin directories that don't exist or are invalid"
+              echo "   - Plugin directories are missing required files (version.php with \$plugin->component)"
+              echo ""
+              echo "✅ Skipping plugin testing - no valid plugins to test"
               echo "plugin_matrix=[]" >> $GITHUB_OUTPUT
               exit 0
             fi
