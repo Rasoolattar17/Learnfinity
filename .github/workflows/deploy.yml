@@ -69,66 +69,122 @@ jobs:
           
           echo "✅ All plugin update secrets are configured"
 
-      - name: Deploy All Plugins
+      - name: Detect Changed Plugins for Deployment
         id: plugin-detection
         run: |
-          echo "🚀 Deploying ALL plugins without git detection..."
+          echo "🚀 Detecting plugins that need deployment..."
+          echo "🔍 This deployment will only deploy plugins that have been changed"
           
-          # Deploy all plugins found in the repository
+          # Use the same logic as the CI workflow to detect changed plugins
           PLUGINS_TO_DEPLOY=""
           
-          # Add all local plugins
-          if [ -d "local" ]; then
-            echo "📁 Scanning local plugins..."
-            for dir in local/*/; do
-              if [ -f "${dir}version.php" ]; then
-                PLUGIN_DIR="${dir%/}"
-                echo "✅ Found local plugin: $PLUGIN_DIR"
-                PLUGINS_TO_DEPLOY="$PLUGINS_TO_DEPLOY $PLUGIN_DIR"
+          # Get changed files (similar to CI workflow)
+          if [ "${{ github.event_name }}" = "push" ]; then
+            echo "📋 Checking changes in the push to master..."
+            # For push events, compare with the previous commit
+            CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD)
+            echo "📊 Git diff command: git diff --name-only HEAD~1 HEAD"
+          else
+            echo "📋 Manual deployment triggered - deploying all plugins"
+            # For manual deployment, deploy all valid plugins
+            CHANGED_FILES=$(find local mod blocks -name "*.php" -o -name "*.js" -o -name "*.css" -o -name "*.mustache" 2>/dev/null | head -50)
+          fi
+          
+          echo "📄 Changed files:"
+          echo "$CHANGED_FILES"
+          
+          # Count the number of changed files
+          CHANGED_COUNT=$(echo "$CHANGED_FILES" | wc -l)
+          echo "📊 Total changed files: $CHANGED_COUNT"
+          
+          # Extract plugin folders from changed files (same logic as CI)
+          echo "🔍 Analyzing changed files for plugin directories..."
+          
+          # Get potential plugin paths from changed files
+          POTENTIAL_PLUGINS=$(echo "$CHANGED_FILES" | grep -E '^(mod|local|blocks)/[^/]+/' | cut -d/ -f1,2 | sort -u)
+          
+          if [ -z "$POTENTIAL_PLUGINS" ]; then
+            echo "📋 No potential plugin directories found in changed files"
+            if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+              echo "🔧 Manual deployment: scanning for all valid plugins..."
+              # For manual deployment, include all valid plugins
+              for dir in local/*/; do
+                if [ -d "$dir" ] && [ -f "${dir}version.php" ]; then
+                  PLUGIN_DIR="${dir%/}"
+                  if grep -q '\$plugin->component' "$PLUGIN_DIR/version.php" 2>/dev/null; then
+                    echo "✅ Found local plugin: $PLUGIN_DIR"
+                    PLUGINS_TO_DEPLOY="$PLUGINS_TO_DEPLOY $PLUGIN_DIR"
+                  fi
+                fi
+              done
+            fi
+          else
+            echo "📋 Potential plugin directories from changed files:"
+            echo "$POTENTIAL_PLUGINS"
+            
+            for plugin_path in $POTENTIAL_PLUGINS; do
+              echo "🔍 Checking plugin directory: $plugin_path"
+              
+              # Check if directory exists
+              if [ ! -d "$plugin_path" ]; then
+                echo "⚠️ Directory does not exist: $plugin_path"
+                continue
               fi
+              
+              # Check if version.php exists
+              if [ ! -f "$plugin_path/version.php" ]; then
+                echo "⚠️ No version.php found in: $plugin_path"
+                continue
+              fi
+              
+              # Additional validation: check if version.php contains plugin component
+              if ! grep -q '\$plugin->component' "$plugin_path/version.php" 2>/dev/null; then
+                echo "⚠️ version.php missing \$plugin->component in: $plugin_path"
+                continue
+              fi
+              
+              echo "✅ Valid plugin detected for deployment: $plugin_path"
+              PLUGINS_TO_DEPLOY="$PLUGINS_TO_DEPLOY $plugin_path"
             done
           fi
           
-          # Add all custom mod plugins
-          if [ -d "mod" ]; then
-            echo "📁 Scanning mod plugins..."
-            for dir in mod/*/; do
-              dirname=$(basename "$dir")
-              # Skip built-in Moodle modules, focus on custom ones
-              if [[ ! "$dirname" =~ ^(assign|book|chat|choice|data|feedback|forum|glossary|h5pactivity|imscp|label|lesson|lti|page|quiz|resource|scorm|survey|url|wiki|workshop)$ ]] && [ -f "${dir}version.php" ]; then
-                PLUGIN_DIR="${dir%/}"
-                echo "✅ Found mod plugin: $PLUGIN_DIR"
-                PLUGINS_TO_DEPLOY="$PLUGINS_TO_DEPLOY $PLUGIN_DIR"
-              fi
-            done
-          fi
-          
-          # Add all custom block plugins
-          if [ -d "blocks" ]; then
-            echo "📁 Scanning block plugins..."
-            for dir in blocks/*/; do
-              dirname=$(basename "$dir")
-              # Skip built-in Moodle blocks, focus on custom ones
-              if [[ ! "$dirname" =~ ^(accessreview|activity_modules|activity_results|admin_bookmarks|badges|blog_menu|blog_recent|blog_tags|calendar_month|calendar_upcoming|comments|completionstatus|course_list|course_summary|feedback|globalsearch|glossary_random|html|login|lp|mentees|mnet_hosts|myoverview|myprofile|navigation|news_items|online_users|private_files|recent_activity|recentlyaccessedcourses|recentlyaccesseditems|rss_client|search_forums|section_links|selfcompletion|settings|site_main_menu|social_activities|starredcourses|tag_flickr|tag_youtube|tags|timeline)$ ]] && [ -f "${dir}version.php" ]; then
-                PLUGIN_DIR="${dir%/}"
-                echo "✅ Found block plugin: $PLUGIN_DIR"
-                PLUGINS_TO_DEPLOY="$PLUGINS_TO_DEPLOY $PLUGIN_DIR"
-              fi
-            done
-          fi
+          # Remove leading space
+          PLUGINS_TO_DEPLOY=$(echo "$PLUGINS_TO_DEPLOY" | sed 's/^ *//')
           
           # Store plugins for deployment
           if [ -n "$PLUGINS_TO_DEPLOY" ]; then
-            echo "📋 All plugins to deploy: $PLUGINS_TO_DEPLOY"
+            echo "📋 Plugins to deploy: $PLUGINS_TO_DEPLOY"
             echo "PLUGINS_TO_DEPLOY=$PLUGINS_TO_DEPLOY" >> $GITHUB_ENV
             echo "plugins_to_deploy=$PLUGINS_TO_DEPLOY" >> $GITHUB_OUTPUT
           else
-            echo "⚠️ No plugins found in repository"
+            echo "⚠️ No plugins need deployment"
+            echo "🔍 This could mean:"
+            echo "   - No plugin files were modified in this push"
+            echo "   - Changes are in non-plugin directories"
+            echo "   - All changes are in invalid plugin directories"
             echo "PLUGINS_TO_DEPLOY=" >> $GITHUB_ENV
             echo "plugins_to_deploy=" >> $GITHUB_OUTPUT
           fi
 
+      - name: No Plugin Deployment Needed
+        if: steps.plugin-detection.outputs.plugins_to_deploy == ''
+        run: |
+          echo "ℹ️ No plugin deployment needed"
+          echo "🔍 Analysis completed - no plugin changes detected in this push"
+          echo "✅ This is normal when only non-plugin files were modified"
+          echo "📋 Examples of non-plugin changes:"
+          echo "   - Documentation updates (README, guides, etc.)"
+          echo "   - Configuration file changes"
+          echo "   - Root-level file modifications"
+          echo "   - Changes to core Moodle files (not recommended)"
+          echo ""
+          echo "🎯 If you expected plugin deployment, check that:"
+          echo "   - Plugin files were actually modified"
+          echo "   - Plugin directories have valid version.php files"
+          echo "   - Plugin version.php contains \$plugin->component"
+
       - name: Plugin Update Deployment
+        if: steps.plugin-detection.outputs.plugins_to_deploy != ''
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -137,7 +193,7 @@ jobs:
           port: ${{ secrets.SERVER_PORT || 22 }}
           script: |
             # Get the list of plugins to deploy
-            PLUGINS_TO_DEPLOY="${{ env.PLUGINS_TO_DEPLOY }}"
+            PLUGINS_TO_DEPLOY="${{ steps.plugin-detection.outputs.plugins_to_deploy }}"
             
             echo "🔧 Starting MULTI-PLUGIN UPDATE deployment..."
             echo "📋 Plugins to deploy: $PLUGINS_TO_DEPLOY"
@@ -213,12 +269,15 @@ jobs:
             
             # Deploy each plugin
             if [ -z "$PLUGINS_TO_DEPLOY" ]; then
-              echo "⚠️ No plugins to deploy, checking if plugins exist..."
-              echo "📁 Available directories:"
-              ls -la
-              echo "📁 Local directory contents:"
-              ls -la local/ 2>/dev/null || echo "No local directory found"
-              echo "⚠️ Skipping plugin deployment"
+              echo "ℹ️ No plugins need deployment based on detected changes"
+              echo "🔍 This is normal when:"
+              echo "   - Only non-plugin files were modified (documentation, configuration, etc.)"
+              echo "   - No plugin files were changed in this push"
+              echo "   - Changes are in directories that aren't valid Moodle plugins"
+              echo ""
+              echo "📁 Available plugins on server (for reference):"
+              ls -la local/ 2>/dev/null || echo "No local plugins found"
+              echo "✅ Deployment completed - no plugin changes to deploy"
             else
               for plugin_path in $PLUGINS_TO_DEPLOY; do
               echo "🎯 Deploying plugin: $plugin_path"
@@ -333,6 +392,7 @@ jobs:
             echo "🎉 Multi-plugin deployment completed successfully!"
 
       - name: Verify Plugin Updates
+        if: steps.plugin-detection.outputs.plugins_to_deploy != ''
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -386,14 +446,20 @@ jobs:
             
             echo "🎉 Multi-plugin verification completed successfully!"
 
-      - name: Notify Plugin Update Success
+      - name: Notify Deployment Success
         if: success()
         run: |
-          echo "✅ Multi-plugin update deployed successfully!"
+          DEPLOYED_PLUGINS="${{ steps.plugin-detection.outputs.plugins_to_deploy }}"
+          if [ -n "$DEPLOYED_PLUGINS" ]; then
+            echo "✅ Plugin deployment completed successfully!"
+            echo "🎯 Plugins deployed: $DEPLOYED_PLUGINS"
+          else
+            echo "✅ Deployment completed successfully!"
+            echo "ℹ️ No plugins needed deployment (no plugin changes detected)"
+          fi
           echo "🌐 Server: ${{ secrets.SERVER_HOST }}"
           echo "🔗 Moodle URL: ${{ secrets.MOODLE_URL }}"
           echo "📅 Deployment completed at $(date)"
-          echo "🎯 Plugins deployed: ${{ steps.plugin-detection.outputs.plugins_to_deploy }}"
 
       - name: Notify Deployment Failure
         if: failure()
