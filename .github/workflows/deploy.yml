@@ -1,7 +1,7 @@
 name: Deploy Plugin Updates
 
 on:
-  # Deploy on push to master
+  # Deploy on push to master only
   push:
     branches: [master]
   
@@ -275,31 +275,27 @@ jobs:
             echo "📥 Fetching all branches..."
             git fetch --all
             
-            # Pull from the correct branch (master or the deployment branch)
-            DEPLOYMENT_BRANCH="${{ github.ref_name }}"
-            echo "🔍 Deployment branch: $DEPLOYMENT_BRANCH"
+            # Pull from master branch (deployment only happens on master)
+            echo "🔍 Deployment from master branch"
             
-            if [ "$DEPLOYMENT_BRANCH" = "refs/heads/master" ] || [ "$DEPLOYMENT_BRANCH" = "master" ]; then
-              echo "📥 Pulling from master branch..."
-              git pull origin master
-            else
-              echo "📥 Pulling from hotfix/new_updates branch..."
-              git pull origin hotfix/new_updates
-            fi
+            # Ensure we're on master branch
+            echo "🔄 Switching to master branch..."
+            git checkout master 2>/dev/null || git checkout -b master origin/master
+            
+            # Pull the latest changes from master
+            echo "📥 Pulling from master branch..."
+            git pull origin master
             
             # Show git status after pull
             echo "🔍 Git status after pull:"
             git status
             echo "🔍 Current branch after pull: $(git branch --show-current)"
             
-            # If there are conflicts or issues, try a hard reset to the remote branch
+            # If there are conflicts or issues, try a hard reset to master
             if [ "$(git status --porcelain)" != "" ]; then
               echo "⚠️ Git repository has uncommitted changes, performing hard reset..."
-              if [ "$DEPLOYMENT_BRANCH" = "refs/heads/master" ] || [ "$DEPLOYMENT_BRANCH" = "master" ]; then
-                git reset --hard origin/master
-              else
-                git reset --hard origin/hotfix/new_updates
-              fi
+              echo "🔄 Performing hard reset to origin/master"
+              git reset --hard origin/master
               echo "✅ Hard reset completed"
             fi
             
