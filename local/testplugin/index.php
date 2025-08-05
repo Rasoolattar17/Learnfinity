@@ -57,4 +57,16 @@ echo html_writer::tag('li', 'Current Time: ' . date('Y-m-d H:i:s'));
 echo html_writer::end_tag('ul');
 echo html_writer::end_tag('div');
 
+// Simple test functionality.
+echo html_writer::start_tag('div', ['class' => 'testplugin-content']);
+echo html_writer::tag('h3', 'Plugin Information');
+echo html_writer::start_tag('ul');
+echo html_writer::tag('li', 'Plugin Name: ' . get_string('pluginname', 'local_testplugin'));
+echo html_writer::tag('li', 'Version: 1.0.0');
+echo html_writer::tag('li', 'Status: ' . (local_testplugin_is_enabled() ? 'Enabled' : 'Disabled'));
+echo html_writer::tag('li', 'Current Time: ' . date('Y-m-d H:i:s'));
+echo html_writer::end_tag('ul');
+echo html_writer::end_tag('div');
+
+
 echo $OUTPUT->footer();
