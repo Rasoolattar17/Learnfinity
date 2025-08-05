@@ -1,9 +1,9 @@
 name: Deploy Plugin Updates
 
 on:
-  # Deploy on push to master or hotfix branches
+  # Deploy on push to master only
   push:
-    branches: [master, hotfix/new_updates]
+    branches: [master]
   
   # Allow manual deployment
   workflow_dispatch:
@@ -275,28 +275,27 @@ jobs:
             echo "📥 Fetching all branches..."
             git fetch --all
             
-            # Pull from the correct branch (master or the deployment branch)
-            DEPLOYMENT_BRANCH="${{ github.ref_name }}"
-            echo "🔍 Deployment branch: $DEPLOYMENT_BRANCH"
+            # Pull from master branch (deployment only happens on master)
+            echo "🔍 Deployment from master branch"
             
-            # Switch to the correct branch first
-            echo "🔄 Switching to branch: $DEPLOYMENT_BRANCH"
-            git checkout "$DEPLOYMENT_BRANCH" 2>/dev/null || git checkout -b "$DEPLOYMENT_BRANCH" origin/"$DEPLOYMENT_BRANCH"
+            # Ensure we're on master branch
+            echo "🔄 Switching to master branch..."
+            git checkout master 2>/dev/null || git checkout -b master origin/master
             
-            # Pull the latest changes from the correct branch
-            echo "📥 Pulling from $DEPLOYMENT_BRANCH branch..."
-            git pull origin "$DEPLOYMENT_BRANCH"
+            # Pull the latest changes from master
+            echo "📥 Pulling from master branch..."
+            git pull origin master
             
             # Show git status after pull
             echo "🔍 Git status after pull:"
             git status
             echo "🔍 Current branch after pull: $(git branch --show-current)"
             
-            # If there are conflicts or issues, try a hard reset to the remote branch
+            # If there are conflicts or issues, try a hard reset to master
             if [ "$(git status --porcelain)" != "" ]; then
               echo "⚠️ Git repository has uncommitted changes, performing hard reset..."
-              echo "🔄 Performing hard reset to origin/$DEPLOYMENT_BRANCH"
-              git reset --hard origin/"$DEPLOYMENT_BRANCH"
+              echo "🔄 Performing hard reset to origin/master"
+              git reset --hard origin/master
               echo "✅ Hard reset completed"
             fi
             
